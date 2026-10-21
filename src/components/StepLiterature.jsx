@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
-import { Search, Sparkles, FileText, ArrowRight, ArrowLeft, CheckCircle2, Database, ExternalLink } from 'lucide-react';
+import { Search, Sparkles, FileText, ArrowRight, ArrowLeft, CheckCircle2, Database, ExternalLink, X } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Input } from './ui/input';
+import { Textarea } from './ui/textarea';
 import { BENCHMARK_PROTOCOLS } from '../data/benchmarkProtocols';
+import { cn } from '../lib/utils';
 
 export default function StepLiterature({
   currentProtocol,
@@ -67,9 +73,9 @@ export default function StepLiterature({
             targetTempC: 110,
             rampRateCMin: 5.0,
             durationMin: 45,
-            stirRpm: 750,
+            stirRpm: 700,
             reagents: "Chelated solution intermediate",
-            hardwareAction: "PID thermal ramp to 110 °C, maintain 750 RPM"
+            hardwareAction: "PID thermal ramp to 110 °C, maintain 700 RPM"
           },
           {
             id: 3,
@@ -90,284 +96,216 @@ export default function StepLiterature({
   };
 
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      {/* Search & Material Selection Box */}
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-card)',
-        padding: '36px',
-        boxShadow: 'var(--shadow-card)',
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge-clean badge-clean-blue">
+    <div className="max-w-5xl mx-auto">
+      <Card className="p-8 shadow-md">
+        {/* Header row */}
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
+          <div className="flex items-center gap-2.5">
+            <Badge variant="sky" className="gap-1.5 py-1 px-3">
               <Database size={13} />
               Valency MCP Literature Gateway
-            </span>
-            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>44.5M Scientific Articles</span>
+            </Badge>
+            <span className="text-xs text-slate-500 font-medium">44.5M Scientific Articles</span>
           </div>
 
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setShowCustomModal(true)}
-            className="btn-subtle"
-            style={{ padding: '6px 14px', fontSize: '0.78rem' }}
+            className="rounded-full gap-1.5"
           >
-            <FileText size={14} color="var(--primary)" />
+            <FileText size={14} className="text-sky-600" />
             Paste Abstract / DOI
-          </button>
+          </Button>
         </div>
 
-        <h2 style={{ fontSize: '1.6rem', color: '#0f172a', fontWeight: 800, marginBottom: '6px' }}>
+        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
           Select or Query Target Material System
         </h2>
-        <p style={{ fontSize: '0.86rem', color: '#64748b', marginBottom: '22px' }}>
+        <p className="text-sm text-slate-500 mb-6">
           Choose a peer-reviewed materials chemistry benchmark or input a custom synthesis target:
         </p>
 
         {/* Preset Material Cards */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))',
-          gap: '14px',
-          marginBottom: '22px'
-        }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3.5 mb-6">
           {BENCHMARK_PROTOCOLS.map((proto) => {
             const isSelected = proto.id === currentProtocol.id;
             return (
               <div
                 key={proto.id}
                 onClick={() => handleSelectPreset(proto)}
-                style={{
-                  padding: '16px',
-                  borderRadius: 'var(--radius-md)',
-                  border: isSelected ? '2px solid var(--primary)' : '1px solid var(--border-card)',
-                  background: isSelected ? '#f0f9ff' : '#ffffff',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                  boxShadow: isSelected ? '0 4px 14px rgba(2, 132, 199, 0.15)' : 'var(--shadow-sm)'
-                }}
+                className={cn(
+                  "p-4 rounded-xl border cursor-pointer transition-all duration-200 flex flex-col justify-between",
+                  isSelected
+                    ? "border-sky-500 bg-sky-50/70 shadow-sm ring-1 ring-sky-500"
+                    : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs"
+                )}
               >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span className="badge-clean badge-clean-blue" style={{ fontSize: '0.65rem' }}>
-                    {proto.category}
-                  </span>
-                  {isSelected && (
-                    <CheckCircle2 size={16} color="var(--primary)" />
-                  )}
+                <div>
+                  <div className="flex items-center justify-between gap-1 mb-2">
+                    <Badge variant="secondary" className="text-[10px] py-0 px-2 font-medium">
+                      {proto.category}
+                    </Badge>
+                    {isSelected && (
+                      <CheckCircle2 size={16} className="text-sky-600 shrink-0" />
+                    )}
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-900 leading-snug mb-1">
+                    {proto.name}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 leading-tight mb-3">
+                    {proto.formula}
+                  </p>
                 </div>
 
-                <div style={{ fontSize: '0.98rem', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
-                  {proto.name}
-                </div>
-
-                <div style={{ fontSize: '0.76rem', color: '#64748b', marginBottom: '10px' }}>
-                  {proto.formula} • {proto.targetProperty}
-                </div>
-
-                <div style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 600, borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
-                  {proto.steps.length} Physical Stages • {proto.citation.journal}
+                <div className="text-[11px] font-semibold text-sky-700 pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span>{proto.steps.length} Steps</span>
+                  <span className="text-slate-400 font-normal">{proto.citation.year}</span>
                 </div>
               </div>
             );
           })}
         </div>
 
-        {/* Live Extraction Progress Animation */}
+        {/* Extraction Animation */}
         {isExtracting && (
-          <div style={{
-            background: '#f0f9ff',
-            border: '1px solid #bae6fd',
-            borderRadius: 'var(--radius-md)',
-            padding: '14px 20px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '14px',
-            marginBottom: '18px'
-          }}>
-            <div style={{
-              width: '24px',
-              height: '24px',
-              borderRadius: '50%',
-              border: '3px solid var(--primary)',
-              borderTopColor: 'transparent',
-              animation: 'magneticRotate 0.8s linear infinite'
-            }}></div>
+          <div className="bg-sky-50 border border-sky-200 rounded-xl p-4 flex items-center gap-4 mb-6">
+            <div className="w-6 h-6 rounded-full border-2 border-sky-600 border-t-transparent animate-spin shrink-0" />
             <div>
-              <div style={{ fontSize: '0.88rem', fontWeight: 700, color: '#0369a1' }}>
+              <div className="text-sm font-bold text-sky-900">
                 Valency MCP: Querying Literature & Extracting Physical Bounds...
               </div>
-              <div style={{ fontSize: '0.74rem', color: '#64748b', fontFamily: 'var(--font-mono)' }}>
+              <div className="text-xs text-slate-600 font-mono mt-0.5">
                 Parsing parameters: Target Temp (°C), Stirring (RPM), Dwell Timers, Safety Envelopes
               </div>
             </div>
           </div>
         )}
 
-        {/* Verified Literature Citation Card */}
+        {/* Verified Citation Card */}
         {!isExtracting && (
-          <div style={{
-            background: '#f8fafc',
-            border: '1px solid var(--border-card)',
-            borderRadius: 'var(--radius-md)',
-            padding: '18px 22px',
-            marginBottom: '24px'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <FileText size={15} color="var(--primary)" />
+          <div className="bg-slate-50/90 border border-slate-200 rounded-xl p-5 mb-6">
+            <div className="flex items-center justify-between flex-wrap gap-2 mb-2">
+              <span className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <FileText size={15} className="text-sky-600" />
                 Literature Source: {currentProtocol.citation.title}
               </span>
               <a
                 href={`https://doi.org/${currentProtocol.citation.doi}`}
                 target="_blank"
                 rel="noreferrer"
-                style={{ fontSize: '0.74rem', color: 'var(--primary)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}
+                className="text-xs font-semibold text-sky-600 hover:text-sky-700 flex items-center gap-1 font-mono"
               >
                 DOI: {currentProtocol.citation.doi}
                 <ExternalLink size={12} />
               </a>
             </div>
 
-            <p style={{ fontSize: '0.8rem', color: '#475569', lineHeight: '1.55', fontStyle: 'italic', marginBottom: '14px' }}>
+            <p className="text-xs text-slate-600 italic leading-relaxed mb-4">
               "{currentProtocol.citation.snippet}"
             </p>
 
-            {/* Extracted Stages Preview Pills */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
-              <span style={{ fontSize: '0.72rem', color: '#64748b', fontWeight: 700, textTransform: 'uppercase' }}>
+            {/* Extracted Stages Preview */}
+            <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-slate-200">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                 Extracted Stages:
               </span>
               {currentProtocol.steps.map((st, i) => (
-                <span
+                <Badge
                   key={st.id}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: 'var(--radius-pill)',
-                    padding: '3px 10px',
-                    fontSize: '0.72rem',
-                    color: '#334155',
-                    fontWeight: 600
-                  }}
+                  variant="outline"
+                  className="bg-white text-xs font-medium py-0.5 px-2.5"
                 >
                   Stage {i + 1}: {st.targetTempC}°C / {st.stirRpm} RPM ({st.durationMin}m)
-                </span>
+                </Badge>
               ))}
             </div>
           </div>
         )}
 
-        {/* Wizard Navigation Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
-          <button
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+          <Button
+            variant="outline"
             onClick={onBack}
-            className="btn-subtle"
+            className="gap-2"
           >
             <ArrowLeft size={16} />
             Back to Overview
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="ocean"
             onClick={onNext}
-            className="btn-primary-ocean"
+            className="gap-2 font-bold shadow-md shadow-sky-500/20"
           >
             Proceed to Kinetics & Safety Verification
             <ArrowRight size={16} />
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
 
-      {/* Custom Abstract Ingestion Modal */}
+      {/* Modal */}
       {showCustomModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(15, 23, 42, 0.6)',
-          backdropFilter: 'blur(6px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '20px'
-        }}>
-          <div style={{
-            background: '#ffffff',
-            borderRadius: 'var(--radius-xl)',
-            padding: '32px',
-            maxWidth: '600px',
-            width: '100%',
-            boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
-            border: '1px solid var(--border-card)'
-          }}>
-            <h3 style={{ fontSize: '1.3rem', color: '#0f172a', fontWeight: 800, marginBottom: '6px' }}>
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+          <Card className="max-w-lg w-full p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowCustomModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+            >
+              <X size={18} />
+            </button>
+
+            <h3 className="text-lg font-bold text-slate-900 mb-1">
               Query Custom Paper / Methodology
             </h3>
-            <p style={{ fontSize: '0.82rem', color: '#64748b', marginBottom: '18px' }}>
+            <p className="text-xs text-slate-500 mb-4">
               Paste an excerpt from any synthesis paper. AutoLab OS will parse thermal & kinetic parameters.
             </p>
 
-            <form onSubmit={handleCustomSubmit}>
-              <div style={{ marginBottom: '14px' }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+            <form onSubmit={handleCustomSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Target Material Name:
                 </label>
-                <input
-                  type="text"
+                <Input
                   placeholder="e.g. Cobalt-Doped Sodium Titanate (Na0.7CoO2)"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.86rem',
-                    outline: 'none'
-                  }}
                 />
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', fontSize: '0.78rem', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
                   Synthesis Paragraph / Methodology:
                 </label>
-                <textarea
-                  rows={4}
+                <Textarea
                   placeholder="e.g. Dissolved precursors in anhydrous ethanol at 450 RPM at 25°C, then heated to 140°C for 180 min..."
                   value={customAbstract}
                   onChange={(e) => setCustomAbstract(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: 'var(--radius-sm)',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '0.82rem',
-                    fontFamily: 'var(--font-mono)',
-                    outline: 'none'
-                  }}
+                  className="font-mono text-xs"
                 />
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-                <button
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => setShowCustomModal(false)}
-                  className="btn-subtle"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="btn-primary-ocean"
+                  variant="ocean"
+                  className="gap-1.5"
                 >
                   <Sparkles size={15} />
                   Extract Protocol
-                </button>
+                </Button>
               </div>
             </form>
-          </div>
+          </Card>
         </div>
       )}
     </div>

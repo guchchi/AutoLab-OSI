@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from 'react';
-import { Layers, Thermometer, RotateCw, Clock, ArrowRight, ArrowLeft, ShieldCheck, AlertTriangle, Sliders, Activity } from 'lucide-react';
+import { Layers, Thermometer, RotateCw, Clock, ArrowRight, ArrowLeft, ShieldCheck, Activity, Sliders } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
 import { generateKineticsData } from '../utils/thermalKinetics';
 
 export default function StepKinetics({
@@ -80,61 +83,46 @@ export default function StepKinetics({
   const activePoint = hoverIndex !== null && points[hoverIndex] ? points[hoverIndex] : points[points.length - 1];
 
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      {/* Top Header Card */}
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-card)',
-        padding: '32px',
-        boxShadow: 'var(--shadow-card)',
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge-clean badge-clean-green">
+    <div className="max-w-5xl mx-auto">
+      <Card className="p-8 shadow-md">
+        {/* Header */}
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            <Badge variant="success" className="gap-1.5 py-1 px-3">
               <Activity size={13} />
               Reactive Kinetics Engine (Marimo Verified)
-            </span>
-            <span style={{ fontSize: '0.78rem', color: '#64748b' }}>Thermodynamic T(t) Simulation</span>
+            </Badge>
+            <span className="text-xs text-slate-500 font-medium">Thermodynamic T(t) Simulation</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', fontSize: '0.76rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '12px', height: '3px', background: 'var(--primary)', borderRadius: '2px' }}></span>
-              <span style={{ color: '#0f172a', fontWeight: 600 }}>Temperature (°C)</span>
+          <div className="flex items-center gap-4 text-xs font-semibold">
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-1 bg-sky-600 rounded-sm"></span>
+              <span className="text-slate-900">Temperature (°C)</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '12px', height: '3px', background: '#059669', borderTop: '2px dashed #059669' }}></span>
-              <span style={{ color: '#64748b' }}>Stirring (RPM)</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-0.5 border-t-2 border-dashed border-emerald-600"></span>
+              <span className="text-slate-600">Stirring (RPM)</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: '12px', height: '2px', background: '#e11d48', borderTop: '2px dotted #e11d48' }}></span>
-              <span style={{ color: '#e11d48' }}>Safety Ceiling</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-3 h-0.5 border-t-2 border-dotted border-rose-600"></span>
+              <span className="text-rose-600">Safety Ceiling</span>
             </div>
           </div>
         </div>
 
-        <h2 style={{ fontSize: '1.6rem', color: '#0f172a', fontWeight: 800, marginBottom: '6px' }}>
-          Thermodynamic Simulation: <span style={{ color: 'var(--primary)' }}>{protocol.name}</span>
+        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
+          Thermodynamic Simulation: <span className="text-sky-600">{protocol.name}</span>
         </h2>
-        <p style={{ fontSize: '0.84rem', color: '#64748b', marginBottom: '20px' }}>
+        <p className="text-sm text-slate-500 mb-6">
           Interactive mathematical curve verifying thermal ramp rates, soak plateaus, and safety boundaries:
         </p>
 
-        {/* SVG Kinetics Chart Canvas */}
-        <div style={{
-          position: 'relative',
-          width: '100%',
-          background: '#090d16',
-          borderRadius: 'var(--radius-lg)',
-          border: '1px solid #1e293b',
-          overflow: 'hidden',
-          marginBottom: '20px'
-        }}>
+        {/* SVG Kinetics Chart */}
+        <div className="relative w-full bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden mb-6">
           <svg
             viewBox={`0 0 ${width} ${height}`}
-            style={{ width: '100%', height: 'auto', display: 'block', cursor: 'crosshair' }}
+            className="w-full h-auto block cursor-crosshair"
             onMouseMove={handleMouseMove}
             onMouseLeave={() => setHoverIndex(null)}
           >
@@ -156,7 +144,7 @@ export default function StepKinetics({
                     y1={y}
                     x2={width - padding.right}
                     y2={y}
-                    stroke="rgba(255, 255, 255, 0.06)"
+                    stroke="rgba(255, 255, 255, 0.08)"
                     strokeDasharray="4 4"
                   />
                   <text
@@ -165,7 +153,7 @@ export default function StepKinetics({
                     fill="#64748b"
                     fontSize="10"
                     textAnchor="end"
-                    fontFamily="var(--font-mono)"
+                    fontFamily="monospace"
                   >
                     {tempVal}°C
                   </text>
@@ -184,7 +172,7 @@ export default function StepKinetics({
               strokeDasharray="6 4"
             />
 
-            {/* Temperature Shaded Area & Line */}
+            {/* Shaded Area & Line */}
             <path d={tempAreaPath} fill="url(#oceanTempGrad)" />
             <path d={tempPath} fill="none" stroke="#38bdf8" strokeWidth="2.5" strokeLinecap="round" />
 
@@ -199,7 +187,7 @@ export default function StepKinetics({
                   y1={padding.top}
                   x2={getX(activePoint.time)}
                   y2={height - padding.bottom}
-                  stroke="rgba(255, 255, 255, 0.3)"
+                  stroke="rgba(255, 255, 255, 0.35)"
                   strokeDasharray="3 3"
                 />
                 <circle
@@ -216,92 +204,67 @@ export default function StepKinetics({
 
           {/* Dynamic Tooltip */}
           {activePoint && (
-            <div style={{
-              position: 'absolute',
-              top: '12px',
-              right: '16px',
-              background: 'rgba(15, 23, 42, 0.9)',
-              border: '1px solid rgba(2, 132, 199, 0.4)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '6px 14px',
-              fontSize: '0.76rem',
-              fontFamily: 'var(--font-mono)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              color: '#ffffff'
-            }}>
-              <span>Time: <strong>{activePoint.time}m</strong></span>
+            <div className="absolute top-3 right-4 bg-slate-900/90 border border-sky-500/40 rounded-lg px-3.5 py-1.5 text-xs font-mono flex items-center gap-3 text-white backdrop-blur-xs">
+              <span>Time: <strong className="text-white">{activePoint.time}m</strong></span>
               <span>•</span>
-              <span style={{ color: '#38bdf8' }}>Temp: <strong>{activePoint.temp}°C</strong></span>
+              <span className="text-sky-400">Temp: <strong>{activePoint.temp}°C</strong></span>
               <span>•</span>
-              <span style={{ color: '#10b981' }}>RPM: <strong>{activePoint.rpm}</strong></span>
+              <span className="text-emerald-400">RPM: <strong>{activePoint.rpm}</strong></span>
               <span>•</span>
-              <span style={{ color: '#94a3b8' }}>{activePoint.stepName}</span>
+              <span className="text-slate-400">{activePoint.stepName}</span>
             </div>
           )}
         </div>
 
-        {/* 4 Summary Stats */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '12px',
-          marginBottom: '24px'
-        }}>
-          <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>TOTAL TIME</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#0f172a' }}>
-              {stats.totalTimeMin} min <span style={{ fontSize: '0.75rem', fontWeight: 500, color: '#64748b' }}>({(stats.totalTimeMin / 60).toFixed(1)} hrs)</span>
+        {/* 4 Summary Metric Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-6">
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Time</div>
+            <div className="text-xl font-extrabold text-slate-900 font-mono mt-1">
+              {stats.totalTimeMin}m <span className="text-xs font-normal text-slate-500">({(stats.totalTimeMin / 60).toFixed(1)}h)</span>
             </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>PEAK TEMPERATURE</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#0284c7' }}>
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Peak Temperature</div>
+            <div className="text-xl font-extrabold text-sky-600 font-mono mt-1">
               {stats.peakTemp} °C
             </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>MAX AGITATION SPEED</div>
-            <div style={{ fontSize: '1.2rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#059669' }}>
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Max Agitation</div>
+            <div className="text-xl font-extrabold text-emerald-600 font-mono mt-1">
               {stats.maxRpm} RPM
             </div>
           </div>
 
-          <div style={{ background: '#ecfdf5', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid #a7f3d0' }}>
-            <div style={{ fontSize: '0.7rem', color: '#059669', fontWeight: 700 }}>SAFETY INTERLOCK</div>
-            <div style={{ fontSize: '0.95rem', fontWeight: 800, color: '#065f46', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-              <ShieldCheck size={16} color="#059669" />
+          <div className="bg-emerald-50/70 p-4 rounded-xl border border-emerald-200">
+            <div className="text-[11px] font-bold text-emerald-800 uppercase tracking-wider">Safety Interlock</div>
+            <div className="text-sm font-bold text-emerald-900 flex items-center gap-1.5 mt-1">
+              <ShieldCheck size={16} className="text-emerald-600" />
               Envelope Cleared
             </div>
           </div>
         </div>
 
-        {/* Researcher Calibration Sliders */}
-        <div style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: 'var(--radius-lg)',
-          padding: '20px',
-          marginBottom: '24px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
-            <Sliders size={16} color="var(--primary)" />
-            <h4 style={{ fontSize: '0.95rem', color: '#0f172a', fontWeight: 800 }}>
+        {/* Calibration Sliders */}
+        <div className="bg-slate-50/80 border border-slate-200 rounded-2xl p-5 mb-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Sliders size={16} className="text-sky-600" />
+            <h4 className="text-sm font-bold text-slate-900">
               Researcher Verification & Fine Calibration
             </h4>
-            <span style={{ fontSize: '0.74rem', color: '#64748b' }}>(Adjust before physical deployment)</span>
+            <span className="text-xs text-slate-500">(Adjust before physical deployment)</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '6px' }}>
-                <span style={{ color: '#475569' }}>Temp Offset:</span>
-                <strong style={{ color: 'var(--primary)', fontFamily: 'var(--font-mono)' }}>
+              <div className="flex justify-between text-xs font-semibold mb-2">
+                <span className="text-slate-600">Temp Offset:</span>
+                <span className="text-sky-600 font-mono">
                   {overrides.tempOffset > 0 ? `+${overrides.tempOffset}` : overrides.tempOffset || 0} °C
-                </strong>
+                </span>
               </div>
               <input
                 type="range"
@@ -309,16 +272,16 @@ export default function StepKinetics({
                 max="20"
                 value={overrides.tempOffset || 0}
                 onChange={(e) => setOverrides(prev => ({ ...prev, tempOffset: parseInt(e.target.value, 10) }))}
-                style={{ width: '100%', accentColor: 'var(--primary)', cursor: 'pointer' }}
+                className="w-full accent-sky-600 cursor-pointer"
               />
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '6px' }}>
-                <span style={{ color: '#475569' }}>Stirring RPM Scaling:</span>
-                <strong style={{ color: '#059669', fontFamily: 'var(--font-mono)' }}>
+              <div className="flex justify-between text-xs font-semibold mb-2">
+                <span className="text-slate-600">Stirring RPM Scaling:</span>
+                <span className="text-emerald-600 font-mono">
                   {overrides.rpmMultiplier !== undefined ? overrides.rpmMultiplier.toFixed(1) : 1.0}x
-                </strong>
+                </span>
               </div>
               <input
                 type="range"
@@ -327,16 +290,16 @@ export default function StepKinetics({
                 step="0.1"
                 value={overrides.rpmMultiplier !== undefined ? overrides.rpmMultiplier : 1.0}
                 onChange={(e) => setOverrides(prev => ({ ...prev, rpmMultiplier: parseFloat(e.target.value) }))}
-                style={{ width: '100%', accentColor: '#059669', cursor: 'pointer' }}
+                className="w-full accent-emerald-600 cursor-pointer"
               />
             </div>
 
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.78rem', marginBottom: '6px' }}>
-                <span style={{ color: '#475569' }}>Dwell Duration Scale:</span>
-                <strong style={{ color: '#d97706', fontFamily: 'var(--font-mono)' }}>
+              <div className="flex justify-between text-xs font-semibold mb-2">
+                <span className="text-slate-600">Dwell Duration Scale:</span>
+                <span className="text-amber-600 font-mono">
                   {overrides.timeScale !== undefined ? overrides.timeScale.toFixed(1) : 1.0}x
-                </strong>
+                </span>
               </div>
               <input
                 type="range"
@@ -345,31 +308,33 @@ export default function StepKinetics({
                 step="0.1"
                 value={overrides.timeScale !== undefined ? overrides.timeScale : 1.0}
                 onChange={(e) => setOverrides(prev => ({ ...prev, timeScale: parseFloat(e.target.value) }))}
-                style={{ width: '100%', accentColor: '#d97706', cursor: 'pointer' }}
+                className="w-full accent-amber-600 cursor-pointer"
               />
             </div>
           </div>
         </div>
 
-        {/* Wizard Navigation Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
-          <button
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+          <Button
+            variant="outline"
             onClick={onBack}
-            className="btn-subtle"
+            className="gap-2"
           >
             <ArrowLeft size={16} />
             Back to Literature
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="ocean"
             onClick={onNext}
-            className="btn-primary-ocean"
+            className="gap-2 font-bold shadow-md shadow-sky-500/20"
           >
             Proceed to Physical Lab Execution
             <ArrowRight size={16} />
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

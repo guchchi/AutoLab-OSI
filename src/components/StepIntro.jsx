@@ -1,180 +1,118 @@
 import React from 'react';
-import { ArrowRight, BookOpen, Layers, Cpu, ShieldCheck, Zap, Database, CheckCircle2 } from 'lucide-react';
+import { ArrowRight, Database, Layers, Cpu, CheckCircle2, Sparkles, BookOpen } from 'lucide-react';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Separator } from './ui/separator';
 
 export default function StepIntro({ onStart }) {
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
+    <div className="max-w-5xl mx-auto space-y-6">
       {/* Hero Welcome Card */}
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-card)',
-        padding: '48px 40px',
-        boxShadow: 'var(--shadow-card)',
-        position: 'relative',
-        overflow: 'hidden',
-        marginBottom: '28px'
-      }}>
-        {/* Soft Background Radial Gradient */}
-        <div style={{
-          position: 'absolute',
-          top: '-60px',
-          right: '-60px',
-          width: '280px',
-          height: '280px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(2, 132, 199, 0.1) 0%, transparent 70%)',
-          pointerEvents: 'none'
-        }}></div>
+      <Card className="relative overflow-hidden p-8 md:p-12 border-slate-200/80 shadow-md">
+        {/* Subtle decorative glow */}
+        <div className="absolute -top-16 -right-16 w-72 h-72 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#e0f2fe', color: '#0369a1', padding: '6px 14px', borderRadius: 'var(--radius-pill)', fontSize: '0.78rem', fontWeight: 700, marginBottom: '20px' }}>
-          <span className="pulse-indicator"></span>
-          4th Annual Open Scientific Intelligence Hackathon
-        </div>
+        <div className="relative z-10 space-y-6">
+          <Badge variant="sky" className="py-1 px-3 text-xs font-semibold">
+            <span className="pulse-indicator mr-1.5"></span>
+            4th Annual Open Scientific Intelligence Hackathon
+          </Badge>
 
-        <h1 style={{ fontSize: '2.5rem', color: '#0f172a', fontWeight: 800, lineHeight: '1.2', marginBottom: '16px', letterSpacing: '-0.03em' }}>
-          Autonomous Literature-to-Hardware <br />
-          <span style={{ color: 'var(--primary)' }}>Materials Execution Engine</span>
-        </h1>
-
-        <p style={{ fontSize: '1.05rem', color: '#475569', lineHeight: '1.6', maxWidth: '780px', marginBottom: '32px' }}>
-          While generative AI has accelerated computational material discovery, the execution bottleneck remains entirely manual. 
-          AutoLab OS bridges the gap between scientific papers and physical laboratory hardware in <strong>10 seconds</strong>.
-        </p>
-
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          <button
-            onClick={onStart}
-            className="btn-primary-ocean"
-            style={{ fontSize: '1rem', padding: '14px 32px' }}
-          >
-            Start Experiment Protocol
-            <ArrowRight size={18} />
-          </button>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', fontSize: '0.85rem', color: '#64748b' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={16} color="#059669" /> Valency MCP Connected
+          <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
+            Autonomous Literature-to-Hardware <br />
+            <span className="bg-gradient-to-r from-sky-600 to-cyan-600 bg-clip-text text-transparent">
+              Materials Execution Engine
             </span>
-            <span>•</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckCircle2 size={16} color="#059669" /> ESP8266 IoT Ready
-            </span>
+          </h1>
+
+          <p className="text-base md:text-lg text-slate-600 leading-relaxed max-w-3xl">
+            While generative AI has accelerated computational material discovery, the physical execution bottleneck remains entirely manual. 
+            AutoLab OS bridges scientific research papers directly to physical laboratory hardware in <strong>10 seconds</strong>.
+          </p>
+
+          <div className="flex items-center gap-4 flex-wrap pt-2">
+            <Button
+              variant="ocean"
+              size="lg"
+              onClick={onStart}
+              className="gap-2.5 font-bold text-base shadow-lg shadow-sky-500/20"
+            >
+              Start Experiment Protocol
+              <ArrowRight size={18} />
+            </Button>
+
+            <div className="flex items-center gap-3 text-sm text-slate-500">
+              <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                <CheckCircle2 size={16} className="text-emerald-600" /> 44.5M Papers via Valency
+              </span>
+              <span>•</span>
+              <span className="flex items-center gap-1.5 text-slate-700 font-medium">
+                <CheckCircle2 size={16} className="text-emerald-600" /> Physical ESP8266 IoT Ready
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      </Card>
 
-      {/* 3-Step Guided Architecture Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-        gap: '20px',
-        marginBottom: '32px'
-      }}>
-        {/* Step 1 */}
-        <div className="card-clean" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      {/* 3 Value Pillars */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        {/* Pillar 1 */}
+        <Card className="flex flex-col justify-between p-6 hover:border-sky-300 transition-all">
           <div>
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: '#e0f2fe',
-              color: 'var(--primary)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '16px',
-              fontWeight: 800,
-              fontSize: '1.1rem'
-            }}>
-              <Database size={22} color="var(--primary)" />
+            <div className="w-11 h-11 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center mb-4">
+              <Database size={22} />
             </div>
-
-            <div style={{ fontSize: '0.72rem', color: '#0284c7', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+            <div className="text-[11px] font-bold text-sky-600 uppercase tracking-wider mb-1">
               Step 1: Retrieve & Extract
             </div>
-            <h3 style={{ fontSize: '1.15rem', color: '#0f172a', marginBottom: '8px' }}>
-              Valency Literature Gateway
-            </h3>
-            <p style={{ fontSize: '0.84rem', color: '#64748b', lineHeight: '1.5' }}>
-              Input any target material or research paper. AutoLab queries 44.5M articles via Valency MCP, extracting physical parameters: Temperature, RPM, Dwell, and Reagents.
-            </p>
+            <CardTitle className="text-base mb-2">Valency Literature Gateway</CardTitle>
+            <CardDescription className="text-xs leading-relaxed">
+              Input any target material. AutoLab queries 44.5M papers via Valency MCP, isolating exact parameters: Temperature, RPM, Dwell, and Reagents.
+            </CardDescription>
           </div>
-
-          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #f1f5f9', fontSize: '0.75rem', color: '#0284c7', fontWeight: 600 }}>
-            ⚡ 44.5M Peer-Reviewed Papers
+          <div className="pt-4 mt-4 border-t border-slate-100 text-xs font-semibold text-sky-600">
+            ⚡ Instant PDF-to-Code Parsing
           </div>
-        </div>
+        </Card>
 
-        {/* Step 2 */}
-        <div className="card-clean" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {/* Pillar 2 */}
+        <Card className="flex flex-col justify-between p-6 hover:border-emerald-300 transition-all">
           <div>
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: '#ecfdf5',
-              color: '#059669',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '16px',
-              fontWeight: 800,
-              fontSize: '1.1rem'
-            }}>
-              <Layers size={22} color="#059669" />
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-4">
+              <Layers size={22} />
             </div>
-
-            <div style={{ fontSize: '0.72rem', color: '#059669', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+            <div className="text-[11px] font-bold text-emerald-600 uppercase tracking-wider mb-1">
               Step 2: Verify & Calibrate
             </div>
-            <h3 style={{ fontSize: '1.15rem', color: '#0f172a', marginBottom: '8px' }}>
-              Reactive Kinetics Engine
-            </h3>
-            <p style={{ fontSize: '0.84rem', color: '#64748b', lineHeight: '1.5' }}>
-              Instead of blindly executing AI outputs, data feeds into interactive thermal curves T(t) and kinetic stirring profiles. Validates safety ceilings to prevent boiling or thermal shock.
-            </p>
+            <CardTitle className="text-base mb-2">Reactive Kinetics Engine</CardTitle>
+            <CardDescription className="text-xs leading-relaxed">
+              Interactive thermodynamic curves T(t) and kinetic agitation profiles. Validates safety ceilings to prevent boiling, thermal shock, or runaways.
+            </CardDescription>
           </div>
-
-          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #f1f5f9', fontSize: '0.75rem', color: '#059669', fontWeight: 600 }}>
-            🛡️ Interlock Thermal Ceilings
+          <div className="pt-4 mt-4 border-t border-slate-100 text-xs font-semibold text-emerald-600">
+            🛡️ Hardware Safety Interlocks
           </div>
-        </div>
+        </Card>
 
-        {/* Step 3 */}
-        <div className="card-clean" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        {/* Pillar 3 */}
+        <Card className="flex flex-col justify-between p-6 hover:border-cyan-300 transition-all">
           <div>
-            <div style={{
-              width: '44px',
-              height: '44px',
-              borderRadius: '12px',
-              background: '#f0fdfa',
-              color: '#0d9488',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              marginBottom: '16px',
-              fontWeight: 800,
-              fontSize: '1.1rem'
-            }}>
-              <Cpu size={22} color="#0d9488" />
+            <div className="w-11 h-11 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-4">
+              <Cpu size={22} />
             </div>
-
-            <div style={{ fontSize: '0.72rem', color: '#0d9488', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' }}>
+            <div className="text-[11px] font-bold text-cyan-600 uppercase tracking-wider mb-1">
               Step 3: Deploy & Actuate
             </div>
-            <h3 style={{ fontSize: '1.15rem', color: '#0f172a', marginBottom: '8px' }}>
-              Physical Lab Execution
-            </h3>
-            <p style={{ fontSize: '0.84rem', color: '#64748b', lineHeight: '1.5' }}>
-              With one click, AutoLab broadcasts CRC32-verified JSON bytecode via REST webhook to an ESP8266 microcontroller, driving PWM ceramic heaters and magnetic stirrers in real time.
-            </p>
+            <CardTitle className="text-base mb-2">Physical Lab Execution</CardTitle>
+            <CardDescription className="text-xs leading-relaxed">
+              Broadcasts CRC32-verified JSON bytecode via REST webhook to ESP8266 microcontrollers, driving PWM heaters and magnetic stirrers in real time.
+            </CardDescription>
           </div>
-
-          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #f1f5f9', fontSize: '0.75rem', color: '#0d9488', fontWeight: 600 }}>
+          <div className="pt-4 mt-4 border-t border-slate-100 text-xs font-semibold text-cyan-600">
             ⚙️ Real NodeMCU + Digital Twin
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

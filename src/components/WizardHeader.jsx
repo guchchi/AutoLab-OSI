@@ -1,5 +1,8 @@
 import React from 'react';
 import { FlaskConical, BookOpen, Check, Radio, Database } from 'lucide-react';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { cn } from '../lib/utils';
 
 export default function WizardHeader({
   currentStep,
@@ -14,83 +17,55 @@ export default function WizardHeader({
   ];
 
   return (
-    <header style={{ marginBottom: '20px' }}>
-      {/* Top Branding Strip */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '14px',
-        padding: '12px 20px',
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-card)',
-        boxShadow: 'var(--shadow-sm)',
-        marginBottom: '14px'
-      }}>
+    <header className="mb-6">
+      {/* Top Branding Bar */}
+      <div className="flex items-center justify-between flex-wrap gap-4 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs mb-4">
         {/* Brand */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 12px rgba(2, 132, 199, 0.3)'
-          }}>
-            <FlaskConical size={20} color="#ffffff" />
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-cyan-600 flex items-center justify-center shadow-md shadow-sky-500/20">
+            <FlaskConical size={22} className="text-white" />
           </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <h1 style={{ fontSize: '1.2rem', color: '#0f172a', fontWeight: 800 }}>
-                AUTOLAB <span style={{ color: 'var(--primary)' }}>OS</span>
+            <div className="flex items-center gap-2">
+              <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
+                AUTOLAB <span className="text-sky-600">OS</span>
               </h1>
-              <span style={{
-                background: '#e0f2fe',
-                color: '#0369a1',
-                fontSize: '0.62rem',
-                fontWeight: 700,
-                padding: '2px 7px',
-                borderRadius: 'var(--radius-pill)',
-                fontFamily: 'var(--font-mono)'
-              }}>
+              <Badge variant="sky" className="text-[10px] font-mono py-0 px-2 font-bold">
                 OSI '26
-              </span>
+              </Badge>
             </div>
-            <p style={{ fontSize: '0.72rem', color: '#64748b' }}>
+            <p className="text-xs text-slate-500">
               Autonomous Literature-to-Hardware Execution Engine
             </p>
           </div>
         </div>
 
         {/* Status Indicators & Docs Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div className="badge-clean badge-clean-green">
+        <div className="flex items-center gap-2.5">
+          <Badge variant="success" className="py-1 px-3">
             <span className="pulse-indicator"></span>
             Valency MCP: Online (44.5M)
-          </div>
+          </Badge>
 
-          <div className="badge-clean badge-clean-blue">
-            <Radio size={12} />
+          <Badge variant="sky" className="py-1 px-3">
+            <Radio size={12} className="mr-1" />
             ESP8266 Node: Ready
-          </div>
+          </Badge>
 
-          <button
+          <Button
+            variant="outline"
+            size="sm"
             onClick={onOpenDocs}
-            className="btn-subtle"
-            style={{ padding: '6px 14px', fontSize: '0.76rem' }}
+            className="rounded-full"
           >
-            <BookOpen size={13} color="var(--primary)" />
+            <BookOpen size={13} className="text-sky-600" />
             Architecture
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Stepper Wizard Bar */}
-      <nav className="stepper-nav">
+      <nav className="flex items-center justify-between bg-white border border-slate-200/80 rounded-2xl p-2 shadow-xs overflow-x-auto gap-2">
         {steps.map((st) => {
           const isActive = currentStep === st.num;
           const isCompleted = currentStep > st.num;
@@ -99,14 +74,28 @@ export default function WizardHeader({
             <button
               key={st.num}
               onClick={() => setCurrentStep(st.num)}
-              className={`step-item ${isActive ? 'step-item-active' : ''} ${isCompleted ? 'step-item-completed' : ''}`}
+              className={cn(
+                "flex items-center gap-2.5 py-2 px-4 rounded-full cursor-pointer transition-all duration-200 text-xs font-semibold whitespace-nowrap",
+                isActive
+                  ? "bg-slate-900 text-white shadow-sm"
+                  : isCompleted
+                  ? "text-emerald-700 hover:bg-slate-50"
+                  : "text-slate-600 hover:bg-slate-50"
+              )}
             >
-              <div className="step-num">
-                {isCompleted ? <Check size={14} /> : st.num}
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all",
+                  isActive
+                    ? "bg-sky-600 text-white"
+                    : isCompleted
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-slate-100 text-slate-600"
+                )}
+              >
+                {isCompleted ? <Check size={13} /> : st.num}
               </div>
-              <span style={{ fontSize: '0.86rem', fontWeight: 700 }}>
-                {st.label}
-              </span>
+              <span className="text-sm tracking-tight">{st.label}</span>
             </button>
           );
         })}

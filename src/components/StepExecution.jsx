@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Cpu, Send, Play, Pause, RotateCcw, Download, Terminal, CheckCircle2, Radio, ArrowLeft, RotateCw } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Badge } from './ui/badge';
+import { Progress } from './ui/progress';
 import { generateKineticsData, generateHardwarePayload } from '../utils/thermalKinetics';
 
 export default function StepExecution({
@@ -30,7 +34,7 @@ export default function StepExecution({
   const targetTemp = Math.round(activeStep.targetTempC + (overrides.tempOffset || 0));
   const targetRpm = Math.round(activeStep.stirRpm * (overrides.rpmMultiplier !== undefined ? overrides.rpmMultiplier : 1));
 
-  // Simulation execution loop
+  // Simulation loop
   useEffect(() => {
     let interval = null;
     if (isRunning) {
@@ -47,7 +51,6 @@ export default function StepExecution({
           return next;
         });
 
-        // PID approach to temperature
         setSimTemp(prev => {
           const delta = targetTemp - prev;
           if (Math.abs(delta) < 0.2) {
@@ -57,7 +60,6 @@ export default function StepExecution({
           return Math.round((prev + stepChange) * 10) / 10;
         });
 
-        // Motor acceleration
         setSimRpm(prev => {
           const delta = targetRpm - prev;
           if (Math.abs(delta) < 5) return targetRpm;
@@ -72,7 +74,6 @@ export default function StepExecution({
     return () => clearInterval(interval);
   }, [isRunning, simSpeed, targetTemp, targetRpm, totalSimSec, setIsRunning, onAddLog, simTemp]);
 
-  // Stage progression
   useEffect(() => {
     let accumulated = 0;
     for (let i = 0; i < steps.length; i++) {
@@ -106,19 +107,6 @@ export default function StepExecution({
     }
   };
 
-  const handleReset = () => {
-    setIsRunning(false);
-    setElapsedSec(0);
-    setCurrentStepIdx(0);
-    setSimTemp(25.0);
-    setSimRpm(0);
-    setHeaterPwm(0);
-    if (onAddLog) {
-      onAddLog("SIM_RESET", "Hardware Digital Twin reset to standby ambient state (25°C, 0 RPM).");
-    }
-  };
-
-  // Export handlers
   const handleDownloadJson = () => {
     const payload = generateHardwarePayload(protocol, overrides);
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(payload, null, 2));
@@ -159,7 +147,6 @@ if __name__ == "__main__":
     dl.remove();
   };
 
-  // Liquid and heat visuals
   const heatFactor = Math.min(1, Math.max(0, (simTemp - 30) / 180));
   const plateGlow = heatFactor > 0.05
     ? `radial-gradient(circle, rgba(239, 68, 68, ${0.4 + heatFactor * 0.5}) 0%, rgba(249, 115, 22, ${0.3 + heatFactor * 0.3}) 60%, #1e293b 100%)`
@@ -175,283 +162,195 @@ if __name__ == "__main__":
     liquidColor = simTemp > 200 ? 'rgba(71, 85, 105, 0.85)' : simTemp > 70 ? 'rgba(245, 158, 11, 0.7)' : 'rgba(56, 189, 248, 0.55)';
   }
 
+  const progressPercent = Math.min(100, Math.round((elapsedSec / totalSimSec) * 100));
+
   return (
-    <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
-      {/* Top Execution Header */}
-      <div style={{
-        background: '#ffffff',
-        borderRadius: 'var(--radius-xl)',
-        border: '1px solid var(--border-card)',
-        padding: '32px',
-        boxShadow: 'var(--shadow-card)',
-        marginBottom: '24px'
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="badge-clean badge-clean-blue">
+    <div className="max-w-5xl mx-auto">
+      <Card className="p-8 shadow-md">
+        {/* Top Header */}
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
+          <div className="flex items-center gap-2">
+            <Badge variant="sky" className="gap-1.5 py-1 px-3">
               <Cpu size={13} />
               Hardware Dispatch Node
-            </span>
-            <span style={{ fontSize: '0.78rem', color: '#059669', fontWeight: 600 }}>
+            </Badge>
+            <Badge variant="success" className="py-1 px-2.5 text-xs">
               ● ESP8266 Online & Armed
-            </span>
+            </Badge>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <button
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleDownloadJson}
-              className="btn-subtle"
-              style={{ padding: '6px 12px', fontSize: '0.76rem' }}
+              className="gap-1.5 text-xs rounded-full"
             >
               <Download size={13} /> JSON Bytecode
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleDownloadPython}
-              className="btn-subtle"
-              style={{ padding: '6px 12px', fontSize: '0.76rem' }}
+              className="gap-1.5 text-xs rounded-full"
             >
               <Download size={13} /> Python Runner (.py)
-            </button>
+            </Button>
           </div>
         </div>
 
-        <h2 style={{ fontSize: '1.6rem', color: '#0f172a', fontWeight: 800, marginBottom: '6px' }}>
-          Physical Execution: <span style={{ color: 'var(--primary)' }}>{protocol.name}</span>
+        <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight mb-2">
+          Physical Execution: <span className="text-sky-600">{protocol.name}</span>
         </h2>
-        <p style={{ fontSize: '0.84rem', color: '#64748b', marginBottom: '20px' }}>
+        <p className="text-sm text-slate-500 mb-6">
           Broadcast machine bytecode to physical ESP8266 or execute in the live interactive digital twin:
         </p>
 
-        {/* Target Dispatch Selector + Deploy Action Bar */}
-        <div style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
-          borderRadius: 'var(--radius-lg)',
-          padding: '16px 20px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '16px',
-          marginBottom: '24px'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#334155' }}>Dispatch Target:</span>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#0f172a', cursor: 'pointer' }}>
+        {/* Dispatch Controls Bar */}
+        <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center justify-between flex-wrap gap-4 mb-6">
+          <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
+            <span>Dispatch Target:</span>
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="radio"
                 name="target"
                 checked={targetEndpoint === 'twin'}
                 onChange={() => setTargetEndpoint('twin')}
+                className="accent-sky-600"
               />
-              Virtual Digital Twin (In-Memory)
+              Virtual Digital Twin
             </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#0f172a', cursor: 'pointer' }}>
+            <label className="flex items-center gap-1.5 cursor-pointer">
               <input
                 type="radio"
                 name="target"
                 checked={targetEndpoint === 'custom'}
                 onChange={() => setTargetEndpoint('custom')}
+                className="accent-sky-600"
               />
-              Physical ESP8266 Webhook
+              Physical NodeMCU Webhook
             </label>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ display: 'flex', background: '#e2e8f0', padding: '3px', borderRadius: 'var(--radius-pill)' }}>
+          <div className="flex items-center gap-3">
+            <div className="flex bg-slate-200/80 p-0.5 rounded-full">
               {[1, 5, 10, 25].map(spd => (
                 <button
                   key={spd}
                   onClick={() => setSimSpeed(spd)}
-                  style={{
-                    border: 'none',
-                    background: simSpeed === spd ? 'var(--primary)' : 'transparent',
-                    color: simSpeed === spd ? '#ffffff' : '#64748b',
-                    padding: '3px 10px',
-                    borderRadius: 'var(--radius-pill)',
-                    fontSize: '0.72rem',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
+                  className={`border-none py-1 px-2.5 rounded-full text-xs font-bold cursor-pointer transition-all ${
+                    simSpeed === spd ? 'bg-sky-600 text-white shadow-xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
                   {spd}x
                 </button>
               ))}
             </div>
 
-            <button
+            <Button
+              variant="ocean"
+              size="default"
               onClick={handleDeploy}
-              className="btn-primary-ocean"
-              style={{ padding: '10px 22px' }}
+              className="gap-2 font-bold shadow-md shadow-sky-500/20"
             >
               <Send size={15} />
               Deploy to Lab Hardware
-            </button>
+            </Button>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div style={{ marginBottom: '22px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.76rem', marginBottom: '6px' }}>
-            <span style={{ color: '#64748b' }}>
-              Active Stage {currentStepIdx + 1} of {steps.length}: <strong style={{ color: '#0f172a' }}>{activeStep.name}</strong>
+        <div className="space-y-1.5 mb-6">
+          <div className="flex justify-between text-xs">
+            <span className="text-slate-600">
+              Active Stage {currentStepIdx + 1} of {steps.length}: <strong className="text-slate-900">{activeStep.name}</strong>
             </span>
-            <span style={{ fontFamily: 'var(--font-mono)', color: 'var(--primary)', fontWeight: 700 }}>
-              {Math.floor(elapsedSec / 60)}m {Math.floor(elapsedSec % 60)}s / {Math.floor(totalSimSec / 60)}m ({Math.round((elapsedSec / totalSimSec) * 100)}%)
+            <span className="font-mono font-bold text-sky-600">
+              {Math.floor(elapsedSec / 60)}m {Math.floor(elapsedSec % 60)}s / {Math.floor(totalSimSec / 60)}m ({progressPercent}%)
             </span>
           </div>
-          <div style={{ width: '100%', height: '8px', background: '#e2e8f0', borderRadius: '4px', overflow: 'hidden' }}>
-            <div style={{
-              width: `${Math.min(100, (elapsedSec / totalSimSec) * 100)}%`,
-              height: '100%',
-              background: 'linear-gradient(90deg, #0284c7 0%, #059669 100%)',
-              transition: 'width 0.2s linear'
-            }}></div>
-          </div>
+          <Progress value={progressPercent} />
         </div>
 
-        {/* Hardware Visualizer & Digital Gauges Split */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-          gap: '24px',
-          alignItems: 'center',
-          background: '#0b1324',
-          borderRadius: 'var(--radius-xl)',
-          padding: '28px',
-          color: '#ffffff',
-          marginBottom: '24px'
-        }}>
-          {/* Left: Physical Station (Hotplate & Beaker) */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            {/* Heat Shimmer */}
+        {/* Hardware Visualizer & Gauges */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-950 rounded-2xl p-6 text-white mb-6">
+          {/* Hotplate & Beaker */}
+          <div className="flex flex-col items-center justify-center py-2">
             {simTemp > 60 && (
-              <div style={{
-                width: '100px',
-                height: '30px',
-                background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.15) 0%, transparent 70%)',
-                filter: 'blur(3px)',
-                animation: 'pulseDot 1.2s infinite ease-in-out',
-                marginBottom: '-10px',
-                zIndex: 3
-              }}></div>
+              <div className="w-24 h-7 bg-radial from-white/20 to-transparent blur-xs animate-pulse -mb-2 z-10" />
             )}
 
-            {/* Glass Beaker */}
-            <div style={{
-              position: 'relative',
-              width: '120px',
-              height: '135px',
-              border: '3px solid rgba(255, 255, 255, 0.45)',
-              borderTop: 'none',
-              borderRadius: '0 0 14px 14px',
-              background: 'rgba(255, 255, 255, 0.03)',
-              boxShadow: 'inset 0 0 15px rgba(2, 132, 199, 0.1)',
-              marginBottom: '-4px',
-              zIndex: 2
-            }}>
-              {/* Measurement marks */}
-              <div style={{ position: 'absolute', left: '6px', top: '25px', width: '12px', height: '1px', background: 'rgba(255,255,255,0.4)' }}></div>
-              <div style={{ position: 'absolute', left: '6px', top: '55px', width: '16px', height: '1px', background: 'rgba(255,255,255,0.5)' }}></div>
-              <div style={{ position: 'absolute', left: '6px', top: '85px', width: '12px', height: '1px', background: 'rgba(255,255,255,0.4)' }}></div>
+            {/* Beaker */}
+            <div className="relative w-28 h-32 border-2 border-white/40 border-t-0 rounded-b-xl bg-white/5 shadow-inner -mb-1 z-10 backdrop-blur-xs">
+              <div className="absolute left-1.5 top-5 w-2.5 h-[1px] bg-white/40" />
+              <div className="absolute left-1.5 top-12 w-4 h-[1px] bg-white/50" />
+              <div className="absolute left-1.5 top-19 w-2.5 h-[1px] bg-white/40" />
 
-              {/* Liquid */}
-              <div style={{
-                position: 'absolute',
-                bottom: 0, left: 0, right: 0,
-                height: '90px',
-                background: liquidColor,
-                borderRadius: '0 0 11px 11px',
-                overflow: 'hidden'
-              }}>
-                {/* Vortex */}
+              <div
+                className="absolute bottom-0 left-0 right-0 h-20 rounded-b-lg overflow-hidden transition-colors duration-500"
+                style={{ background: liquidColor }}
+              >
                 {simRpm > 0 && (
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: `${Math.min(90, 25 + (simRpm / 1000) * 65)}px`,
-                    height: `${vortexDepth}px`,
-                    background: '#0b1324',
-                    borderRadius: '50%',
-                    opacity: 0.65
-                  }}></div>
+                  <div
+                    className="absolute top-0 left-1/2 -translate-x-1/2 w-20 bg-slate-950 rounded-full opacity-65"
+                    style={{ height: `${vortexDepth}px` }}
+                  />
                 )}
-
-                {/* Magnetic Flea */}
-                <div style={{
-                  position: 'absolute',
-                  bottom: '6px',
-                  left: '50%',
-                  width: '26px',
-                  height: '7px',
-                  background: '#ffffff',
-                  borderRadius: '4px',
-                  transform: 'translate(-50%, -50%)',
-                  animation: simRpm > 0 ? `magneticRotate ${spinDuration}s linear infinite` : 'none'
-                }}></div>
+                <div
+                  className="absolute bottom-1.5 left-1/2 w-6 h-1.5 bg-white rounded-sm -translate-x-1/2 shadow-xs"
+                  style={{
+                    animation: simRpm > 0 ? `magneticRotate ${spinDuration}s linear infinite` : 'none'
+                  }}
+                />
               </div>
             </div>
 
-            {/* Hotplate Top Surface */}
-            <div style={{
-              width: '180px',
-              height: '18px',
-              background: plateGlow,
-              borderRadius: '4px',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              boxShadow: heatFactor > 0.1 ? `0 0 20px rgba(239, 68, 68, ${0.4 + heatFactor * 0.4})` : 'none',
-              zIndex: 1
-            }}></div>
+            {/* Hotplate Top */}
+            <div
+              className="w-44 h-4 rounded-sm border border-white/20 transition-all duration-300"
+              style={{
+                background: plateGlow,
+                boxShadow: heatFactor > 0.1 ? `0 0 20px rgba(239, 68, 68, ${0.4 + heatFactor * 0.4})` : 'none'
+              }}
+            />
 
-            {/* Chassis Base */}
-            <div style={{
-              width: '210px',
-              height: '42px',
-              background: 'linear-gradient(180deg, #1e293b 0%, #0f172a 100%)',
-              borderRadius: '2px 2px 8px 8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '0 16px',
-              marginTop: '1px'
-            }}>
-              <span style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color: '#94a3b8' }}>ESP8266-LAB-NODE</span>
-              <span style={{ fontSize: '0.62rem', color: isRunning ? '#10b981' : '#64748b' }}>
+            {/* Chassis */}
+            <div className="w-52 h-10 bg-gradient-to-b from-slate-800 to-slate-900 rounded-b-lg flex items-center justify-between px-4 mt-0.5 border-t border-slate-700">
+              <span className="text-[10px] font-mono text-slate-400">ESP8266-NODE</span>
+              <span className="text-[10px] font-semibold text-emerald-400">
                 {isRunning ? '● RUNNING' : '○ IDLE'}
               </span>
             </div>
           </div>
 
-          {/* Right: Digital Instrument Gauges */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            <div style={{ background: '#050914', border: '1px solid rgba(2, 132, 199, 0.3)', borderRadius: 'var(--radius-md)', padding: '14px 18px' }}>
-              <div style={{ fontSize: '0.68rem', color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>
-                RTD SENSOR TEMPERATURE
+          {/* Gauges */}
+          <div className="flex flex-col justify-center gap-3">
+            <div className="bg-slate-900/90 border border-sky-500/30 rounded-xl p-4">
+              <div className="text-[11px] font-mono text-sky-400 uppercase tracking-wider">
+                RTD Thermocouple Sensor
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: '2px' }}>
-                <span style={{ fontSize: '2.2rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: simTemp > 45 ? '#fb7185' : '#38bdf8' }}>
-                  {simTemp.toFixed(1)} <span style={{ fontSize: '1rem', color: '#64748b' }}>°C</span>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-3xl font-extrabold font-mono text-sky-400">
+                  {simTemp.toFixed(1)} <span className="text-base text-slate-500">°C</span>
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
+                <span className="text-xs text-slate-400 font-mono">
                   Target: {targetTemp}°C
                 </span>
               </div>
-              <div style={{ fontSize: '0.68rem', color: '#64748b', marginTop: '4px' }}>
-                Heater PWM Duty: <strong style={{ color: '#ffffff' }}>{heaterPwm}%</strong>
+              <div className="text-xs text-slate-500 mt-1">
+                Heater PWM Duty: <strong className="text-white">{heaterPwm}%</strong>
               </div>
             </div>
 
-            <div style={{ background: '#050914', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: 'var(--radius-md)', padding: '14px 18px' }}>
-              <div style={{ fontSize: '0.68rem', color: '#34d399', fontFamily: 'var(--font-mono)' }}>
-                MAGNETIC TACHOMETER (AGITATION)
+            <div className="bg-slate-900/90 border border-emerald-500/30 rounded-xl p-4">
+              <div className="text-[11px] font-mono text-emerald-400 uppercase tracking-wider">
+                Magnetic Stirrer Tachometer
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginTop: '2px' }}>
-                <span style={{ fontSize: '2.2rem', fontWeight: 800, fontFamily: 'var(--font-mono)', color: '#34d399' }}>
-                  {simRpm} <span style={{ fontSize: '0.9rem', color: '#64748b' }}>RPM</span>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-3xl font-extrabold font-mono text-emerald-400">
+                  {simRpm} <span className="text-base text-slate-500">RPM</span>
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#94a3b8', fontFamily: 'var(--font-mono)' }}>
+                <span className="text-xs text-slate-400 font-mono">
                   Target: {targetRpm} RPM
                 </span>
               </div>
@@ -459,58 +358,47 @@ if __name__ == "__main__":
           </div>
         </div>
 
-        {/* Live Serial Console */}
-        <div style={{
-          background: '#070a12',
-          border: '1px solid #1e293b',
-          borderRadius: 'var(--radius-md)',
-          padding: '14px 18px',
-          marginBottom: '24px'
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '0.74rem', color: '#94a3b8' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '6px', fontFamily: 'var(--font-mono)' }}>
-              <Terminal size={14} color="#10b981" />
-              ESP8266 Live Serial Telemetry (115200 Baud)
+        {/* Live Serial Monitor */}
+        <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 mb-6">
+          <div className="flex items-center justify-between text-xs text-slate-400 mb-2">
+            <span className="flex items-center gap-1.5 font-mono">
+              <Terminal size={14} className="text-emerald-400" />
+              ESP8266 Live Serial Stream (115200 Baud)
             </span>
-            <span style={{ color: '#64748b' }}>Node: COM3 / /dev/ttyUSB0</span>
+            <span className="font-mono text-slate-600">COM3 / /dev/ttyUSB0</span>
           </div>
 
-          <div style={{
-            height: '110px',
-            overflowY: 'auto',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.72rem',
-            lineHeight: '1.6',
-            color: '#34d399'
-          }}>
+          <div className="h-28 overflow-y-auto font-mono text-xs text-emerald-400 leading-relaxed">
             {logs && logs.map((l, i) => (
               <div key={i}>
-                <span style={{ color: '#64748b' }}>[{l.timestamp}]</span> <span style={{ color: '#38bdf8' }}>[{l.tag}]</span> {l.message}
+                <span className="text-slate-600">[{l.timestamp}]</span>{' '}
+                <span className="text-sky-400">[{l.tag}]</span> {l.message}
               </div>
             ))}
           </div>
         </div>
 
-        {/* Wizard Navigation Action Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '20px' }}>
-          <button
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+          <Button
+            variant="outline"
             onClick={onBack}
-            className="btn-subtle"
+            className="gap-2"
           >
             <ArrowLeft size={16} />
             Back to Kinetics
-          </button>
+          </Button>
 
-          <button
+          <Button
+            variant="outline"
             onClick={onResetAll}
-            className="btn-subtle"
-            style={{ fontWeight: 700 }}
+            className="gap-2 font-bold"
           >
             <RotateCw size={15} />
             Run Another Experiment Protocol
-          </button>
+          </Button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
