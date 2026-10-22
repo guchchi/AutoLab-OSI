@@ -1,102 +1,123 @@
 import React from 'react';
-import { FlaskConical, BookOpen, Check, Radio, Database } from 'lucide-react';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { cn } from '../lib/utils';
+import { BookOpen, Check, Radio, Layers } from 'lucide-react';
+import AutoLabLogo from './AutoLabLogo';
 
-export default function WizardHeader({
-  currentStep,
-  setCurrentStep,
-  onOpenDocs
-}) {
+export default function WizardHeader({ currentStep, setCurrentStep, onOpenDocs }) {
   const steps = [
     { num: 1, label: 'Overview' },
     { num: 2, label: 'Literature Query' },
     { num: 3, label: 'Verify Kinetics' },
-    { num: 4, label: 'Lab Execution' }
+    { num: 4, label: 'Lab Execution' },
   ];
 
   return (
-    <header className="mb-6">
-      {/* Top Branding Bar */}
-      <div className="flex items-center justify-between flex-wrap gap-4 p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs mb-4">
-        {/* Brand */}
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-cyan-600 flex items-center justify-center shadow-md shadow-sky-500/20">
-            <FlaskConical size={22} className="text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-lg font-extrabold text-slate-900 tracking-tight">
-                AUTOLAB <span className="text-sky-600">OS</span>
-              </h1>
-              <Badge variant="sky" className="text-[10px] font-mono py-0 px-2 font-bold">
-                OSI '26
-              </Badge>
-            </div>
-            <p className="text-xs text-slate-500">
-              Autonomous Literature-to-Hardware Execution Engine
-            </p>
-          </div>
+    <header style={{ marginBottom: '1.5rem' }}>
+      {/* ── Branding Navbar (Matching Brand Kit) ── */}
+      <div
+        className="notebook-card"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '1rem',
+          padding: '0.875rem 1.5rem',
+          marginBottom: '0.75rem',
+          background: 'var(--pure-white)',
+          border: '1px solid var(--slate-border)',
+          borderRadius: 'var(--radius-xl)',
+        }}
+      >
+        {/* Brand logo & identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <AutoLabLogo size={36} showTagline={true} />
+          <span className="lab-badge lab-badge-lime" style={{ fontSize: '0.62rem', letterSpacing: '0.04em' }}>
+            OSI '26
+          </span>
         </div>
 
         {/* Status Indicators & Docs Button */}
-        <div className="flex items-center gap-2.5">
-          <Badge variant="success" className="py-1 px-3">
-            <span className="pulse-indicator"></span>
-            Valency MCP: Online (44.5M)
-          </Badge>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {/* Status Indicator: Lab Ready */}
+          <div className="status-indicator">
+            <span className="dot-ready" />
+            <span style={{ color: 'var(--deep-charcoal)', fontSize: '0.75rem' }}>Lab Ready</span>
+          </div>
 
-          <Badge variant="sky" className="py-1 px-3">
-            <Radio size={12} className="mr-1" />
-            ESP8266 Node: Ready
-          </Badge>
+          {/* Valency Status */}
+          <span className="lab-badge lab-badge-blue" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
+            <span className="pulse-indicator" />
+            Valency MCP Connected
+          </span>
 
-          <Button
-            variant="outline"
-            size="sm"
+          {/* Architecture Documentation button */}
+          <button
+            className="btn-ghost"
             onClick={onOpenDocs}
-            className="rounded-full"
+            style={{
+              fontSize: '0.78rem',
+              padding: '0.4rem 0.85rem',
+              borderRadius: 'var(--radius-full)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
           >
-            <BookOpen size={13} className="text-sky-600" />
+            <BookOpen size={13} color="var(--deep-charcoal)" />
             Architecture
-          </Button>
+          </button>
         </div>
       </div>
 
-      {/* Stepper Wizard Bar */}
-      <nav className="flex items-center justify-between bg-white border border-slate-200/80 rounded-2xl p-2 shadow-xs overflow-x-auto gap-2">
-        {steps.map((st) => {
+      {/* ── Step Wizard Bar ── */}
+      <nav
+        className="notebook-card"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          padding: '0.4rem 0.75rem',
+          overflowX: 'auto',
+          background: 'var(--pure-white)',
+          border: '1px solid var(--slate-border)',
+          borderRadius: 'var(--radius-full)',
+        }}
+      >
+        {steps.map((st, idx) => {
           const isActive = currentStep === st.num;
-          const isCompleted = currentStep > st.num;
+          const isDone = currentStep > st.num;
 
           return (
-            <button
-              key={st.num}
-              onClick={() => setCurrentStep(st.num)}
-              className={cn(
-                "flex items-center gap-2.5 py-2 px-4 rounded-full cursor-pointer transition-all duration-200 text-xs font-semibold whitespace-nowrap",
-                isActive
-                  ? "bg-slate-900 text-white shadow-sm"
-                  : isCompleted
-                  ? "text-emerald-700 hover:bg-slate-50"
-                  : "text-slate-600 hover:bg-slate-50"
-              )}
-            >
-              <div
-                className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center font-mono text-xs font-bold transition-all",
-                  isActive
-                    ? "bg-sky-600 text-white"
-                    : isCompleted
-                    ? "bg-emerald-100 text-emerald-700"
-                    : "bg-slate-100 text-slate-600"
-                )}
+            <React.Fragment key={st.num}>
+              <button
+                type="button"
+                onClick={() => setCurrentStep(st.num)}
+                className={`stepper-chip ${isActive ? 'active' : isDone ? 'done' : ''}`}
+                style={{
+                  padding: '0.45rem 1rem',
+                  fontSize: '0.82rem',
+                }}
               >
-                {isCompleted ? <Check size={13} /> : st.num}
-              </div>
-              <span className="text-sm tracking-tight">{st.label}</span>
-            </button>
+                <span className="stepper-num" style={{ width: '22px', height: '22px' }}>
+                  {isDone ? <Check size={12} strokeWidth={3} /> : st.num}
+                </span>
+                <span>{st.label}</span>
+              </button>
+
+              {idx < steps.length - 1 && (
+                <span
+                  style={{
+                    flex: 1,
+                    height: '1px',
+                    minWidth: '20px',
+                    background: isDone
+                      ? 'var(--success-green)'
+                      : 'var(--slate-border)',
+                    transition: 'background 0.3s ease',
+                  }}
+                />
+              )}
+            </React.Fragment>
           );
         })}
       </nav>

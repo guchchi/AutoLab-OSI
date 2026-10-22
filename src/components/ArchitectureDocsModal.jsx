@@ -1,96 +1,93 @@
 import React from 'react';
-import { X, BookOpen, Layers, ShieldCheck, Cpu, Database, CheckCircle2 } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
+import { X, BookOpen, Layers, ShieldCheck, Cpu, Database } from 'lucide-react';
 
 export default function ArchitectureDocsModal({ isOpen, onClose }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <Card className="max-w-3xl w-full max-h-[90vh] overflow-y-auto p-8 shadow-2xl relative">
+    <div style={{
+      position: 'fixed', inset: 0,
+      background: 'rgba(11, 28, 48, 0.65)', backdropFilter: 'blur(8px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      zIndex: 50, padding: '1.25rem',
+    }}>
+      <div
+        className="notebook-card fade-in"
+        style={{ maxWidth: '760px', width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', position: 'relative' }}
+      >
         <button
           onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 cursor-pointer p-1"
+          style={{ position: 'absolute', top: '1.125rem', right: '1.125rem', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--slate-gray)', padding: '4px' }}
         >
           <X size={20} />
         </button>
 
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-2">
-            <Badge variant="sky">AutoLab OS Architecture</Badge>
-            <Badge variant="success">4th Annual OSI Hackathon</Badge>
+        {/* Header */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <span className="lab-badge lab-badge-lime">AutoLab OS Architecture</span>
+            <span className="lab-badge lab-badge-sage">4th Annual OSI Hackathon</span>
           </div>
-          <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Bridging Scientific Literature to Physical Lab Execution
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--deep-charcoal)', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
+            Bridging Scientific Literature to{' '}
+            <span style={{ color: 'var(--accent-blue)', fontWeight: 800 }}>Physical Lab Execution</span>
           </h2>
         </div>
 
         {/* Section 1 */}
-        <div className="mb-6 space-y-2">
-          <h3 className="text-base font-bold text-sky-600 flex items-center gap-2">
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--deep-charcoal)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
             🚨 The Real-World Scientific Bottleneck
           </h3>
-          <p className="text-sm text-slate-600 leading-relaxed">
-            While generative AI has accelerated material discovery in silico, the execution bottleneck remains 100% manual. Scientists spend 3 to 7 days reading literature, extracting synthesis steps, programming microcontrollers, or hand-configuring hotplates and stirrers. AutoLab OS compresses this 3-day manual setup into a verified 10-second autonomous pipeline.
+          <p style={{ fontSize: '0.82rem', color: 'var(--slate-gray)', lineHeight: 1.7 }}>
+            While generative AI has accelerated material discovery in silico, the execution bottleneck remains
+            100% manual. Scientists spend 3–7 days reading literature, extracting synthesis steps, and programming
+            microcontrollers. AutoLab OS compresses this into a verified{' '}
+            <strong style={{ color: 'var(--deep-charcoal)' }}>10-second autonomous pipeline</strong>.
           </p>
         </div>
 
-        {/* Section 2 */}
-        <div className="mb-6 space-y-3">
-          <h3 className="text-base font-bold text-sky-600 flex items-center gap-2">
+        {/* Section 2 — 3-step grid */}
+        <div style={{ marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--deep-charcoal)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
             ⚡ The 3-Step Engine Architecture
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-sky-600 mb-1">
-                <Database size={14} /> 1. Retrieve & Extract
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(195px, 1fr))', gap: '0.75rem' }}>
+            {[
+              { icon: Database, color: 'var(--accent-blue)', bg: 'var(--light-blue)', border: 'var(--light-blue-border)', label: '1. Retrieve & Extract', desc: 'Queries 44.5M scientific papers via Valency MCP + LLM to isolate exact physical parameters: Temperature, Agitation (RPM), Dwell Timers, and Precursors.' },
+              { icon: Layers,   color: 'var(--success-green)',  bg: 'var(--success-bg)',  border: 'var(--success-border)',  label: '2. Verify & Visualize', desc: 'Pushes discrete steps into reactive thermodynamic and kinetic curves. Validates safety ceilings to prevent boiling, thermal shock, or runaways.' },
+              { icon: Cpu,      color: 'var(--accent-blue)', bg: 'var(--light-blue)', border: 'var(--light-blue-border)', label: '3. Physical Execution', desc: 'Dispatches CRC32-verified JSON bytecode via HTTP webhook to ESP8266 NodeMCU microcontrollers, driving PWM heaters and stepper stirrers in real time.' },
+            ].map(({ icon: Icon, color, bg, border, label, desc }) => (
+              <div key={label} style={{ background: bg, border: `1px solid ${border}`, borderRadius: '10px', padding: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.72rem', fontWeight: 700, color, marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <Icon size={13} />
+                  {label}
+                </div>
+                <p style={{ fontSize: '0.75rem', color: 'var(--slate-gray)', lineHeight: 1.6, margin: 0 }}>{desc}</p>
               </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Queries 44.5M scientific papers via Valency MCP + LLM to isolate exact physical parameters: Temperature, Agitation (RPM), Dwell Timers, and Precursors.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-600 mb-1">
-                <Layers size={14} /> 2. Verify & Visualize
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Pushes discrete steps into reactive thermodynamic and kinetic curves (Marimo-backed). Validates safety ceilings to prevent boiling, thermal shock, or runaways.
-              </p>
-            </div>
-
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-600 mb-1">
-                <Cpu size={14} /> 3. Physical Execution
-              </div>
-              <p className="text-xs text-slate-600 leading-relaxed">
-                Dispatches CRC32-verified JSON bytecode via HTTP webhook to physical ESP8266 NodeMCU microcontrollers, driving PWM heaters and stepper stirrers in real time.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
 
-        {/* Section 3 */}
-        <div className="bg-amber-50/70 border border-amber-200 rounded-xl p-4 mb-6">
-          <h4 className="text-xs font-bold text-amber-800 flex items-center gap-1.5 mb-1">
-            <ShieldCheck size={15} /> Autonomous Safety Envelope Protection
+        {/* Safety note */}
+        <div style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', borderRadius: '10px', padding: '1rem', marginBottom: '1.5rem' }}>
+          <h4 style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--success-green)', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.375rem' }}>
+            <ShieldCheck size={14} />
+            Autonomous Safety Envelope Protection
           </h4>
-          <p className="text-xs text-amber-900 leading-relaxed">
-            Unlike open-loop chatbots, AutoLab OS features hardware-level interlocks. Any proposed recipe that exceeds the maximum thermal threshold (e.g. 900°C for ceramic or solvent flashpoints) trips the safety interlock and requires explicit researcher override before firing webhooks.
+          <p style={{ fontSize: '0.75rem', color: 'var(--slate-gray)', lineHeight: 1.65, margin: 0 }}>
+            Unlike open-loop chatbots, AutoLab OS features hardware-level interlocks. Any proposed recipe that
+            exceeds the maximum thermal threshold trips the safety interlock and requires explicit researcher
+            override before firing webhooks.
           </p>
         </div>
 
-        <div className="flex justify-end pt-2">
-          <Button
-            variant="default"
-            onClick={onClose}
-          >
+        <div style={{ display: 'flex', justifyContent: 'flex-end', paddingTop: '0.5rem', borderTop: '1px solid var(--slate-border)' }}>
+          <button className="btn-primary" onClick={onClose}>
             Return to Dashboard
-          </Button>
+          </button>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }

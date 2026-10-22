@@ -37,8 +37,11 @@ export default function App() {
     ]);
   };
 
+  const [hasUserSelectedProtocol, setHasUserSelectedProtocol] = useState(false);
+
   const handleSelectProtocol = (proto) => {
     setCurrentProtocol(proto);
+    setHasUserSelectedProtocol(true);
     setOverrides({ tempOffset: 0, rpmMultiplier: 1.0, timeScale: 1.0 });
     setIsRunning(false);
     addLog("LITERATURE_SELECT", `Loaded ${proto.name} (${proto.steps.length} stages). Safe ceiling: ${proto.safetyEnvelope.maxTempC}°C.`);
@@ -46,6 +49,7 @@ export default function App() {
 
   const handleResetAll = () => {
     setCurrentStep(1);
+    setHasUserSelectedProtocol(false);
     setIsRunning(false);
     setOverrides({ tempOffset: 0, rpmMultiplier: 1.0, timeScale: 1.0 });
   };
@@ -61,13 +65,23 @@ export default function App() {
 
       {/* Step 1: Introduction & System Onboarding */}
       {currentStep === 1 && (
-        <StepIntro onStart={() => setCurrentStep(2)} />
+        <StepIntro 
+          onStart={() => {
+            setHasUserSelectedProtocol(false);
+            setCurrentStep(2);
+          }}
+          onSelectProtocol={(proto) => {
+            handleSelectProtocol(proto);
+            setCurrentStep(2);
+          }}
+        />
       )}
 
       {/* Step 2: Target Material & Valency MCP Retrieval */}
       {currentStep === 2 && (
         <StepLiterature
           currentProtocol={currentProtocol}
+          hasUserSelectedProtocol={hasUserSelectedProtocol}
           onSelectProtocol={handleSelectProtocol}
           onNext={() => setCurrentStep(3)}
           onBack={() => setCurrentStep(1)}

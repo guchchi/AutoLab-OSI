@@ -43,11 +43,12 @@ export function generateKineticsData(protocol, overrides = {}) {
       });
     }
 
-    if (Math.abs(rampRate) > protocol.safetyEnvelope.maxRampRateCMin && rampRate !== 0) {
+    // Only flag heating ramp rates exceeding safe ceramic threshold, not intentional cold quench
+    if (rampRate > protocol.safetyEnvelope.maxRampRateCMin) {
       violations.push({
         type: "THERMAL_SHOCK_RISK",
         step: step.name,
-        message: `Ramp rate ${rampRate}°C/min exceeds safe ceramic threshold (${protocol.safetyEnvelope.maxRampRateCMin}°C/min)`
+        message: `Heating ramp rate ${rampRate}°C/min exceeds safe ceramic threshold (${protocol.safetyEnvelope.maxRampRateCMin}°C/min)`
       });
     }
 
