@@ -55,13 +55,15 @@ export default function App() {
   };
 
   return (
-    <div className="app-shell">
-      {/* Top Stepper Navigation Header */}
-      <WizardHeader
-        currentStep={currentStep}
-        setCurrentStep={setCurrentStep}
-        onOpenDocs={() => setShowDocsModal(true)}
-      />
+    <div className={currentStep === 4 ? "app-shell-full" : "app-shell"}>
+      {/* Top Stepper Navigation Header for Steps 1-3 */}
+      {currentStep !== 4 && (
+        <WizardHeader
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          onOpenDocs={() => setShowDocsModal(true)}
+        />
+      )}
 
       {/* Step 1: Introduction & System Onboarding */}
       {currentStep === 1 && (
@@ -112,6 +114,9 @@ export default function App() {
           onAddLog={addLog}
           onBack={() => setCurrentStep(3)}
           onResetAll={handleResetAll}
+          currentStep={currentStep}
+          setCurrentStep={setCurrentStep}
+          onOpenDocs={() => setShowDocsModal(true)}
         />
       )}
 
