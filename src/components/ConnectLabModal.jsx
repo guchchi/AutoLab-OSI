@@ -27,8 +27,8 @@ export default function ConnectLabModal({
   protocol,
   onAddLog
 }) {
-  const [activeTab, setActiveTab] = useState('connect'); // 'connect' | 'code' | 'circuit'
   const [connectionType, setConnectionType] = useState('esp'); // 'esp' | 'lab'
+  const [espSubTab, setEspSubTab] = useState('port'); // 'port' | 'code' | 'circuit'
   
   // ESP State
   const [espMode, setEspMode] = useState('serial'); // 'serial' | 'wifi'
@@ -58,11 +58,9 @@ export default function ConnectLabModal({
     setEspConnecting(true);
     try {
       if (espMode === 'serial' && typeof navigator !== 'undefined' && 'serial' in navigator) {
-        // Attempt actual WebSerial if supported
         try {
           await navigator.serial.requestPort();
         } catch (e) {
-          // If user cancels dialog or in iframe, fall back to simulated successful handshake
           console.log('WebSerial prompt bypassed or simulated:', e);
         }
       }
@@ -303,7 +301,7 @@ void loop() {
       <div
         className="fade-in"
         style={{
-          maxWidth: '880px',
+          maxWidth: '900px',
           width: '100%',
           maxHeight: '92vh',
           background: '#FFFFFF',
@@ -335,7 +333,7 @@ void loop() {
               </span>
             </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0B1C30', margin: 0, letterSpacing: '-0.02em' }}>
-              Connect Laboratory Hardware & IoT Controller
+              Connect Laboratory Hardware & Instruments
             </h2>
           </div>
 
@@ -357,127 +355,167 @@ void loop() {
           </button>
         </div>
 
-        {/* Navigation Tabs */}
-        <div style={{
-          display: 'flex',
-          borderBottom: '1px solid #E5E9E4',
-          background: '#FFFFFF',
-          padding: '0 1.75rem',
-          gap: '1rem'
-        }}>
-          {[
-            { id: 'connect', label: '🔌 Connect Options (ESP & Lab)', icon: Zap },
-            { id: 'code', label: '💻 Arduino / ESP C++ Firmware', icon: Terminal },
-            { id: 'circuit', label: '📐 Circuit Schematic & Wiring', icon: Layers },
-          ].map(t => (
-            <button
-              key={t.id}
-              onClick={() => setActiveTab(t.id)}
+        {/* Modal Body */}
+        <div style={{ padding: '1.5rem 1.75rem', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          
+          {/* Top 2 Primary Options: Connect ESP vs Connect Lab */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '1rem',
+            background: '#F8FAFC',
+            padding: '0.5rem',
+            borderRadius: '12px',
+            border: '1px solid #E2E8F0'
+          }}>
+            {/* Option 1 Button */}
+            <div
+              onClick={() => setConnectionType('esp')}
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: '0.85rem 0.25rem',
-                fontSize: '0.84rem',
-                fontWeight: activeTab === t.id ? 700 : 500,
-                color: activeTab === t.id ? '#0B1C30' : '#64748B',
-                borderBottom: activeTab === t.id ? '2.5px solid #0B1C30' : '2.5px solid transparent',
+                padding: '1rem',
+                borderRadius: '10px',
+                background: connectionType === 'esp' ? '#FFFFFF' : 'transparent',
+                border: connectionType === 'esp' ? '1.5px solid #0B1C30' : '1px solid transparent',
+                boxShadow: connectionType === 'esp' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
                 cursor: 'pointer',
+                transition: 'all 0.15s ease',
                 display: 'flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                transition: 'all 0.15s ease'
+                flexDirection: 'column',
+                gap: '0.35rem'
               }}
             >
-              <t.icon size={15} />
-              <span>{t.label}</span>
-            </button>
-          ))}
-        </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#0B1C30', fontSize: '0.95rem' }}>
+                  <Cpu size={18} color="var(--accent-blue)" />
+                  <span>Option 1: Connect ESP</span>
+                </div>
+                {isEspConnected && (
+                  <span style={{ fontSize: '0.7rem', color: '#16A34A', fontWeight: 700, background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px' }}>
+                    ● LINKED
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#64748B', lineHeight: 1.4 }}>
+                Microcontroller link (ESP8266/ESP32) + <strong>Firmware Source Code</strong> + <strong>Circuit Wiring Schematics</strong>.
+              </div>
+            </div>
 
-        {/* Modal Body */}
-        <div style={{ padding: '1.5rem 1.75rem', overflowY: 'auto', flex: 1 }}>
-          
+            {/* Option 2 Button */}
+            <div
+              onClick={() => setConnectionType('lab')}
+              style={{
+                padding: '1rem',
+                borderRadius: '10px',
+                background: connectionType === 'lab' ? '#FFFFFF' : 'transparent',
+                border: connectionType === 'lab' ? '1.5px solid #0B1C30' : '1px solid transparent',
+                boxShadow: connectionType === 'lab' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.35rem'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#0B1C30', fontSize: '0.95rem' }}>
+                  <Server size={18} color="#22A65A" />
+                  <span>Option 2: Connect Lab</span>
+                </div>
+                {isLabConnected && (
+                  <span style={{ fontSize: '0.7rem', color: '#16A34A', fontWeight: 700, background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px' }}>
+                    ● SYNCED
+                  </span>
+                )}
+              </div>
+              <div style={{ fontSize: '0.76rem', color: '#64748B', lineHeight: 1.4 }}>
+                Central automated laboratory fumehood, <strong>MQTT SCADA Gateway</strong>, or remote cloud lab station.
+              </div>
+            </div>
+          </div>
+
           {/* ═════════════════════════════════════════════════════════════════
-              TAB 1: CONNECT OPTIONS (Connect ESP or Connect Lab Server)
+              CONTENT FOR OPTION 1: CONNECT ESP (Contains Config, Code, Circuit)
           ═════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'connect' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          {connectionType === 'esp' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               
-              {/* Selector Pills: Connect ESP vs Connect Lab */}
+              {/* Internal Sub-Segment Switcher for Option 1 */}
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '1rem',
-                background: '#F8FAFC',
-                padding: '0.5rem',
-                borderRadius: '12px',
-                border: '1px solid #E2E8F0'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                borderBottom: '1px solid #E5E9E4',
+                paddingBottom: '0.5rem'
               }}>
-                <div
-                  onClick={() => setConnectionType('esp')}
+                <button
+                  type="button"
+                  onClick={() => setEspSubTab('port')}
                   style={{
-                    padding: '1rem',
-                    borderRadius: '10px',
-                    background: connectionType === 'esp' ? '#FFFFFF' : 'transparent',
-                    border: connectionType === 'esp' ? '1.5px solid #0B1C30' : '1px solid transparent',
-                    boxShadow: connectionType === 'esp' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '0.45rem 0.85rem',
+                    fontSize: '0.78rem',
+                    fontWeight: espSubTab === 'port' ? 700 : 500,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.35rem'
+                    background: espSubTab === 'port' ? '#0B1C30' : '#F1F5F9',
+                    color: espSubTab === 'port' ? '#D1F34D' : '#64748B',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#0B1C30', fontSize: '0.95rem' }}>
-                      <Cpu size={18} color="var(--accent-blue)" />
-                      <span>Option 1: Connect ESP</span>
-                    </div>
-                    {isEspConnected && (
-                      <span style={{ fontSize: '0.7rem', color: '#16A34A', fontWeight: 700, background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px' }}>
-                        ● LINKED
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '0.76rem', color: '#64748B', lineHeight: 1.4 }}>
-                    Direct physical microcontroller link via <strong>WebSerial (USB Cable)</strong> or local <strong>WiFi WebSocket</strong>.
-                  </div>
-                </div>
+                  <Zap size={13} />
+                  <span>Port Connection (USB / WiFi)</span>
+                </button>
 
-                <div
-                  onClick={() => setConnectionType('lab')}
+                <button
+                  type="button"
+                  onClick={() => setEspSubTab('code')}
                   style={{
-                    padding: '1rem',
-                    borderRadius: '10px',
-                    background: connectionType === 'lab' ? '#FFFFFF' : 'transparent',
-                    border: connectionType === 'lab' ? '1.5px solid #0B1C30' : '1px solid transparent',
-                    boxShadow: connectionType === 'lab' ? '0 2px 6px rgba(0,0,0,0.06)' : 'none',
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '0.45rem 0.85rem',
+                    fontSize: '0.78rem',
+                    fontWeight: espSubTab === 'code' ? 700 : 500,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '0.35rem'
+                    background: espSubTab === 'code' ? '#0B1C30' : '#F1F5F9',
+                    color: espSubTab === 'code' ? '#D1F34D' : '#64748B',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.15s ease'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, color: '#0B1C30', fontSize: '0.95rem' }}>
-                      <Server size={18} color="#22A65A" />
-                      <span>Option 2: Connect Lab</span>
-                    </div>
-                    {isLabConnected && (
-                      <span style={{ fontSize: '0.7rem', color: '#16A34A', fontWeight: 700, background: '#DCFCE7', padding: '2px 6px', borderRadius: '4px' }}>
-                        ● SYNCED
-                      </span>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '0.76rem', color: '#64748B', lineHeight: 1.4 }}>
-                    Link remote laboratory fumehood, central <strong>MQTT SCADA Gateway</strong>, or autonomous cloud station.
-                  </div>
-                </div>
+                  <Terminal size={13} />
+                  <span>Arduino / ESP C++ Firmware</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setEspSubTab('circuit')}
+                  style={{
+                    border: 'none',
+                    borderRadius: '6px',
+                    padding: '0.45rem 0.85rem',
+                    fontSize: '0.78rem',
+                    fontWeight: espSubTab === 'circuit' ? 700 : 500,
+                    cursor: 'pointer',
+                    background: espSubTab === 'circuit' ? '#0B1C30' : '#F1F5F9',
+                    color: espSubTab === 'circuit' ? '#D1F34D' : '#64748B',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.35rem',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <Layers size={13} />
+                  <span>Circuit Schematic & Wiring</span>
+                </button>
               </div>
 
-              {/* Detail Card for Option 1: CONNECT ESP */}
-              {connectionType === 'esp' && (
+              {/* Sub-View 1: Port Configuration */}
+              {espSubTab === 'port' && (
                 <div style={{
                   background: '#FFFFFF',
                   borderRadius: '12px',
@@ -663,8 +701,8 @@ void loop() {
                 </div>
               )}
 
-              {/* Detail Card for Option 2: CONNECT LAB */}
-              {connectionType === 'lab' && (
+              {/* Sub-View 2: Arduino / ESP C++ Firmware */}
+              {espSubTab === 'code' && (
                 <div style={{
                   background: '#FFFFFF',
                   borderRadius: '12px',
@@ -674,256 +712,122 @@ void loop() {
                   flexDirection: 'column',
                   gap: '1rem'
                 }}>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0B1C30' }}>
-                    Central Laboratory Station & SCADA Link
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
-                        Lab Station ID / Tag
-                      </label>
-                      <input
-                        type="text"
-                        value={labStationId}
-                        onChange={(e) => setLabStationId(e.target.value)}
-                        disabled={isLabConnected}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.82rem' }}
-                      />
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
-                        Protocol
-                      </label>
-                      <select
-                        value={labProtocol}
-                        onChange={(e) => setLabProtocol(e.target.value)}
-                        disabled={isLabConnected}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.82rem', background: '#FFFFFF' }}
-                      >
-                        <option value="mqtt">MQTT v3.1.1 (Standard Lab Broker)</option>
-                        <option value="opcua">OPC-UA Industrial Bridge</option>
-                        <option value="rest">REST Webhook / HTTP Endpoint</option>
-                      </select>
-                    </div>
-
-                    <div style={{ gridColumn: '1 / -1' }}>
-                      <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
-                        Gateway URL / Broker Address
-                      </label>
-                      <input
-                        type="text"
-                        value={labUrl}
-                        onChange={(e) => setLabUrl(e.target.value)}
-                        disabled={isLabConnected}
-                        style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.82rem' }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Actions & Status */}
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '1rem',
-                    borderTop: '1px solid #F1F5F9',
-                    paddingTop: '1rem'
-                  }}>
-                    {isLabConnected ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#16A34A', fontWeight: 600 }}>
-                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 8px #22C55E' }} />
-                        <span>Synchronized with {labStationId}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#475569' }}>Target Board:</span>
+                      <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: '6px', padding: '2px' }}>
+                        <button
+                          onClick={() => setSelectedMcu('esp8266')}
+                          style={{
+                            border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
+                            background: selectedMcu === 'esp8266' ? '#0B1C30' : 'transparent',
+                            color: selectedMcu === 'esp8266' ? '#D1F34D' : '#64748B'
+                          }}
+                        >
+                          ESP8266 NodeMCU
+                        </button>
+                        <button
+                          onClick={() => setSelectedMcu('esp32')}
+                          style={{
+                            border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
+                            background: selectedMcu === 'esp32' ? '#0B1C30' : 'transparent',
+                            color: selectedMcu === 'esp32' ? '#D1F34D' : '#64748B'
+                          }}
+                        >
+                          ESP32 DevKit V1
+                        </button>
                       </div>
-                    ) : (
-                      <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
-                        Status: <strong style={{ color: '#0B1C30' }}>Lab Standalone (Local Mode)</strong>
-                      </div>
-                    )}
+                    </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      {isLabConnected ? (
-                        <button
-                          onClick={handleDisconnectLab}
-                          style={{
-                            background: '#FEE2E2',
-                            color: '#DC2626',
-                            border: '1px solid #FCA5A5',
-                            borderRadius: '8px',
-                            padding: '0.55rem 1rem',
-                            fontSize: '0.82rem',
-                            fontWeight: 600,
-                            cursor: 'pointer'
-                          }}
-                        >
-                          Disconnect Lab
-                        </button>
-                      ) : (
-                        <button
-                          onClick={handleConnectLab}
-                          disabled={labConnecting}
-                          style={{
-                            background: '#22A65A',
-                            color: '#FFFFFF',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '0.55rem 1.25rem',
-                            fontSize: '0.84rem',
-                            fontWeight: 700,
-                            cursor: 'pointer',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '0.45rem'
-                          }}
-                        >
-                          <Server size={14} />
-                          <span>{labConnecting ? 'Connecting...' : 'Establish Lab Link'}</span>
-                        </button>
-                      )}
+                      <button
+                        onClick={handleCopyCode}
+                        style={{
+                          background: '#FFFFFF',
+                          border: '1px solid #CBD5E1',
+                          borderRadius: '6px',
+                          padding: '5px 12px',
+                          fontSize: '0.76rem',
+                          fontWeight: 600,
+                          color: '#0B1C30',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem'
+                        }}
+                      >
+                        {copiedCode ? <CheckCircle2 size={13} color="#16A34A" /> : <Copy size={13} />}
+                        <span>{copiedCode ? 'Copied!' : 'Copy Code'}</span>
+                      </button>
+
+                      <button
+                        onClick={handleDownloadIno}
+                        style={{
+                          background: '#0B1C30',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '5px 12px',
+                          fontSize: '0.76rem',
+                          fontWeight: 600,
+                          color: '#D1F34D',
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.35rem'
+                        }}
+                      >
+                        <Download size={13} />
+                        <span>Download .ino File</span>
+                      </button>
                     </div>
+                  </div>
+
+                  {/* Code Editor Box */}
+                  <div style={{
+                    background: '#0B132B',
+                    color: '#E2E8F0',
+                    borderRadius: '10px',
+                    padding: '1.25rem',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.74rem',
+                    lineHeight: 1.55,
+                    maxHeight: '380px',
+                    overflowY: 'auto',
+                    border: '1px solid #1E293B'
+                  }}>
+                    <pre style={{ margin: 0 }}>{espFirmwareCode}</pre>
+                  </div>
+
+                  <div style={{ fontSize: '0.74rem', color: '#64748B', lineHeight: 1.5 }}>
+                    💡 <strong>How to Flash:</strong> Open Arduino IDE, install <code>ArduinoJson</code> and <code>MAX6675</code> libraries from Library Manager, select <strong>NodeMCU 1.0 (ESP-12E)</strong> or <strong>ESP32 Dev Module</strong>, and hit Upload.
                   </div>
                 </div>
               )}
 
-              {/* Safety Interlock Note */}
-              <div style={{
-                background: '#FEF9C3',
-                border: '1px solid #FDE047',
-                borderRadius: '8px',
-                padding: '0.75rem 1rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.65rem',
-                fontSize: '0.76rem',
-                color: '#854D0E',
-                lineHeight: 1.4
-              }}>
-                <ShieldCheck size={18} color="#CA8A04" style={{ flexShrink: 0 }} />
-                <span>
-                  <strong>Hardware Safety Interlock:</strong> Whether connected via ESP8266 or Lab Gateway, pressing <strong>Stop run</strong> in AutoLab OS triggers an immediate hardware kill interrupt, switching SSR relays to OFF state.
-                </span>
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              TAB 2: ARDUINO / ESP C++ FIRMWARE CODE
-          ═════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'code' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#475569' }}>Target Board:</span>
-                  <div style={{ display: 'inline-flex', background: '#F1F5F9', borderRadius: '6px', padding: '2px' }}>
-                    <button
-                      onClick={() => setSelectedMcu('esp8266')}
-                      style={{
-                        border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
-                        background: selectedMcu === 'esp8266' ? '#0B1C30' : 'transparent',
-                        color: selectedMcu === 'esp8266' ? '#D1F34D' : '#64748B'
-                      }}
-                    >
-                      ESP8266 NodeMCU
-                    </button>
-                    <button
-                      onClick={() => setSelectedMcu('esp32')}
-                      style={{
-                        border: 'none', borderRadius: '4px', padding: '4px 10px', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer',
-                        background: selectedMcu === 'esp32' ? '#0B1C30' : 'transparent',
-                        color: selectedMcu === 'esp32' ? '#D1F34D' : '#64748B'
-                      }}
-                    >
-                      ESP32 DevKit V1
-                    </button>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <button
-                    onClick={handleCopyCode}
-                    style={{
-                      background: '#FFFFFF',
-                      border: '1px solid #CBD5E1',
-                      borderRadius: '6px',
-                      padding: '5px 12px',
-                      fontSize: '0.76rem',
-                      fontWeight: 600,
-                      color: '#0B1C30',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.35rem'
-                    }}
-                  >
-                    {copiedCode ? <CheckCircle2 size={13} color="#16A34A" /> : <Copy size={13} />}
-                    <span>{copiedCode ? 'Copied to Clipboard!' : 'Copy Code'}</span>
-                  </button>
-
-                  <button
-                    onClick={handleDownloadIno}
-                    style={{
-                      background: '#0B1C30',
-                      border: 'none',
-                      borderRadius: '6px',
-                      padding: '5px 12px',
-                      fontSize: '0.76rem',
-                      fontWeight: 600,
-                      color: '#D1F34D',
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '0.35rem'
-                    }}
-                  >
-                    <Download size={13} />
-                    <span>Download .ino File</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Code Editor Box */}
-              <div style={{
-                background: '#0B132B',
-                color: '#E2E8F0',
-                borderRadius: '10px',
-                padding: '1.25rem',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.75rem',
-                lineHeight: 1.55,
-                maxHeight: '440px',
-                overflowY: 'auto',
-                border: '1px solid #1E293B'
-              }}>
-                <pre style={{ margin: 0 }}>{espFirmwareCode}</pre>
-              </div>
-
-              <div style={{ fontSize: '0.74rem', color: '#64748B', lineHeight: 1.5 }}>
-                💡 <strong>How to Flash:</strong> Open Arduino IDE, install <code>ArduinoJson</code> and <code>MAX6675</code> libraries from Library Manager, select <strong>NodeMCU 1.0 (ESP-12E)</strong> or <strong>ESP32 Dev Module</strong>, and hit Upload.
-              </div>
-            </div>
-          )}
-
-          {/* ═════════════════════════════════════════════════════════════════
-              TAB 3: CIRCUIT SCHEMATIC & WIRING GUIDE
-          ═════════════════════════════════════════════════════════════════ */}
-          {activeTab === 'circuit' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              
-              {/* ASCII Schematic Diagram Box */}
-              <div style={{
-                background: '#0F172A',
-                color: '#38BDF8',
-                borderRadius: '10px',
-                padding: '1rem',
-                fontFamily: 'var(--font-mono)',
-                fontSize: '0.72rem',
-                lineHeight: 1.35,
-                overflowX: 'auto',
-                border: '1px solid #1E293B'
-              }}>
-                <pre style={{ margin: 0 }}>
+              {/* Sub-View 3: Circuit Schematic & Wiring */}
+              {espSubTab === 'circuit' && (
+                <div style={{
+                  background: '#FFFFFF',
+                  borderRadius: '12px',
+                  border: '1px solid #E5E9E4',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.25rem'
+                }}>
+                  {/* ASCII Schematic Diagram Box */}
+                  <div style={{
+                    background: '#0F172A',
+                    color: '#38BDF8',
+                    borderRadius: '10px',
+                    padding: '1rem',
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.72rem',
+                    lineHeight: 1.35,
+                    overflowX: 'auto',
+                    border: '1px solid #1E293B'
+                  }}>
+                    <pre style={{ margin: 0 }}>
 {`+-----------------------------------------------------------------------------------+
 |                           AUTOLAB OS HOST WORKSTATION                             |
 |                        (WebSerial USB / Local WiFi WebSocket)                     |
@@ -947,106 +851,252 @@ void loop() {
  Heating          12V DC           Peltier           365nm           K-Type
  Mantle           Stirrer          Cooler /          UV Lamp         Probe in
 (230V AC)         Motor            Fan (Quench)      (Photolysis)    Vessel`}
-                </pre>
-              </div>
-
-              {/* Pinout Table */}
-              <div style={{ borderRadius: '10px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
-                <div style={{ background: '#F8FAFC', padding: '0.65rem 1rem', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: '0.82rem', color: '#0B1C30' }}>
-                  Pinout & Interconnect Mapping Table
-                </div>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.76rem', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ background: '#FAFBF9', borderBottom: '1px solid #E2E8F0', color: '#475569' }}>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>ESP Pin</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>GPIO</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Component</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Signal Type</th>
-                      <th style={{ padding: '0.5rem 0.75rem' }}>Operating Voltage</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D1</td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 5</td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#DC2626' }}>
-                        <Flame size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                        Fotek SSR-25DA
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>PID PWM (Zero Cross)</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>3.3V Logic → 230V AC Load</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D2</td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 4</td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#65A30D' }}>
-                        <Fan size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                        IRF520 / L298N MOSFET
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>Hardware PWM (0–255)</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>3.3V Logic → 12V DC Motor</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D3</td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 0</td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#0284C7' }}>
-                        <Snowflake size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                        Peltier Chiller Relay
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>Digital On/Off</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>Optocoupler 5V Relay</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D4</td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 2</td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#7C3AED' }}>
-                        <Sun size={12} style={{ display: 'inline', marginRight: '4px' }} />
-                        UV LED Transistor
-                      </td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>Digital Output</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>3.3V Logic → 365nm LED</td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D5, D6, D7</td>
-                      <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 14, 12, 13</td>
-                      <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#0B1C30' }}>MAX6675 Thermocouple</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>SPI Serial Interface</td>
-                      <td style={{ padding: '0.5rem 0.75rem' }}>3.3V VCC / Ground</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Bill of Materials (BOM) & Electrical Safety */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#0B1C30', marginBottom: '0.45rem' }}>
-                    📦 Bill of Materials (BOM)
+                    </pre>
                   </div>
-                  <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.74rem', color: '#475569', lineHeight: 1.6 }}>
-                    <li>ESP8266 NodeMCU v2 or ESP32 DevKit</li>
-                    <li>MAX6675 SPI K-Type Thermocouple Amplifier Module</li>
-                    <li>Fotek SSR-25DA (Solid State Relay 3-32V DC to 24-380V AC)</li>
-                    <li>IRF520 or IRLZ44N N-Channel MOSFET Motor Driver</li>
-                    <li>12V 5A Bench Power Supply (for stir motor & Peltier)</li>
-                    <li>1N4007 Flyback Diode across motor terminals</li>
-                  </ul>
-                </div>
 
-                <div style={{ background: '#FEF2F2', padding: '1rem', borderRadius: '10px', border: '1px solid #FCA5A5' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#DC2626', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <AlertTriangle size={14} /> High-Voltage Laboratory Safety
+                  {/* Pinout Table */}
+                  <div style={{ borderRadius: '10px', border: '1px solid #E2E8F0', overflow: 'hidden' }}>
+                    <div style={{ background: '#F8FAFC', padding: '0.65rem 1rem', borderBottom: '1px solid #E2E8F0', fontWeight: 700, fontSize: '0.82rem', color: '#0B1C30' }}>
+                      Pinout & Interconnect Mapping Table
+                    </div>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.76rem', textAlign: 'left' }}>
+                      <thead>
+                        <tr style={{ background: '#FAFBF9', borderBottom: '1px solid #E2E8F0', color: '#475569' }}>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>ESP Pin</th>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>GPIO</th>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>Component</th>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>Signal Type</th>
+                          <th style={{ padding: '0.5rem 0.75rem' }}>Operating Voltage</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D1</td>
+                          <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 5</td>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#DC2626' }}>
+                            <Flame size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                            Fotek SSR-25DA
+                          </td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>PID PWM (Zero Cross)</td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>3.3V Logic → 230V AC Load</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D2</td>
+                          <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 4</td>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#65A30D' }}>
+                            <Fan size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                            IRF520 / L298N MOSFET
+                          </td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>Hardware PWM (0–255)</td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>3.3V Logic → 12V DC Motor</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D3</td>
+                          <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 0</td>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#0284C7' }}>
+                            <Snowflake size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                            Peltier Chiller Relay
+                          </td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>Digital On/Off</td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>Optocoupler 5V Relay</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #F1F5F9' }}>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D4</td>
+                          <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 2</td>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#7C3AED' }}>
+                            <Sun size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                            UV LED Transistor
+                          </td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>Digital Output</td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>3.3V Logic → 365nm LED</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>D5, D6, D7</td>
+                          <td style={{ padding: '0.5rem 0.75rem', color: '#64748B' }}>GPIO 14, 12, 13</td>
+                          <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600, color: '#0B1C30' }}>MAX6675 Thermocouple</td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>SPI Serial Interface</td>
+                          <td style={{ padding: '0.5rem 0.75rem' }}>3.3V VCC / Ground</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
-                  <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.74rem', color: '#991B1B', lineHeight: 1.6 }}>
-                    <li><strong>Optocoupler Isolation:</strong> SSR has built-in 2500V optoisolation protecting the ESP32 logic.</li>
-                    <li><strong>Flyback Protection:</strong> Always connect a 1N4007 diode reverse-biased across the DC stirrer motor to suppress inductive voltage kicks.</li>
-                    <li><strong>Thermal Fuse:</strong> Place a 150°C/350°C thermal cutoff fuse in series with the AC heating mantle line.</li>
-                  </ul>
-                </div>
-              </div>
 
+                  {/* Bill of Materials (BOM) & Electrical Safety */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <div style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '10px', border: '1px solid #E2E8F0' }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#0B1C30', marginBottom: '0.45rem' }}>
+                        📦 Bill of Materials (BOM)
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.74rem', color: '#475569', lineHeight: 1.6 }}>
+                        <li>ESP8266 NodeMCU v2 or ESP32 DevKit</li>
+                        <li>MAX6675 SPI K-Type Thermocouple Amplifier Module</li>
+                        <li>Fotek SSR-25DA (Solid State Relay 3-32V DC to 24-380V AC)</li>
+                        <li>IRF520 or IRLZ44N N-Channel MOSFET Motor Driver</li>
+                        <li>12V 5A Bench Power Supply (for stir motor & Peltier)</li>
+                        <li>1N4007 Flyback Diode across motor terminals</li>
+                      </ul>
+                    </div>
+
+                    <div style={{ background: '#FEF2F2', padding: '1rem', borderRadius: '10px', border: '1px solid #FCA5A5' }}>
+                      <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#DC2626', marginBottom: '0.45rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                        <AlertTriangle size={14} /> High-Voltage Laboratory Safety
+                      </div>
+                      <ul style={{ margin: 0, paddingLeft: '1.2rem', fontSize: '0.74rem', color: '#991B1B', lineHeight: 1.6 }}>
+                        <li><strong>Optocoupler Isolation:</strong> SSR has built-in 2500V optoisolation protecting the ESP32 logic.</li>
+                        <li><strong>Flyback Protection:</strong> Always connect a 1N4007 diode reverse-biased across the DC stirrer motor.</li>
+                        <li><strong>Thermal Fuse:</strong> Place a 150°C/350°C thermal cutoff fuse in series with the AC heating mantle line.</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
+          {/* ═════════════════════════════════════════════════════════════════
+              CONTENT FOR OPTION 2: CONNECT LAB (Remote SCADA / MQTT)
+          ═════════════════════════════════════════════════════════════════ */}
+          {connectionType === 'lab' && (
+            <div style={{
+              background: '#FFFFFF',
+              borderRadius: '12px',
+              border: '1px solid #E5E9E4',
+              padding: '1.25rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1rem'
+            }}>
+              <div style={{ fontSize: '0.92rem', fontWeight: 700, color: '#0B1C30' }}>
+                Central Laboratory Station & SCADA Link
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                    Lab Station ID / Tag
+                  </label>
+                  <input
+                    type="text"
+                    value={labStationId}
+                    onChange={(e) => setLabStationId(e.target.value)}
+                    disabled={isLabConnected}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.82rem' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                    Protocol
+                  </label>
+                  <select
+                    value={labProtocol}
+                    onChange={(e) => setLabProtocol(e.target.value)}
+                    disabled={isLabConnected}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.82rem', background: '#FFFFFF' }}
+                  >
+                    <option value="mqtt">MQTT v3.1.1 (Standard Lab Broker)</option>
+                    <option value="opcua">OPC-UA Industrial Bridge</option>
+                    <option value="rest">REST Webhook / HTTP Endpoint</option>
+                  </select>
+                </div>
+
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <label style={{ display: 'block', fontSize: '0.74rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem' }}>
+                    Gateway URL / Broker Address
+                  </label>
+                  <input
+                    type="text"
+                    value={labUrl}
+                    onChange={(e) => setLabUrl(e.target.value)}
+                    disabled={isLabConnected}
+                    style={{ width: '100%', padding: '0.55rem', borderRadius: '6px', border: '1px solid #CBD5E1', fontSize: '0.82rem' }}
+                  />
+                </div>
+              </div>
+
+              {/* Actions & Status */}
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: '1rem',
+                borderTop: '1px solid #F1F5F9',
+                paddingTop: '1rem'
+              }}>
+                {isLabConnected ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.82rem', color: '#16A34A', fontWeight: 600 }}>
+                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 8px #22C55E' }} />
+                    <span>Synchronized with {labStationId}</span>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '0.78rem', color: '#64748B' }}>
+                    Status: <strong style={{ color: '#0B1C30' }}>Lab Standalone (Local Mode)</strong>
+                  </div>
+                )}
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {isLabConnected ? (
+                    <button
+                      onClick={handleDisconnectLab}
+                      style={{
+                        background: '#FEE2E2',
+                        color: '#DC2626',
+                        border: '1px solid #FCA5A5',
+                        borderRadius: '8px',
+                        padding: '0.55rem 1rem',
+                        fontSize: '0.82rem',
+                        fontWeight: 600,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Disconnect Lab
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleConnectLab}
+                      disabled={labConnecting}
+                      style={{
+                        background: '#22A65A',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        borderRadius: '8px',
+                        padding: '0.55rem 1.25rem',
+                        fontSize: '0.84rem',
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.45rem'
+                      }}
+                    >
+                      <Server size={14} />
+                      <span>{labConnecting ? 'Connecting...' : 'Establish Lab Link'}</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Safety Interlock Note */}
+          <div style={{
+            background: '#FEF9C3',
+            border: '1px solid #FDE047',
+            borderRadius: '8px',
+            padding: '0.75rem 1rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            fontSize: '0.76rem',
+            color: '#854D0E',
+            lineHeight: 1.4
+          }}>
+            <ShieldCheck size={18} color="#CA8A04" style={{ flexShrink: 0 }} />
+            <span>
+              <strong>Hardware Safety Interlock:</strong> Whether connected via ESP8266 or Lab Gateway, pressing <strong>Stop run</strong> in AutoLab OS triggers an immediate hardware kill interrupt, switching SSR relays to OFF state.
+            </span>
+          </div>
 
         </div>
 
