@@ -70,6 +70,7 @@ export default function StepExecution({
   const [showLogs, setShowLogs] = useState(false);
   const [showActuatorDrawer, setShowActuatorDrawer] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date().toLocaleTimeString());
+  const [reactorViewMode, setReactorViewMode] = useState('twin'); // 'twin' | 'rig'
 
   const terminalBoxRef = useRef(null);
 
@@ -230,6 +231,35 @@ export default function StepExecution({
   const remStr = remH > 0 ? `${remH}h ${remM}m` : `${Math.floor(remainingSec / 60)}m ${String(Math.floor(remainingSec % 60)).padStart(2, '0')}s`;
 
   const progressPct = totalSimSec > 0 ? Math.min(100, Math.round((elapsedSec / totalSimSec) * 100)) : 0;
+
+  // Fluid physics & animation dynamics
+  const heatF = Math.min(1, Math.max(0, (simTemp - 25) / 180));
+  const spinDur = simRpm > 0 ? Math.max(0.06, 60 / simRpm) : 0;
+  const vortex = Math.min(28, (simRpm / 1000) * 28);
+
+  let liquidColor = 'rgba(74, 116, 97, 0.65)';
+  let liquidGlow = 'rgba(74, 116, 97, 0.25)';
+  if (protocol.id?.includes('perovskite') || protocol.id?.includes('cspbbr3')) {
+    if (simTemp > 140) {
+      liquidColor = 'rgba(34, 197, 94, 0.85)';
+      liquidGlow = 'rgba(34, 197, 94, 0.45)';
+    } else {
+      liquidColor = 'rgba(245, 158, 11, 0.7)';
+      liquidGlow = 'rgba(245, 158, 11, 0.3)';
+    }
+  } else if (protocol.id?.includes('llzo')) {
+    liquidColor = simTemp > 200 ? 'rgba(30, 41, 59, 0.9)' : simTemp > 70 ? 'rgba(245, 158, 11, 0.7)' : 'rgba(59, 130, 246, 0.55)';
+    liquidGlow = 'rgba(59, 130, 246, 0.3)';
+  } else if (protocol.id?.includes('fe3o4')) {
+    liquidColor = simTemp > 60 ? 'rgba(15, 23, 42, 0.95)' : 'rgba(180, 83, 9, 0.75)';
+    liquidGlow = 'rgba(180, 83, 9, 0.35)';
+  } else if (simTemp > 100) {
+    liquidColor = 'rgba(234, 88, 12, 0.8)';
+    liquidGlow = 'rgba(234, 88, 12, 0.4)';
+  } else if (simTemp > 50) {
+    liquidColor = 'rgba(59, 130, 246, 0.65)';
+    liquidGlow = 'rgba(59, 130, 246, 0.3)';
+  }
 
   // Handlers
   const handleDeploy = () => {
@@ -580,10 +610,56 @@ export default function StepExecution({
           gap: '1rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
-          {/* Header: Title & Restrained State Pill */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
-              Live reactor
+          {/* Header: Title, Mode Switcher & Restrained State Pill */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
+                Live reactor
+              </div>
+
+              {/* View Toggle Pill */}
+              <div style={{
+                display: 'inline-flex',
+                background: '#F1F5F9',
+                borderRadius: '6px',
+                padding: '2px',
+                border: '1px solid #E2E8F0'
+              }}>
+                <button
+                  type="button"
+                  onClick={() => setReactorViewMode('twin')}
+                  style={{
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: reactorViewMode === 'twin' ? '#0B1C30' : 'transparent',
+                    color: reactorViewMode === 'twin' ? '#D1F34D' : '#64748B',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  ⚗ Digital Twin
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setReactorViewMode('rig')}
+                  style={{
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '2px 8px',
+                    fontSize: '0.72rem',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    background: reactorViewMode === 'rig' ? '#0B1C30' : 'transparent',
+                    color: reactorViewMode === 'rig' ? '#D1F34D' : '#64748B',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  🔬 Lab Rig
+                </button>
+              </div>
             </div>
 
             {/* Status pill: Cooling, Heating, Stirring, or Idle */}
@@ -629,55 +705,357 @@ export default function StepExecution({
             )}
           </div>
 
-          {/* Central Realistic Laboratory Reactor Visualization */}
-          <div style={{
-            position: 'relative',
-            borderRadius: '10px',
-            overflow: 'hidden',
-            background: '#FFFFFF',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '260px'
-          }}>
-            {/* Photorealistic automated reactor station */}
-            <img
-              src="/lab_reactor_station.jpg"
-              alt="Automated Reactor Station"
-              style={{
-                width: '100%',
-                maxHeight: '270px',
-                objectFit: 'contain',
-                display: 'block'
-              }}
-            />
-
-            {/* Callouts (Matches reference design) */}
+          {/* Central Reactor Visualizer (Animated Digital Twin or Hardware Rig) */}
+          {reactorViewMode === 'twin' ? (
             <div style={{
-              position: 'absolute',
-              right: '12px',
-              top: '25%',
+              position: 'relative',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              background: 'radial-gradient(ellipse at top, #1E293B 0%, #0F172A 100%)',
+              border: '1px solid #334155',
+              padding: '1.25rem 1rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '1.25rem',
-              pointerEvents: 'none'
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '270px',
+              boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
-                <span>Furnace (PID)</span>
+              {/* Header Badges inside observation chamber */}
+              <div style={{
+                position: 'absolute',
+                top: '10px',
+                left: '12px',
+                right: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                pointerEvents: 'none'
+              }}>
+                <span style={{ fontSize: '0.68rem', letterSpacing: '0.06em', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>
+                  OBSERVATION CHAMBER
+                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                  {[
+                    { label: 'Heat', active: heaterPwm > 0 && !isAborted && !coolerActive, color: '#EF4444' },
+                    { label: 'Chill', active: coolerActive && !isAborted, color: '#38BDF8' },
+                    { label: 'Stir', active: simRpm > 0 && !isAborted, color: '#D1F34D' },
+                    { label: 'UV', active: isUvActive && !isAborted, color: '#A855F7' },
+                  ].map(a => (
+                    <div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                      <div style={{
+                        width: '6px', height: '6px', borderRadius: '50%',
+                        background: a.active ? a.color : 'rgba(255,255,255,0.2)',
+                        boxShadow: a.active ? `0 0 6px ${a.color}` : 'none'
+                      }} />
+                      <span style={{ fontSize: '0.66rem', color: a.active ? a.color : '#64748B', fontWeight: 600 }}>
+                        {a.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
-                <span>Reaction vessel</span>
+              {/* Center Vessel Rig Assembly */}
+              <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                transform: 'translateX(-34px)',
+                marginTop: '1.1rem'
+              }}>
+                {/* Top Condenser column */}
+                <div style={{
+                  width: '18px',
+                  height: '24px',
+                  background: 'linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3), rgba(255,255,255,0.1))',
+                  borderRadius: '3px 3px 0 0',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  borderBottom: 'none',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    position: 'absolute', top: '4px', left: '-6px', right: '-6px', height: '3px',
+                    background: '#64748B', borderRadius: '2px'
+                  }} />
+                </div>
+
+                {/* UV Optical Beam */}
+                {isUvActive && !isAborted && (
+                  <div style={{
+                    width: '120px',
+                    height: '8px',
+                    background: 'linear-gradient(to right, transparent, rgba(168,85,247,0.7), transparent)',
+                    borderRadius: '99px',
+                    marginBottom: '4px',
+                    animation: 'uvBeamPulse 1.3s ease-in-out infinite'
+                  }} />
+                )}
+
+                {/* Central Glass Reactor Vessel */}
+                <div style={{
+                  width: '126px',
+                  height: '154px',
+                  background: `linear-gradient(180deg, rgba(255,255,255,0.08) 0%, ${liquidColor} 100%)`,
+                  borderRadius: '8px 8px 40% 40% / 8px 8px 30% 30%',
+                  border: `2px solid ${heaterPwm > 0 && !coolerActive && !isAborted ? '#EF4444' : (coolerActive && !isAborted ? '#38BDF8' : 'rgba(255,255,255,0.25)')}`,
+                  position: 'relative',
+                  overflow: 'hidden',
+                  boxShadow: heaterPwm > 0 && !coolerActive && !isAborted
+                    ? '0 0 28px rgba(239,68,68,0.3)'
+                    : (coolerActive && !isAborted ? '0 0 24px rgba(56,189,248,0.3)' : `0 0 20px ${liquidGlow}`),
+                  transition: 'all 0.4s ease'
+                }}>
+                  {/* Fluid Column with dynamic height */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    height: `${55 + heatF * 20}%`,
+                    background: `linear-gradient(to top, ${liquidColor}, ${liquidColor.replace(/[\d.]+\)$/, '0.35)')})`,
+                    transition: 'height 0.4s ease',
+                  }} />
+
+                  {/* Stirring Vortex & Magnetic Stir Bar */}
+                  {simRpm > 0 && !isAborted && (
+                    <>
+                      {/* Rotating Vortex Meniscus */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '22%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: `${vortex + 10}px`,
+                        height: `${vortex + 10}px`,
+                        pointerEvents: 'none'
+                      }}>
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: '50%',
+                          border: '2px dashed rgba(209,243,77,0.75)',
+                          animation: `vortexSpin ${spinDur}s linear infinite`
+                        }} />
+                      </div>
+
+                      {/* Spinning Magnetic Stir Bar */}
+                      <div style={{
+                        position: 'absolute',
+                        bottom: '16%',
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: '36px',
+                        height: '8px',
+                        pointerEvents: 'none'
+                      }}>
+                        <div style={{
+                          width: '100%',
+                          height: '100%',
+                          borderRadius: '4px',
+                          background: '#FFFFFF',
+                          boxShadow: '0 0 10px rgba(255,255,255,0.9)',
+                          animation: `vortexSpin ${spinDur}s linear infinite`
+                        }} />
+                      </div>
+
+                      {/* Rising micro bubbles */}
+                      <div style={{
+                        position: 'absolute', bottom: '26%', left: '38%', width: '3px', height: '3px', borderRadius: '50%', background: 'rgba(255,255,255,0.6)',
+                        animation: `thermalWaveUp ${spinDur * 2}s ease-in-out infinite`
+                      }} />
+                      <div style={{
+                        position: 'absolute', bottom: '32%', right: '35%', width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.5)',
+                        animation: `thermalWaveUp ${spinDur * 2.5}s ease-in-out infinite`
+                      }} />
+                    </>
+                  )}
+
+                  {/* Thermal convection waves */}
+                  {heaterPwm > 0 && !coolerActive && !isAborted && targetTemp > 40 && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'space-around',
+                      alignItems: 'flex-end',
+                      paddingBottom: '8px',
+                      pointerEvents: 'none'
+                    }}>
+                      {[0.9, 1.1, 1.3, 0.95, 1.15].map((d, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            width: '3px',
+                            height: '20px',
+                            background: 'linear-gradient(to top, rgba(249,115,22,0.7), transparent)',
+                            borderRadius: '2px',
+                            animation: `thermalWaveUp ${d * 1.2}s ease-in-out infinite`
+                          }}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Frost glimmer aura */}
+                  {coolerActive && !isAborted && (
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(180deg, rgba(56,189,248,0.2) 0%, transparent 60%)',
+                      animation: 'frostGlimmer 1.5s ease-in-out infinite'
+                    }} />
+                  )}
+                </div>
+
+                {/* Heated Stirrer Base Plate */}
+                <div style={{
+                  width: '148px',
+                  height: '12px',
+                  background: '#1E293B',
+                  borderRadius: '0 0 8px 8px',
+                  border: '1px solid #334155',
+                  marginTop: '-1px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}>
+                  <div style={{
+                    width: '5px',
+                    height: '5px',
+                    borderRadius: '50%',
+                    background: isRunning && !isAborted ? '#22C55E' : '#64748B',
+                    boxShadow: isRunning && !isAborted ? '0 0 6px #22C55E' : 'none'
+                  }} />
+                </div>
               </div>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
-                <span>Magnetic stirrer</span>
+              {/* Callouts (Matches reference design) */}
+              <div style={{
+                position: 'absolute',
+                right: '14px',
+                top: '24%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.15rem',
+                pointerEvents: 'none',
+                zIndex: 4
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.72rem', color: '#E2E8F0', fontWeight: 500, background: 'rgba(15,23,42,0.92)', padding: '3px 8px', borderRadius: '5px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: heaterPwm > 0 ? '#EF4444' : '#64748B', boxShadow: heaterPwm > 0 ? '0 0 6px #EF4444' : 'none' }} />
+                  <span>Furnace (PID: {heaterPwm}%)</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.72rem', color: '#E2E8F0', fontWeight: 500, background: 'rgba(15,23,42,0.92)', padding: '3px 8px', borderRadius: '5px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', boxShadow: '0 0 6px #22C55E' }} />
+                  <span>Reaction vessel</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.72rem', color: '#E2E8F0', fontWeight: 500, background: 'rgba(15,23,42,0.92)', padding: '3px 8px', borderRadius: '5px', border: '1px solid rgba(255,255,255,0.12)', boxShadow: '0 2px 6px rgba(0,0,0,0.25)' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: simRpm > 0 ? '#D1F34D' : '#64748B', boxShadow: simRpm > 0 ? '0 0 6px #D1F34D' : 'none' }} />
+                  <span>Magnetic stirrer ({simRpm} RPM)</span>
+                </div>
               </div>
             </div>
-          </div>
+          ) : (
+            /* Lab Rig View with Live Animated Overlays */
+            <div style={{
+              position: 'relative',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              background: '#FFFFFF',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '260px'
+            }}>
+              {/* Photorealistic automated reactor station */}
+              <img
+                src="/lab_reactor_station.jpg"
+                alt="Automated Reactor Station"
+                style={{
+                  width: '100%',
+                  maxHeight: '270px',
+                  objectFit: 'contain',
+                  display: 'block'
+                }}
+              />
+
+              {/* Live Animated Flask Glow & Vortex Overlay on vessel area */}
+              <div style={{
+                position: 'absolute',
+                left: '50.5%',
+                top: '54%',
+                transform: 'translate(-50%, -50%)',
+                width: '74px',
+                height: '74px',
+                borderRadius: '50%',
+                background: `radial-gradient(circle, ${liquidColor} 0%, transparent 70%)`,
+                mixBlendMode: 'screen',
+                pointerEvents: 'none'
+              }} />
+
+              {simRpm > 0 && !isAborted && (
+                <div style={{
+                  position: 'absolute',
+                  left: '50.5%',
+                  top: '54%',
+                  transform: 'translate(-50%, -50%)',
+                  width: `${Math.max(14, vortex)}px`,
+                  height: `${Math.max(14, vortex)}px`,
+                  borderRadius: '50%',
+                  border: '1.5px dashed rgba(209,243,77,0.85)',
+                  animation: `vortexSpin ${spinDur}s linear infinite`,
+                  pointerEvents: 'none'
+                }} />
+              )}
+
+              {/* Live LCD Telemetry Overlay on the rig screen */}
+              <div style={{
+                position: 'absolute',
+                right: '23%',
+                top: '41%',
+                color: '#38BDF8',
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                fontFamily: 'var(--font-mono)',
+                pointerEvents: 'none',
+                textShadow: '0 0 4px #0284C7'
+              }}>
+                {simTemp.toFixed(0)}°C
+              </div>
+
+              {/* Callouts (Matches reference design) */}
+              <div style={{
+                position: 'absolute',
+                right: '12px',
+                top: '25%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1.25rem',
+                pointerEvents: 'none'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: heaterPwm > 0 ? '#EF4444' : '#64748B' }} />
+                  <span>Furnace (PID)</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#22C55E' }} />
+                  <span>Reaction vessel</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.9)', padding: '2px 6px', borderRadius: '4px', border: '1px solid #E2E8F0' }}>
+                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: simRpm > 0 ? '#65A30D' : '#64748B' }} />
+                  <span>Magnetic stirrer</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Bottom 3 Live Telemetry Metrics */}
           <div style={{
