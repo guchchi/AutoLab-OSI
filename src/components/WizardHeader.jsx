@@ -2,7 +2,7 @@ import React from 'react';
 import { BookOpen, Check, Radio, Layers } from 'lucide-react';
 import AutoLabLogo from './AutoLabLogo';
 
-export default function WizardHeader({ currentStep, setCurrentStep, onOpenDocs }) {
+export default function WizardHeader({ currentStep, setCurrentStep, onOpenDocs, onOpenConnectLab }) {
   const steps = [
     { num: 1, label: 'Overview' },
     { num: 2, label: 'Literature Query' },
@@ -38,11 +38,24 @@ export default function WizardHeader({ currentStep, setCurrentStep, onOpenDocs }
 
         {/* Status Indicators & Docs Button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-          {/* Status Indicator: Lab Ready */}
-          <div className="status-indicator">
-            <span className="dot-ready" />
-            <span style={{ color: 'var(--deep-charcoal)', fontSize: '0.75rem' }}>Lab Ready</span>
-          </div>
+          {/* Connect Lab / ESP Hardware Button */}
+          <button
+            onClick={onOpenConnectLab}
+            className="lab-badge lab-badge-lime"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              cursor: 'pointer',
+              border: 'none',
+              padding: '0.35rem 0.75rem',
+              fontWeight: 700
+            }}
+            title="Configure ESP8266/ESP32 & Lab Server Gateway"
+          >
+            <span className="pulse-indicator" />
+            🔌 Connect Lab / ESP
+          </button>
 
           {/* Valency Status */}
           <span className="lab-badge lab-badge-blue" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>

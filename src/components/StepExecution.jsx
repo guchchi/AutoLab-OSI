@@ -29,7 +29,9 @@ import {
   ArrowLeft,
   Sparkles,
   SlidersHorizontal,
-  X
+  X,
+  Zap,
+  Radio
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { generateKineticsData, generateHardwarePayload } from '../utils/thermalKinetics';
@@ -43,6 +45,7 @@ export default function StepExecution({
   onAddLog,
   onBack,
   onResetAll,
+  onOpenConnectLab,
 }) {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [elapsedSec, setElapsedSec] = useState(0);
@@ -588,6 +591,30 @@ export default function StepExecution({
           >
             <Square size={12} fill="#DC4545" color="#DC4545" />
             <span>{isAborted ? 'Stopped' : 'Stop run'}</span>
+          </button>
+
+          {/* Connect Lab / ESP Button */}
+          <button
+            type="button"
+            onClick={onOpenConnectLab}
+            style={{
+              background: '#F8FAFC',
+              border: '1px solid #CBD5E1',
+              borderRadius: '8px',
+              padding: '0.65rem 1rem',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              color: '#0B1C30',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
+            }}
+            title="Open ESP8266/ESP32 & Lab Server Gateway"
+          >
+            <Zap size={14} color="var(--accent-blue)" />
+            <span>Connect Lab / ESP</span>
           </button>
         </div>
 
@@ -1397,8 +1424,26 @@ export default function StepExecution({
           </div>
 
           {/* Bottom quick inspect links */}
-          <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>ESP8266 GPIO Map</span>
+          <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.65rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={onOpenConnectLab}
+              style={{
+                background: '#F1F5F9',
+                border: '1px solid #E2E8F0',
+                borderRadius: '6px',
+                padding: '3px 8px',
+                fontSize: '0.72rem',
+                color: '#0B1C30',
+                cursor: 'pointer',
+                fontWeight: 600,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px'
+              }}
+            >
+              <Cpu size={12} color="var(--accent-blue)" /> Connect ESP & Lab
+            </button>
             <button
               onClick={() => setShowPayloadModal(true)}
               style={{ background: 'none', border: 'none', fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', fontWeight: 600 }}

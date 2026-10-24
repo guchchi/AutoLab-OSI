@@ -5,6 +5,7 @@ import StepLiterature from './components/StepLiterature';
 import StepKinetics from './components/StepKinetics';
 import StepExecution from './components/StepExecution';
 import ArchitectureDocsModal from './components/ArchitectureDocsModal';
+import ConnectLabModal from './components/ConnectLabModal';
 import { BENCHMARK_PROTOCOLS } from './data/benchmarkProtocols';
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
   const [isExtracting, setIsExtracting] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [showDocsModal, setShowDocsModal] = useState(false);
+  const [showConnectLabModal, setShowConnectLabModal] = useState(false);
 
   // Serial Telemetry Logs
   const [logs, setLogs] = useState([
@@ -61,6 +63,7 @@ export default function App() {
         currentStep={currentStep}
         setCurrentStep={setCurrentStep}
         onOpenDocs={() => setShowDocsModal(true)}
+        onOpenConnectLab={() => setShowConnectLabModal(true)}
       />
 
       {/* Step 1: Introduction & System Onboarding */}
@@ -115,6 +118,7 @@ export default function App() {
           currentStep={currentStep}
           setCurrentStep={setCurrentStep}
           onOpenDocs={() => setShowDocsModal(true)}
+          onOpenConnectLab={() => setShowConnectLabModal(true)}
         />
       )}
 
@@ -122,6 +126,14 @@ export default function App() {
       <ArchitectureDocsModal
         isOpen={showDocsModal}
         onClose={() => setShowDocsModal(false)}
+      />
+
+      {/* Laboratory Hardware Bridge & ESP Connection Modal */}
+      <ConnectLabModal
+        isOpen={showConnectLabModal}
+        onClose={() => setShowConnectLabModal(false)}
+        protocol={currentProtocol}
+        onAddLog={addLog}
       />
     </div>
   );
