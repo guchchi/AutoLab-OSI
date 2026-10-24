@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import {
   Cpu,
   Send,
@@ -55,7 +55,7 @@ export default function StepExecution({
   const [liveUvOverride, setLiveUvOverride] = useState(null);
   const [showManifestDetails, setShowManifestDetails] = useState(false);
 
-  // ── Direct Lab Actuators State (Heater, Cooler, Mixer, UV) ──
+  // â”€â”€ Direct Lab Actuators State (Heater, Cooler, Mixer, UV) â”€â”€
   const [heaterActive, setHeaterActive] = useState(true);
   const [manualHeaterTarget, setManualHeaterTarget] = useState(null); // null = protocol controlled
   const [coolerActive, setCoolerActive] = useState(false);
@@ -160,7 +160,7 @@ export default function StepExecution({
     timestamp: new Date().toISOString()
   };
 
-  // Auto-scroll inside terminal box ONLY — never scroll the page
+  // Auto-scroll inside terminal box ONLY â€” never scroll the page
   useEffect(() => {
     if (terminalBoxRef.current) {
       terminalBoxRef.current.scrollTop = terminalBoxRef.current.scrollHeight;
@@ -232,8 +232,8 @@ export default function StepExecution({
           const effTemp = Math.round(nextStep.targetTempC + (overrides.tempOffset || 0));
           const effRpm = Math.round(nextStep.stirRpm * (overrides.rpmMultiplier || 1));
 
-          onAddLog?.('STAGE_TRANSITION', `Engaged Stage ${i + 1}/${steps.length}: ${nextStep.name} (Set: ${effTemp}°C, Stir: ${effRpm} RPM)`);
-          onAddLog?.('HARDWARE_PINS', `Actuator Channels: 🔴 Red LED (HTR: ${!isCool && effTemp > 25 ? 'ON' : 'OFF'}) | 🟢 Green LED (CHILL: ${isCool ? 'ACTIVE QUENCH' : 'OFF'}) | ⚪ White LED (UV: ${nextStep.uvExposure ? 'ON (365nm)' : 'OFF'}) | 🌀 Motor (MIXER: ${effRpm} RPM)`);
+          onAddLog?.('STAGE_TRANSITION', `Engaged Stage ${i + 1}/${steps.length}: ${nextStep.name} (Set: ${effTemp}Â°C, Stir: ${effRpm} RPM)`);
+          onAddLog?.('HARDWARE_PINS', `Actuator Channels: ðŸ”´ Red LED (HTR: ${!isCool && effTemp > 25 ? 'ON' : 'OFF'}) | ðŸŸ¢ Green LED (CHILL: ${isCool ? 'ACTIVE QUENCH' : 'OFF'}) | âšª White LED (UV: ${nextStep.uvExposure ? 'ON (365nm)' : 'OFF'}) | ðŸŒ€ Motor (MIXER: ${effRpm} RPM)`);
         }
         break;
       }
@@ -269,7 +269,7 @@ export default function StepExecution({
     const effRpm = Math.round(targetStep.stirRpm * (overrides.rpmMultiplier || 1));
 
     onAddLog?.('MANUAL_STAGE_OVERRIDE', `Researcher engaged Stage ${idx + 1}/${steps.length}: ${targetStep.name}`);
-    onAddLog?.('HARDWARE_PINS', `Actuators Armed: 🔴 Red LED (HTR: ${!isCool && effTemp > 25 ? 'ON' : 'OFF'}) | 🟢 Green LED (CHILL: ${isCool ? 'ON' : 'OFF'}) | ⚪ White LED (UV: ${targetStep.uvExposure ? 'ON' : 'OFF'}) | 🌀 Motor: ${effRpm} RPM`);
+    onAddLog?.('HARDWARE_PINS', `Actuators Armed: ðŸ”´ Red LED (HTR: ${!isCool && effTemp > 25 ? 'ON' : 'OFF'}) | ðŸŸ¢ Green LED (CHILL: ${isCool ? 'ON' : 'OFF'}) | âšª White LED (UV: ${targetStep.uvExposure ? 'ON' : 'OFF'}) | ðŸŒ€ Motor: ${effRpm} RPM`);
   };
 
   // Force advance to next stage
@@ -306,8 +306,8 @@ export default function StepExecution({
     } catch (_) {}
 
     onAddLog?.('INGEST_STEP2_3', `Loaded recipe "${protocol.name}" (${protocol.formula || 'Custom'}). Sourced from: ${protocol.citation?.journal || 'Valency Literature'} (${protocol.citation?.doi || 'Verified'}).`);
-    onAddLog?.('KINETICS_CHECK', `Verified Step 3 envelope: Max ${protocol.safetyEnvelope?.maxTempC || 1200}°C | Overrides: ΔT=${(overrides.tempOffset || 0) >= 0 ? '+' : ''}${overrides.tempOffset || 0}°C, Stir=${overrides.rpmMultiplier || 1}x, Time=${overrides.timeScale || 1}x.`);
-    onAddLog?.('HARDWARE_DISPATCH', `Dispatched bytecode to ESP8266 node (${nodeIp}). 4 Pins Armed: 🔴 Red LED (GPIO5), 🟢 Green LED (GPIO12), ⚪ White LED (GPIO16), 🌀 Motor (GPIO4).`);
+    onAddLog?.('KINETICS_CHECK', `Verified Step 3 envelope: Max ${protocol.safetyEnvelope?.maxTempC || 1200}Â°C | Overrides: Î”T=${(overrides.tempOffset || 0) >= 0 ? '+' : ''}${overrides.tempOffset || 0}Â°C, Stir=${overrides.rpmMultiplier || 1}x, Time=${overrides.timeScale || 1}x.`);
+    onAddLog?.('HARDWARE_DISPATCH', `Dispatched bytecode to ESP8266 node (${nodeIp}). 4 Pins Armed: ðŸ”´ Red LED (GPIO5), ðŸŸ¢ Green LED (GPIO12), âšª White LED (GPIO16), ðŸŒ€ Motor (GPIO4).`);
 
     try {
       const res = await fetch('/api/esp8266/dispatch', {
@@ -317,10 +317,10 @@ export default function StepExecution({
       });
       const data = await res.json();
       onAddLog?.('HARDWARE', `200 OK. Handshake successful. Node MCU acknowledged (CRC32: ${data.crc32 || compactPayload.crc32}).`);
-      onAddLog?.('STATUS', `NodeMCU 4-Actuator Map: 🔴 Red LED (HTR: GPIO5) | 🟢 Green LED (CHILL: GPIO12) | ⚪ White LED (UV: GPIO16) | 🌀 Motor (MIXER: GPIO4)`);
+      onAddLog?.('STATUS', `NodeMCU 4-Actuator Map: ðŸ”´ Red LED (HTR: GPIO5) | ðŸŸ¢ Green LED (CHILL: GPIO12) | âšª White LED (UV: GPIO16) | ðŸŒ€ Motor (MIXER: GPIO4)`);
     } catch (e) {
       onAddLog?.('HARDWARE', `200 OK. Simulated ESP8266 Handshake active (CRC32: ${compactPayload.crc32}).`);
-      onAddLog?.('STATUS', `NodeMCU 4-Actuator Map: 🔴 Red LED (HTR: GPIO5) | 🟢 Green LED (CHILL: GPIO12) | ⚪ White LED (UV: GPIO16) | 🌀 Motor (MIXER: GPIO4)`);
+      onAddLog?.('STATUS', `NodeMCU 4-Actuator Map: ðŸ”´ Red LED (HTR: GPIO5) | ðŸŸ¢ Green LED (CHILL: GPIO12) | âšª White LED (UV: GPIO16) | ðŸŒ€ Motor (MIXER: GPIO4)`);
     }
   };
 
@@ -330,9 +330,9 @@ export default function StepExecution({
     const nextPaused = !isPaused;
     setIsPaused(nextPaused);
     if (nextPaused) {
-      onAddLog?.('OPERATOR_HOLD', `⏸ Operator paused synthesis at Stage ${currentStepIdx + 1}. PID heaters in hold mode.`);
+      onAddLog?.('OPERATOR_HOLD', `â¸ Operator paused synthesis at Stage ${currentStepIdx + 1}. PID heaters in hold mode.`);
     } else {
-      onAddLog?.('OPERATOR_RESUME', `▶ Operator resumed synthesis at Stage ${currentStepIdx + 1}.`);
+      onAddLog?.('OPERATOR_RESUME', `â–¶ Operator resumed synthesis at Stage ${currentStepIdx + 1}.`);
     }
   };
 
@@ -344,7 +344,7 @@ export default function StepExecution({
     setHeaterPwm(0);
     setSimRpm(0);
 
-    onAddLog?.('EMERGENCY_ABORT', `🛑 OPERATOR FIRED EMERGENCY STOP! All heating channels clamped to 0 PWM. Motor braked to 0 RPM.`);
+    onAddLog?.('EMERGENCY_ABORT', `ðŸ›‘ OPERATOR FIRED EMERGENCY STOP! All heating channels clamped to 0 PWM. Motor braked to 0 RPM.`);
 
     try {
       await fetch('/api/esp8266/abort', {
@@ -388,384 +388,304 @@ export default function StepExecution({
     liquidColor = simTemp > 60 ? 'rgba(15, 23, 42, 0.95)' : 'rgba(180, 83, 9, 0.7)';
 
   return (
-    <div style={{ maxWidth: '1120px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.25rem' }} className="fade-in">
+    <div style={{ maxWidth: '1120px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }} className="fade-in">
 
-      {/* ── 1. Top Header: Mission Control Status & Master Controls ── */}
-      <div className="notebook-card" style={{ padding: '1.25rem 1.5rem', background: '#FFFFFF' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ZONE A â€” MISSION CONTROL HEADER
+          System status, experiment ID, emergency kill switch
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <div style={{
+        background: 'var(--deep-charcoal)',
+        borderRadius: '16px',
+        padding: '1rem 1.35rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '0.75rem',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 4px 24px rgba(11,28,48,0.18)',
+      }}>
+        {/* Left: Experiment Identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem' }}>
+          {/* System Status Dot */}
+          <div style={{
+            width: '42px', height: '42px', borderRadius: '12px',
+            background: isAborted ? 'rgba(239,68,68,0.15)' : (isRunning ? 'rgba(34,197,94,0.12)' : 'rgba(209,243,77,0.1)'),
+            border: `1.5px solid ${isAborted ? '#EF4444' : (isRunning ? '#22C55E' : 'rgba(209,243,77,0.4)')}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0,
+            boxShadow: isRunning && !isPaused && !isAborted ? '0 0 16px rgba(34,197,94,0.3)' : 'none',
+          }}>
+            <Cpu size={18} color={isAborted ? '#EF4444' : (isRunning ? '#22C55E' : 'var(--primary-lime)')} />
+          </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', marginBottom: '0.35rem' }}>
-              <span className="lab-badge lab-badge-lime" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Cpu size={12} />
-                Step 4 · Hardware Dispatch
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+              <span style={{
+                fontSize: '0.62rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
+                textTransform: 'uppercase', letterSpacing: '0.06em',
+                padding: '2px 7px', borderRadius: '4px',
+                background: isAborted ? 'rgba(239,68,68,0.2)' : (isRunning ? (isPaused ? 'rgba(245,158,11,0.2)' : 'rgba(34,197,94,0.15)') : 'rgba(209,243,77,0.12)'),
+                color: isAborted ? '#FCA5A5' : (isRunning ? (isPaused ? '#FCD34D' : '#86EFAC') : 'var(--primary-lime)'),
+                border: `1px solid ${isAborted ? 'rgba(239,68,68,0.3)' : (isRunning ? (isPaused ? 'rgba(245,158,11,0.25)' : 'rgba(34,197,94,0.25)') : 'rgba(209,243,77,0.25)')}`,
+              }}>
+                {isAborted ? 'â¬› HALTED â€” SAFE' : (isRunning ? (isPaused ? 'â¸ HOLD' : 'â— EXECUTING') : 'â—Ž READY')}
               </span>
-              <span className="lab-badge lab-badge-sage" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}>
-                <span className="pulse-indicator" />
-                ESP8266 Station Connected (COM3)
-              </span>
-              <span style={{ fontSize: '0.7rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>
-                Baud 115200 · CRC32 Armed
+              <span style={{ fontSize: '0.68rem', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+                EXP-{(protocol.name?.slice(0,3) || 'OSI').toUpperCase()}-2026 Â· ESP8266 COM3 Â· 115200 BAUD
               </span>
             </div>
-
-            <h2 style={{ fontSize: '1.35rem', fontWeight: 800, color: 'var(--deep-charcoal)', letterSpacing: '-0.02em', margin: 0 }}>
-              Live Hardware Telemetry & Execution —{' '}
-              <span style={{ color: 'var(--accent-blue)', fontWeight: 800 }}>{protocol.name}</span>
-            </h2>
+            <div style={{ fontSize: '1.1rem', fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.02em' }}>
+              {protocol.name}
+              <span style={{ fontSize: '0.72rem', fontWeight: 500, color: '#94A3B8', marginLeft: '0.5rem' }}>
+                {protocol.formula || ''} Â· {steps.length} stages Â· ~{Math.round(totalSimSec / 60)} min
+              </span>
+            </div>
           </div>
+        </div>
 
-          {/* Quick Actions (Bytecode, Export, Kill) */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', flexWrap: 'wrap' }}>
-            <button className="btn-ghost" onClick={() => setShowPayloadModal(true)} style={{ fontSize: '0.72rem', padding: '0.4rem 0.75rem' }}>
-              <Code2 size={13} /> Bytecode
-            </button>
-            <button className="btn-ghost" onClick={handleDownloadJson} style={{ fontSize: '0.72rem', padding: '0.4rem 0.75rem' }}>
-              <Download size={13} /> Export JSON
-            </button>
+        {/* Right: Quick Actions + Kill Switch */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+          <button className="btn-ghost" onClick={() => setShowPayloadModal(true)}
+            style={{ fontSize: '0.7rem', padding: '0.35rem 0.7rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#CBD5E1', borderRadius: '8px' }}>
+            <Code2 size={12} /> Bytecode
+          </button>
+          <button className="btn-ghost" onClick={handleDownloadJson}
+            style={{ fontSize: '0.7rem', padding: '0.35rem 0.7rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#CBD5E1', borderRadius: '8px' }}>
+            <Download size={12} /> Export JSON
+          </button>
 
-            {/* Emergency Kill Switch */}
-            <button
-              onClick={handleEmergencyAbort}
-              disabled={!isRunning && isAborted}
-              style={{
-                background: isAborted ? '#450a0a' : '#DC2626',
-                color: '#ffffff',
-                border: '1.5px solid #EF4444',
-                borderRadius: 'var(--radius-full)',
-                padding: '0.45rem 1rem',
-                fontWeight: 800,
-                fontSize: '0.78rem',
-                letterSpacing: '0.02em',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                cursor: isAborted ? 'default' : 'pointer',
-                boxShadow: isAborted ? 'none' : '0 0 14px rgba(220, 38, 38, 0.4)',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <AlertOctagon size={15} />
-              {isAborted ? 'HALTED' : 'KILL SWITCH'}
-            </button>
-          </div>
-
+          {/* Emergency Kill Switch */}
+          <button
+            onClick={handleEmergencyAbort}
+            disabled={!isRunning && isAborted}
+            style={{
+              background: isAborted ? '#1C0000' : '#DC2626',
+              color: '#ffffff',
+              border: `2px solid ${isAborted ? '#7F1D1D' : '#EF4444'}`,
+              borderRadius: '10px',
+              padding: '0.45rem 1.1rem',
+              fontWeight: 900,
+              fontSize: '0.75rem',
+              letterSpacing: '0.05em',
+              textTransform: 'uppercase',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              cursor: isAborted ? 'default' : 'pointer',
+              boxShadow: isAborted ? 'none' : '0 0 18px rgba(220,38,38,0.45)',
+              transition: 'all 0.2s ease',
+            }}
+          >
+            <AlertOctagon size={14} />
+            {isAborted ? 'HALTED' : 'KILL SWITCH'}
+          </button>
         </div>
       </div>
 
-      {/* ── 1B. Literature & Kinetics Verified Recipe Ingestion Deck ── */}
-      <div className="notebook-card" style={{
-        padding: '1.15rem 1.35rem',
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ZONE B â€” SYNTHESIS RECIPE MANIFEST
+          Literature + kinetics provenance, collapsible
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <div style={{
         background: '#FFFFFF',
-        borderRadius: '16px',
-        border: '1.5px solid rgba(0, 88, 190, 0.18)',
-        boxShadow: '0 4px 18px rgba(11, 28, 48, 0.04)',
+        border: '1px solid rgba(0,88,190,0.15)',
+        borderRadius: '14px',
+        padding: '0.85rem 1.2rem',
+        boxShadow: '0 2px 12px rgba(11,28,48,0.04)',
       }}>
-        {/* Manifest Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '0.85rem', paddingBottom: '0.65rem', borderBottom: '1px solid var(--slate-border)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'rgba(0, 88, 190, 0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Sparkles size={15} color="var(--accent-blue)" />
-            </div>
-            <div>
-              <div style={{ fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--deep-charcoal)' }}>
-                Synthesis Recipe Ingested · Literature-to-Hardware Pipeline
-              </div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--slate-gray)' }}>
-                Verified parameters compiled from Step 2 (Literature Extraction) & Step 3 (Thermodynamic Kinetics)
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', flexWrap: 'wrap' }}>
-            <span className="lab-badge lab-badge-sage" style={{ fontSize: '0.66rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <CheckCircle2 size={12} color="var(--success-green)" />
-              Step 2: Literature Validated
+            <Sparkles size={14} color="var(--accent-blue)" />
+            <span style={{ fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--deep-charcoal)' }}>
+              Synthesis Recipe Manifest
             </span>
-            <span className="lab-badge lab-badge-lime" style={{ fontSize: '0.66rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-              <ShieldCheck size={12} color="var(--deep-charcoal)" />
-              Step 3: Kinetics Interlock Passed
+            <span style={{ fontSize: '0.65rem', color: 'var(--slate-gray)' }}>
+              â€” Literature-to-Hardware Pipeline
+            </span>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span style={{ fontSize: '0.65rem', background: 'rgba(34,197,94,0.1)', color: '#15803D', border: '1px solid rgba(34,197,94,0.25)', borderRadius: '5px', padding: '2px 7px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <CheckCircle2 size={11} /> Step 2 Validated
+            </span>
+            <span style={{ fontSize: '0.65rem', background: 'rgba(209,243,77,0.15)', color: 'var(--deep-charcoal)', border: '1px solid rgba(11,28,48,0.15)', borderRadius: '5px', padding: '2px 7px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+              <ShieldCheck size={11} /> Kinetics Interlock OK
             </span>
             <button
               type="button"
               onClick={() => setShowManifestDetails(prev => !prev)}
-              style={{
-                fontSize: '0.68rem',
-                fontWeight: 700,
-                color: 'var(--accent-blue)',
-                background: 'transparent',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.2rem',
-                padding: '2px 6px',
-              }}
+              style={{ fontSize: '0.68rem', fontWeight: 700, color: 'var(--accent-blue)', background: 'transparent', border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}
             >
-              {showManifestDetails ? 'Hide Precursors' : 'View Precursors & Safety'}
-              {showManifestDetails ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              {showManifestDetails ? 'Hide' : 'View Details'}
+              {showManifestDetails ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
             </button>
           </div>
         </div>
 
-        {/* 3 Provenance Pillars: Step 2 Literature, Step 3 Kinetics, Step 4 Hardware */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
-          
-          {/* Pillar 1: Literature Source (Step 2) */}
-          <div style={{ background: 'var(--off-white)', borderRadius: '10px', padding: '0.75rem 0.9rem', border: '1px solid var(--slate-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-              <FileText size={13} color="var(--accent-blue)" />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'var(--deep-charcoal)' }}>
-                Step 2 · Literature Provenance
-              </span>
+        {/* Compact 3-pillar summary row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.6rem', marginTop: '0.65rem' }}>
+          {/* Pillar 1: Literature */}
+          <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '0.6rem 0.8rem', border: '1px solid var(--slate-border)', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            <div style={{ fontSize: '0.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--accent-blue)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <FileText size={11} /> Step 2 Â· Literature Source
             </div>
-            <div style={{ fontSize: '0.76rem', fontWeight: 700, color: 'var(--deep-charcoal)', lineHeight: 1.3, marginBottom: '0.25rem' }}>
+            <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--deep-charcoal)', lineHeight: 1.3 }}>
               {protocol.citation?.title || protocol.name}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', fontSize: '0.68rem', color: 'var(--slate-gray)' }}>
+            <div style={{ fontSize: '0.65rem', color: 'var(--slate-gray)', display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
               <span>{protocol.citation?.journal || 'Valency Indexed'} ({protocol.citation?.year || '2022'})</span>
               {protocol.citation?.doi && (
-                <a
-                  href={`https://doi.org/${protocol.citation.doi}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ color: 'var(--accent-blue)', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.2rem', fontWeight: 600 }}
-                >
-                  DOI: {protocol.citation.doi} <ExternalLink size={10} />
+                <a href={`https://doi.org/${protocol.citation.doi}`} target="_blank" rel="noreferrer"
+                  style={{ color: 'var(--accent-blue)', textDecoration: 'none', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '2px' }}>
+                  DOI <ExternalLink size={9} />
                 </a>
               )}
             </div>
-            {protocol.selectedRoute && (
-              <div style={{ marginTop: '0.35rem', fontSize: '0.68rem', color: 'var(--deep-charcoal)', background: '#FFFFFF', padding: '3px 7px', borderRadius: '5px', border: '1px solid var(--slate-border)', display: 'inline-block' }}>
-                Route: <strong>{protocol.selectedRoute}</strong>
-              </div>
-            )}
           </div>
 
-          {/* Pillar 2: Kinetics Simulation & Overrides (Step 3) */}
-          <div style={{ background: 'var(--off-white)', borderRadius: '10px', padding: '0.75rem 0.9rem', border: '1px solid var(--slate-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.35rem' }}>
-              <Activity size={13} color="var(--success-green)" />
-              <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'var(--deep-charcoal)' }}>
-                Step 3 · Validated Kinetics
-              </span>
+          {/* Pillar 2: Kinetics */}
+          <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '0.6rem 0.8rem', border: '1px solid var(--slate-border)', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+            <div style={{ fontSize: '0.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--success-green)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Activity size={11} /> Step 3 Â· Kinetics Overrides
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem', marginBottom: '0.25rem' }}>
-              <span style={{ color: 'var(--slate-gray)' }}>Thermal Ceiling:</span>
-              <strong style={{ color: 'var(--deep-charcoal)', fontFamily: 'var(--font-mono)' }}>
-                Peak {kinetics.stats.peakTemp}°C ≤ {protocol.safetyEnvelope?.maxTempC || 1200}°C
-              </strong>
+            <div style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--deep-charcoal)' }}>
+              Peak {kinetics.stats.peakTemp}Â°C â‰¤ {protocol.safetyEnvelope?.maxTempC || 1200}Â°C ceiling
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.74rem', marginBottom: '0.25rem' }}>
-              <span style={{ color: 'var(--slate-gray)' }}>Overrides Applied:</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.7rem', fontWeight: 700, color: 'var(--accent-blue)' }}>
-                ΔT: {(overrides.tempOffset || 0) >= 0 ? '+' : ''}{overrides.tempOffset || 0}°C · Stir: {overrides.rpmMultiplier || 1}x · Time: {overrides.timeScale || 1}x
-              </span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--slate-gray)', marginTop: '0.35rem' }}>
-              <span>Total Sequence:</span>
-              <span style={{ fontWeight: 700, color: 'var(--deep-charcoal)' }}>
-                {steps.length} Phases · ~{Math.round(totalSimSec / 60)} min Duration
-              </span>
+            <div style={{ fontSize: '0.65rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>
+              Î”T: {(overrides.tempOffset || 0) >= 0 ? '+' : ''}{overrides.tempOffset || 0}Â°C Â· Stir: {overrides.rpmMultiplier || 1}x Â· Time: {overrides.timeScale || 1}x
             </div>
           </div>
 
-          {/* Pillar 3: Hardware Actuator Assignment (Physical IoT) */}
-          <div style={{ background: 'var(--off-white)', borderRadius: '10px', padding: '0.75rem 0.9rem', border: '1px solid var(--slate-border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Cpu size={13} color="var(--deep-charcoal)" />
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em', color: 'var(--deep-charcoal)' }}>
-                  Hardware Mapping (NodeMCU)
-                </span>
-              </div>
-              <span style={{ fontSize: '0.62rem', fontFamily: 'var(--font-mono)', color: 'var(--success-green)', fontWeight: 700 }}>
-                COM3 ACTIVE
-              </span>
+          {/* Pillar 3: Hardware mapping */}
+          <div style={{ background: '#F8FAFC', borderRadius: '8px', padding: '0.6rem 0.8rem', border: '1px solid var(--slate-border)', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+            <div style={{ fontSize: '0.62rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--deep-charcoal)', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Cpu size={11} /> Step 4 Â· NodeMCU GPIO Map
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.35rem', fontSize: '0.67rem', fontFamily: 'var(--font-mono)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: '#FFFFFF', padding: '3px 6px', borderRadius: '5px', border: '1px solid var(--slate-border)' }}>
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#EF4444', display: 'inline-block' }} />
-                <span>GPIO05: Red LED (HTR)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: '#FFFFFF', padding: '3px 6px', borderRadius: '5px', border: '1px solid var(--slate-border)' }}>
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#38BDF8', display: 'inline-block' }} />
-                <span>GPIO12: Green LED (CHILL)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: '#FFFFFF', padding: '3px 6px', borderRadius: '5px', border: '1px solid var(--slate-border)' }}>
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#A855F7', display: 'inline-block' }} />
-                <span>GPIO16: White LED (UV)</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', background: '#FFFFFF', padding: '3px 6px', borderRadius: '5px', border: '1px solid var(--slate-border)' }}>
-                <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--primary-lime)', border: '1px solid #143820', display: 'inline-block' }} />
-                <span>GPIO04: Motor (MIXER)</span>
-              </div>
-            </div>
-            <div style={{ marginTop: '0.4rem', fontSize: '0.65rem', color: 'var(--slate-gray)', display: 'flex', justifyContent: 'space-between' }}>
-              <span>Auto-Switching: Active per stage</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--deep-charcoal)' }}>CRC32: Armed</span>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.2rem' }}>
+              {[
+                { dot: '#EF4444', label: 'GPIO05 â€” HTR (Red LED)' },
+                { dot: '#38BDF8', label: 'GPIO12 â€” CHILL (Green LED)' },
+                { dot: '#A855F7', label: 'GPIO16 â€” UV (White LED)' },
+                { dot: '#84CC16', label: 'GPIO04 â€” MIXER (Motor)' },
+              ].map(p => (
+                <div key={p.label} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontSize: '0.6rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>
+                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: p.dot, flexShrink: 0 }} />
+                  {p.label}
+                </div>
+              ))}
             </div>
           </div>
-
         </div>
 
-        {/* Collapsible Details: Precursor Inventory & Literature Safety Directives */}
+        {/* Collapsible Details */}
         {showManifestDetails && (
-          <div style={{ marginTop: '0.85rem', paddingTop: '0.85rem', borderTop: '1px dashed var(--slate-border)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }} className="fade-in">
-            <div style={{ background: '#F8FAFC', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--slate-border)' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--deep-charcoal)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <CheckCircle2 size={13} color="var(--success-green)" /> Precursor Quantities Loaded (Literature Recipe)
+          <div style={{ marginTop: '0.65rem', paddingTop: '0.65rem', borderTop: '1px dashed var(--slate-border)', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.6rem' }} className="fade-in">
+            <div style={{ background: '#F8FAFC', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--slate-border)' }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--deep-charcoal)', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <CheckCircle2 size={12} color="var(--success-green)" /> Precursor Inventory
               </div>
-              <div style={{ fontSize: '0.7rem', color: 'var(--slate-gray)', lineHeight: 1.45, fontFamily: 'var(--font-mono)' }}>
+              <div style={{ fontSize: '0.68rem', color: 'var(--slate-gray)', lineHeight: 1.4, fontFamily: 'var(--font-mono)' }}>
                 {activeStep.reagents || protocol.steps?.[0]?.reagents || 'Standard stoichiometric precursors loaded in batch vial.'}
               </div>
             </div>
-
-            <div style={{ background: '#F8FAFC', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--slate-border)' }}>
-              <div style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--deep-charcoal)', marginBottom: '0.35rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <ShieldCheck size={13} color="var(--accent-blue)" /> Safety Envelope & Interlock Constraints
+            <div style={{ background: '#F8FAFC', padding: '0.65rem', borderRadius: '8px', border: '1px solid var(--slate-border)' }}>
+              <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--deep-charcoal)', marginBottom: '0.3rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <ShieldCheck size={12} color="var(--accent-blue)" /> Safety Interlock Constraints
               </div>
-              <div style={{ fontSize: '0.68rem', color: 'var(--slate-gray)', lineHeight: 1.45 }}>
-                {protocol.safetyEnvelope?.criticalWarnings?.[0] || 'Continuous thermocouple feedback active. Automatic power isolation if temperature exceeds limit.'}
+              <div style={{ fontSize: '0.68rem', color: 'var(--slate-gray)', lineHeight: 1.4 }}>
+                {protocol.safetyEnvelope?.criticalWarnings?.[0] || 'Continuous thermocouple feedback. Auto power isolation if temperature exceeds safety ceiling.'}
               </div>
             </div>
           </div>
         )}
       </div>
 
-      {/* ── 2. Master Command & Real-Time Dispatch Bar ── */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ZONE C â€” COMMAND DECK
+          Arm/Fire, Pause/Resume, Stage Navigation, Time-Warp
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <div style={{
-        background: 'var(--deep-charcoal)',
-        borderRadius: '16px',
-        padding: '1rem 1.35rem',
-        color: '#FFFFFF',
-        display: 'flex',
+        background: '#0F172A',
+        borderRadius: '14px',
+        padding: '0.85rem 1.25rem',
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr auto',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
         gap: '1rem',
-        boxShadow: '0 4px 20px rgba(11, 28, 48, 0.15)',
-        border: '1px solid rgba(255,255,255,0.08)',
+        flexWrap: 'wrap',
+        border: '1px solid rgba(255,255,255,0.07)',
+        boxShadow: '0 4px 18px rgba(11,28,48,0.18)',
       }}>
-        {/* Left: Execution Status & Main Triggers */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', flexWrap: 'wrap' }}>
-          
-          {/* Primary Action Button */}
+        {/* Primary Action Area */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           {!isRunning || isAborted ? (
             <button
               className="btn-primary"
               onClick={handleDeploy}
-              style={{
-                padding: '0.65rem 1.4rem',
-                fontSize: '0.88rem',
-                fontWeight: 800,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                boxShadow: '0 0 18px rgba(209, 243, 77, 0.45)',
-              }}
+              style={{ padding: '0.6rem 1.3rem', fontSize: '0.85rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 0 20px rgba(209,243,77,0.4)' }}
             >
-              <Play size={16} fill="currentColor" />
-              {isAborted ? 'Restart Lab Protocol' : 'Arm & Fire Webhook to Lab'}
+              <Play size={15} fill="currentColor" />
+              {isAborted ? 'Restart Protocol' : 'Arm & Fire â†’ Lab'}
             </button>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <button
                 onClick={handleTogglePause}
                 style={{
-                  background: isPaused ? 'var(--primary-lime)' : 'rgba(255,255,255,0.12)',
+                  background: isPaused ? 'var(--primary-lime)' : 'rgba(255,255,255,0.1)',
                   color: isPaused ? 'var(--deep-charcoal)' : '#FFFFFF',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '0.55rem 1.15rem',
-                  fontSize: '0.82rem',
-                  fontWeight: 700,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.18s ease',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  borderRadius: '9px', padding: '0.5rem 1rem',
+                  fontSize: '0.8rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.4rem', cursor: 'pointer', transition: 'all 0.18s ease',
                 }}
               >
-                {isPaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} />}
-                {isPaused ? 'Resume Lab' : 'Pause'}
+                {isPaused ? <Play size={13} fill="currentColor" /> : <Pause size={13} />}
+                {isPaused ? 'Resume' : 'Pause'}
               </button>
-
               <button
                 onClick={handlePrevStage}
                 disabled={currentStepIdx === 0}
-                style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  color: '#FFFFFF',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '0.55rem 0.9rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                  cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer',
-                  opacity: currentStepIdx === 0 ? 0.35 : 1,
-                  transition: 'all 0.18s ease',
-                }}
-                title="Step back to previous stage"
+                title="Previous stage"
+                style={{ background: 'rgba(255,255,255,0.07)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '9px', padding: '0.5rem 0.8rem', fontSize: '0.75rem', fontWeight: 600, cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer', opacity: currentStepIdx === 0 ? 0.35 : 1, transition: 'all 0.15s ease', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
               >
-                ⏮ Prev
+                â® Prev
               </button>
-
               <button
                 onClick={handleNextStage}
                 disabled={currentStepIdx >= steps.length - 1}
-                style={{
-                  background: 'rgba(255,255,255,0.08)',
-                  color: '#FFFFFF',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: 'var(--radius-full)',
-                  padding: '0.55rem 1rem',
-                  fontSize: '0.78rem',
-                  fontWeight: 600,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.4rem',
-                  cursor: currentStepIdx >= steps.length - 1 ? 'not-allowed' : 'pointer',
-                  opacity: currentStepIdx >= steps.length - 1 ? 0.4 : 1,
-                  transition: 'all 0.18s ease',
-                }}
-                title="Advance immediately to next stage"
+                title="Advance to next stage"
+                style={{ background: 'rgba(255,255,255,0.07)', color: '#FFFFFF', border: '1px solid rgba(255,255,255,0.12)', borderRadius: '9px', padding: '0.5rem 0.9rem', fontSize: '0.75rem', fontWeight: 600, cursor: currentStepIdx >= steps.length - 1 ? 'not-allowed' : 'pointer', opacity: currentStepIdx >= steps.length - 1 ? 0.35 : 1, transition: 'all 0.15s ease', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
               >
-                <SkipForward size={14} />
-                Next Stage ⏭
+                <SkipForward size={13} /> Next â­
               </button>
             </div>
           )}
+        </div>
 
-          {/* Running State Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.78rem' }}>
-            <span style={{
-              width: '8px', height: '8px', borderRadius: '50%',
-              background: isAborted ? '#EF4444' : (isRunning ? (isPaused ? '#F59E0B' : '#22C55E') : '#94A3B8'),
-              boxShadow: isRunning && !isPaused ? '0 0 10px #22C55E' : 'none'
-            }} />
-            <span style={{ fontWeight: 700, color: '#F8FAFC' }}>
-              {isAborted ? 'STATUS: ABORTED (SAFE)' : (isRunning ? (isPaused ? 'STATUS: PAUSED (HOLD)' : 'STATUS: EXECUTING LIVE') : 'STATUS: READY TO DEPLOY')}
-            </span>
+        {/* Centre: Overall progress bar */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem', minWidth: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.65rem', color: '#64748B', fontFamily: 'var(--font-mono)' }}>
+            <span>OVERALL PROGRESS â€” Stage {currentStepIdx + 1} / {steps.length}</span>
+            <span style={{ color: '#CBD5E1', fontWeight: 700 }}>{Math.floor(elapsedSec / 60)}m / {Math.floor(totalSimSec / 60)}m ({progressPct}%)</span>
+          </div>
+          <div style={{ height: '6px', background: 'rgba(255,255,255,0.08)', borderRadius: '999px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ width: `${progressPct}%`, height: '100%', background: isAborted ? '#EF4444' : 'var(--primary-lime)', borderRadius: '999px', transition: 'width 0.4s ease', boxShadow: isRunning && !isAborted ? '0 0 8px rgba(209,243,77,0.5)' : 'none' }} />
           </div>
         </div>
 
-        {/* Right: Real-Time Playback Clock Speed Multipliers */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>Time-Warp:</span>
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.08)', borderRadius: '9999px', padding: '3px', border: '1px solid rgba(255,255,255,0.1)' }}>
+        {/* Right: Time-Warp Selector */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <span style={{ fontSize: '0.62rem', color: '#64748B', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>Sim Speed</span>
+          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', padding: '2px', border: '1px solid rgba(255,255,255,0.08)' }}>
             {[1, 5, 10, 25].map(spd => (
               <button
                 key={spd}
                 onClick={() => setSimSpeed(spd)}
                 style={{
-                  border: 'none', padding: '0.25rem 0.6rem', borderRadius: '9999px',
-                  fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer',
+                  border: 'none', padding: '0.2rem 0.55rem', borderRadius: '6px',
+                  fontSize: '0.68rem', fontWeight: 700, cursor: 'pointer',
                   background: simSpeed === spd ? 'var(--primary-lime)' : 'transparent',
-                  color: simSpeed === spd ? 'var(--deep-charcoal)' : '#94A3B8',
+                  color: simSpeed === spd ? 'var(--deep-charcoal)' : '#64748B',
                   transition: 'all 0.15s ease'
                 }}
               >
@@ -774,1387 +694,558 @@ export default function StepExecution({
             ))}
           </div>
         </div>
-
       </div>
 
-      {/* ── 3. The 2-Column Bento Cockpit ── */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'minmax(0, 1.1fr) minmax(360px, 1.05fr)',
-        gap: '1.25rem',
-        alignItems: 'start',
-      }}>
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ZONE D â€” MAIN LAB COCKPIT (2-Column)
+          Left: Stage Pipeline + Digital Twin
+          Right: 4-Channel Actuator Deck
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.1fr) minmax(340px, 1fr)', gap: '1rem', alignItems: 'start' }}>
 
-        {/* ── LEFT COLUMN: Physical Hardware Digital Twin & Live Gauges ── */}
+        {/* â”€â”€â”€â”€ LEFT COLUMN â”€â”€â”€â”€ */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-          
-          {/* Hardware Apparatus Sandbox Container */}
+
+          {/* â”€â”€ D1: Digital Twin Reactor Visualization â”€â”€ */}
           <div style={{
             background: 'var(--deep-charcoal)',
-            borderRadius: '16px',
+            borderRadius: '14px',
             border: '1px solid #1E3A5F',
-            padding: '1.5rem',
+            padding: '1.25rem 1.25rem 1.1rem',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            justifyContent: 'center',
             position: 'relative',
-            boxShadow: '0 4px 20px rgba(11, 28, 48, 0.15)',
+            boxShadow: '0 4px 20px rgba(11,28,48,0.15)',
           }}>
-            
-            {/* Top Node Status 4-Actuator Pinouts */}
-            <div style={{
-              position: 'absolute', top: '0.85rem', left: '1rem', right: '1rem',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              flexWrap: 'wrap', gap: '0.5rem',
-            }}>
-              {/* Heater */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <div style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: heaterPwm > 0 && !isAborted && !coolerActive ? '#EF4444' : '#450a0a',
-                  boxShadow: heaterPwm > 0 && !isAborted && !coolerActive ? '0 0 10px #EF4444' : 'none',
-                  transition: 'all 0.25s ease',
-                }} />
-                <span style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color: '#CBD5E1' }}>
-                  HTR: {heaterPwm > 0 && !isAborted && !coolerActive ? `PWM ${heaterPwm}%` : 'OFF'}
-                </span>
-              </div>
-
-              {/* Cooler */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <div style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: coolerActive && !isAborted ? '#38BDF8' : '#0e3a53',
-                  boxShadow: coolerActive && !isAborted ? '0 0 10px #38BDF8' : 'none',
-                  transition: 'all 0.25s ease',
-                }} />
-                <span style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color: '#CBD5E1' }}>
-                  CHILL: {coolerActive && !isAborted ? `${coolerIntensity}%` : 'IDLE'}
-                </span>
-              </div>
-
-              {/* Mixer */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <div style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: simRpm > 0 && !isAborted ? 'var(--primary-lime)' : '#143820',
-                  boxShadow: simRpm > 0 && !isAborted ? '0 0 10px var(--primary-lime)' : 'none',
-                  transition: 'all 0.25s ease',
-                }} />
-                <span style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color: '#CBD5E1' }}>
-                  STIR: {simRpm > 0 && !isAborted ? `${simRpm} RPM` : 'BRAKED'}
-                </span>
-              </div>
-
-              {/* UV */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <div style={{
-                  width: '8px', height: '8px', borderRadius: '50%',
-                  background: isUvActive && !isAborted ? '#7C3AED' : '#2b1055',
-                  boxShadow: isUvActive && !isAborted ? '0 0 10px #7C3AED' : 'none',
-                  transition: 'all 0.25s ease',
-                }} />
-                <span style={{ fontSize: '0.65rem', fontFamily: 'var(--font-mono)', color: '#CBD5E1' }}>
-                  UV: {isUvActive && !isAborted ? `${uvIntensity}% (365nm)` : 'OFF'}
-                </span>
-              </div>
+            {/* Section Label */}
+            <div style={{ position: 'absolute', top: '0.8rem', left: '1rem', fontSize: '0.6rem', fontWeight: 800, fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#475569' }}>
+              DIGITAL TWIN Â· LIVE REACTOR
             </div>
 
-            {/* Central Precision Benchtop Reactor Assembly */}
-            <div style={{
-              display: 'flex', flexDirection: 'column', alignItems: 'center',
-              marginTop: '2.5rem', marginBottom: '1rem', position: 'relative'
-            }}>
-
-              {/* Overhead UV Photopolymer Diagnostic Lamp Emitter */}
-              <div style={{
-                display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '-4px', zIndex: 10
-              }}>
-                <div style={{
-                  width: '90px', height: '14px',
-                  background: isUvActive ? 'linear-gradient(90deg, #4C1D95 0%, #7C3AED 50%, #4C1D95 100%)' : '#1E293B',
-                  border: isUvActive ? '1px solid #A78BFA' : '1px solid rgba(255,255,255,0.15)',
-                  borderRadius: '6px 6px 0 0',
-                  boxShadow: isUvActive ? '0 0 18px rgba(124, 58, 237, 0.6)' : 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.3rem',
-                  transition: 'all 0.3s ease'
-                }}>
-                  <Sun size={9} color={isUvActive ? '#EDE9FE' : '#64748B'} />
-                  <span style={{ fontSize: '8px', fontFamily: 'var(--font-mono)', fontWeight: 800, color: isUvActive ? '#FFFFFF' : '#64748B' }}>
-                    {isUvActive ? `UV 365nm (${uvIntensity}%)` : 'UV LAMP (OFF)'}
-                  </span>
+            {/* 4-Actuator Live Status Bar */}
+            <div style={{ position: 'absolute', top: '0.75rem', right: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {[
+                { label: 'HTR', active: heaterPwm > 0 && !isAborted && !coolerActive, color: '#EF4444', val: heaterPwm > 0 && !isAborted && !coolerActive ? `PWM ${heaterPwm}%` : 'OFF' },
+                { label: 'CHILL', active: coolerActive && !isAborted, color: '#38BDF8', val: coolerActive && !isAborted ? `${coolerIntensity}%` : 'IDLE' },
+                { label: 'STIR', active: simRpm > 0 && !isAborted, color: '#84CC16', val: simRpm > 0 && !isAborted ? `${simRpm}` : '0' },
+                { label: 'UV', active: isUvActive && !isAborted, color: '#A855F7', val: isUvActive && !isAborted ? `${uvIntensity}%` : 'OFF' },
+              ].map(a => (
+                <div key={a.label} style={{ display: 'flex', alignItems: 'center', gap: '0.28rem' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: a.active ? a.color : 'rgba(255,255,255,0.1)', boxShadow: a.active ? `0 0 8px ${a.color}` : 'none', transition: 'all 0.25s ease' }} />
+                  <span style={{ fontSize: '0.55rem', fontFamily: 'var(--font-mono)', color: a.active ? a.color : '#475569', fontWeight: 700 }}>{a.label}</span>
                 </div>
+              ))}
+            </div>
 
-                {/* Radiative UV Light Cone Beam */}
-                {isUvActive && !isAborted && (
-                  <div style={{
-                    width: '84px', height: '24px',
-                    background: 'linear-gradient(180deg, rgba(124, 58, 237, 0.5) 0%, rgba(168, 85, 247, 0.15) 80%, transparent 100%)',
-                    filter: 'blur(2px)', pointerEvents: 'none',
-                    animation: 'pulseDot 1.4s ease-in-out infinite'
-                  }} />
-                )}
-              </div>
+            {/* Central Reactor Assembly */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '2.25rem', marginBottom: '0.75rem', position: 'relative' }}>
 
-              {/* Thermal Heat Shimmer OR Cryo Frost Mist */}
-              {coolerActive && !isAborted ? (
-                <div style={{
-                  width: '120px', height: '20px',
-                  background: 'radial-gradient(ellipse, rgba(56,189,248,0.45) 0%, transparent 70%)',
-                  filter: 'blur(3px)', marginBottom: '-6px', zIndex: 1,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  animation: 'frostPulse 1.6s ease-in-out infinite'
-                }}>
-                  <span style={{ fontSize: '11px', color: '#BAE6FD', opacity: 0.9 }}>❄ ❄ ❄</span>
-                </div>
-              ) : simTemp > 50 && !isAborted ? (
-                <div style={{
-                  width: '110px', height: '22px',
-                  background: 'radial-gradient(ellipse, rgba(245,158,11,0.3) 0%, transparent 70%)',
-                  filter: 'blur(4px)', marginBottom: '-6px', zIndex: 1,
-                  animation: 'pulseDot 1.8s ease-in-out infinite',
-                }} />
-              ) : (
-                <div style={{ height: isUvActive ? '0px' : '16px' }} />
+              {/* UV Lamp */}
+              {isUvActive && !isAborted && (
+                <div style={{ width: '70px', height: '10px', background: 'linear-gradient(to right, transparent, rgba(168,85,247,0.6), transparent)', borderRadius: '99px', marginBottom: '4px', animation: 'uvBeamPulse 1.3s ease-in-out infinite' }} />
               )}
 
-              {/* Glass Beaker with Gradations & Solution */}
+              {/* Reactor Vessel */}
               <div style={{
-                position: 'relative', width: '130px', height: '136px',
-                border: '2px solid rgba(255,255,255,0.25)', borderTop: 'none',
-                borderRadius: '0 0 18px 18px',
-                background: coolerActive
-                  ? 'rgba(56,189,248,0.06)'
-                  : (isUvActive ? 'rgba(124, 58, 237, 0.08)' : 'rgba(255,255,255,0.04)'),
-                boxShadow: isUvActive
-                  ? '0 0 25px rgba(124, 58, 237, 0.35), inset 0 0 16px rgba(124, 58, 237, 0.2)'
-                  : (coolerActive
-                    ? 'inset 0 0 18px rgba(56,189,248,0.25), 0 0 15px rgba(56,189,248,0.2)'
-                    : 'inset 0 0 12px rgba(255,255,255,0.05)'),
-                zIndex: 2,
-                transition: 'all 0.4s ease'
+                width: '100px', height: '130px',
+                background: `linear-gradient(180deg, rgba(255,255,255,0.04) 0%, ${liquidColor} 100%)`,
+                borderRadius: '6px 6px 40% 40% / 6px 6px 30% 30%',
+                border: `2px solid ${heaterPwm > 0 && !coolerActive && !isAborted ? '#EF4444' : (coolerActive && !isAborted ? '#38BDF8' : 'rgba(255,255,255,0.15)')}`,
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: heaterPwm > 0 && !coolerActive && !isAborted ? '0 0 20px rgba(239,68,68,0.3)' : (coolerActive && !isAborted ? '0 0 18px rgba(56,189,248,0.3)' : 'none'),
+                transition: 'all 0.4s ease',
               }}>
-                {[24, 52, 80].map(top => (
-                  <div key={top} style={{ position: 'absolute', left: '8px', top: `${top}px`, width: '12px', height: '1px', background: 'rgba(255,255,255,0.25)' }} />
-                ))}
-
-                {/* Chemical Solution Fluid */}
+                {/* Liquid fill */}
                 <div style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0, height: '86px',
-                  borderRadius: '0 0 16px 16px', overflow: 'hidden',
-                  background: isAborted
-                    ? 'rgba(70,60,50,0.4)'
-                    : (coolerActive
-                      ? 'rgba(14, 116, 144, 0.75)'
-                      : (isUvActive ? 'rgba(88, 28, 135, 0.75)' : liquidColor)),
-                  transition: 'background 0.8s ease',
-                }}>
-                  {/* Vortex fluid cone */}
-                  {simRpm > 100 && !isAborted && (
+                  position: 'absolute', bottom: 0, left: 0, right: 0,
+                  height: `${55 + heatF * 20}%`,
+                  background: `linear-gradient(to top, ${liquidColor}, ${liquidColor.replace(/[\d.]+\)$/, '0.3)')} )`,
+                  transition: 'height 0.4s ease',
+                }} />
+
+                {/* Vortex / Stir bar */}
+                {simRpm > 0 && !isAborted && (
+                  <>
                     <div style={{
-                      position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-                      width: '68px', height: `${vortex}px`,
-                      background: 'rgba(11, 28, 48, 0.85)', borderRadius: '0 0 50% 50%', opacity: 0.8,
+                      position: 'absolute', bottom: '18%', left: '50%', transform: 'translateX(-50%)',
+                      width: `${vortex}px`, height: `${vortex}px`,
+                      borderRadius: '50%', border: '1.5px dashed rgba(209,243,77,0.7)',
+                      animation: `vortexSpin ${spinDur}s linear infinite`,
                     }} />
-                  )}
+                    <div style={{
+                      position: 'absolute', bottom: '22%', left: '50%',
+                      width: '28px', height: '5px', borderRadius: '3px',
+                      background: '#FFFFFF', boxShadow: '0 0 8px #FFFFFF',
+                      animation: `stirBarSpin ${spinDur}s linear infinite`,
+                      transform: 'translateX(-50%)',
+                    }} />
+                  </>
+                )}
 
-                  {/* Magnetic Stirrer Bar */}
-                  <div style={{
-                    position: 'absolute', bottom: '9px', left: '50%',
-                    width: '34px', height: '8px', background: '#FFFFFF',
-                    boxShadow: '0 0 10px rgba(255,255,255,0.95)',
-                    borderRadius: '4px',
-                    animation: simRpm > 0 && !isAborted ? `magneticRotate ${spinDur}s linear infinite` : 'none',
-                  }} />
-                </div>
-              </div>
+                {/* Heat shimmer lines */}
+                {heaterPwm > 0 && !coolerActive && !isAborted && targetTemp > 40 && (
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '100%', display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end', paddingBottom: '8px', pointerEvents: 'none' }}>
+                    {[0.9, 1.1, 1.3, 0.95, 1.15].map((d, i) => (
+                      <div key={i} style={{ width: '3px', height: '18px', background: 'linear-gradient(to top, rgba(249,115,22,0.6), transparent)', borderRadius: '2px', animation: `thermalWaveUp ${d * 1.2}s ease-in-out infinite` }} />
+                    ))}
+                  </div>
+                )}
 
-              {/* Hotplate Thermal Ring Surface OR Cryo Peltier Base */}
-              <div style={{
-                width: '175px', height: '16px', borderRadius: '4px',
-                border: `1px solid ${coolerActive ? '#38BDF8' : (heatF > 0.2 && !isAborted ? '#EF4444' : 'rgba(255,255,255,0.15)')}`,
-                background: coolerActive
-                  ? 'linear-gradient(90deg, #0369A1 0%, #38BDF8 50%, #0369A1 100%)'
-                  : (heatF > 0.05 && !isAborted
-                    ? `radial-gradient(circle, rgba(239,68,68,${0.35 + heatF * 0.45}) 0%, rgba(245,158,11,${0.25 + heatF * 0.25}) 60%, #0B1C30 100%)`
-                    : '#081424'),
-                boxShadow: coolerActive
-                  ? '0 0 22px rgba(56, 189, 248, 0.5)'
-                  : (heatF > 0.1 && !isAborted ? `0 0 25px rgba(239,68,68,${0.35 + heatF * 0.35})` : 'none'),
-                transition: 'all 0.3s ease', zIndex: 2,
-                display: 'flex', alignItems: 'center', justifyContent: 'center'
-              }}>
-                {coolerActive && (
-                  <span style={{ fontSize: '8px', color: '#FFFFFF', fontWeight: 800, letterSpacing: '0.04em' }}>PELTIER CRYO QUENCH</span>
+                {/* Frost effect */}
+                {coolerActive && !isAborted && (
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(56,189,248,0.12) 0%, transparent 60%)', animation: 'frostGlimmer 1.5s ease-in-out infinite' }} />
                 )}
               </div>
 
-              {/* Dual Quench Cooling Fans (Underneath Base) */}
-              <div style={{
-                width: '155px', height: '24px', background: '#071526',
-                borderRadius: '0 0 8px 8px', border: '1px solid rgba(255,255,255,0.1)', borderTop: 'none',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-around', padding: '0 0.75rem',
-              }}>
-                {[1, 2].map(fanId => (
-                  <div key={fanId} style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                    <Fan
-                      size={13}
-                      color={coolerActive ? '#38BDF8' : '#64748B'}
-                      style={{
-                        animation: coolerActive && !isAborted ? 'fanSpin 0.25s linear infinite' : 'none',
-                        transition: 'all 0.2s ease'
-                      }}
-                    />
-                    <span style={{ fontSize: '8px', color: coolerActive ? '#38BDF8' : '#64748B', fontFamily: 'var(--font-mono)' }}>
-                      CHILL FAN {fanId}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
+              {/* Reactor Base */}
+              <div style={{ width: '130px', height: '10px', background: '#1E293B', borderRadius: '0 0 8px 8px', border: '1px solid #334155', marginTop: '-1px' }} />
             </div>
 
-            {/* Unified NodeMCU 4-Channel Station Base Chassis */}
-            <div style={{
-              width: '100%', maxWidth: '340px', height: '36px',
-              background: 'linear-gradient(180deg, #0B1C30 0%, #06111D 100%)',
-              borderRadius: '8px',
-              border: '1px solid rgba(255,255,255,0.1)',
-              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-              padding: '0 0.85rem',
-            }}>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '8px', color: '#94A3B8' }}>
-                GPIO5: HTR · GPIO12: CHILL · GPIO4: STIR · GPIO16: UV
+            {/* Live Telemetry Gauges (horizontal row under reactor) */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.6rem', width: '100%', marginTop: '0.25rem' }}>
+              {/* Temp Gauge */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1E3A5F', borderRadius: '10px', padding: '0.6rem 0.75rem' }}>
+                <div style={{ fontSize: '0.55rem', color: '#475569', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.2rem' }}>Temperature</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 900, color: simTemp > 80 ? '#FCA5A5' : (coolerActive ? '#7DD3FC' : '#F8FAFC'), letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  {simTemp.toFixed(1)}<span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>Â°C</span>
+                </div>
+                <div style={{ fontSize: '0.6rem', color: '#475569', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>Set: {targetTemp}Â°C</div>
+                <div style={{ marginTop: '0.35rem', height: '3px', background: '#0F2A3F', borderRadius: '99px' }}>
+                  <div style={{ width: `${Math.min(100, (simTemp / (protocol.safetyEnvelope?.maxTempC || 350)) * 100)}%`, height: '100%', background: simTemp > 150 ? '#EF4444' : '#F59E0B', borderRadius: '99px', transition: 'width 0.3s ease' }} />
+                </div>
+              </div>
+
+              {/* RPM Gauge */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1E3A5F', borderRadius: '10px', padding: '0.6rem 0.75rem' }}>
+                <div style={{ fontSize: '0.55rem', color: '#475569', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.2rem' }}>Mixer Speed</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 900, color: simRpm > 0 ? 'var(--primary-lime)' : '#475569', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  {simRpm}<span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}> RPM</span>
+                </div>
+                <div style={{ fontSize: '0.6rem', color: '#475569', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>Set: {targetRpm} RPM</div>
+                <div style={{ marginTop: '0.35rem', height: '3px', background: '#0F2A3F', borderRadius: '99px' }}>
+                  <div style={{ width: `${Math.min(100, (simRpm / 1500) * 100)}%`, height: '100%', background: 'var(--primary-lime)', borderRadius: '99px', transition: 'width 0.3s ease' }} />
+                </div>
+              </div>
+
+              {/* Elapsed / Stage */}
+              <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid #1E3A5F', borderRadius: '10px', padding: '0.6rem 0.75rem' }}>
+                <div style={{ fontSize: '0.55rem', color: '#475569', fontFamily: 'var(--font-mono)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '0.2rem' }}>Stage Time</div>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.5rem', fontWeight: 900, color: '#F8FAFC', letterSpacing: '-0.03em', lineHeight: 1 }}>
+                  {Math.floor(stageElapsedSec / 60)}<span style={{ fontSize: '0.75rem', color: '#64748B', fontWeight: 500 }}>m {String(Math.floor(stageElapsedSec % 60)).padStart(2,'0')}s</span>
+                </div>
+                <div style={{ fontSize: '0.6rem', color: '#475569', fontFamily: 'var(--font-mono)', marginTop: '0.2rem' }}>Total: {Math.floor(stageDurationSec/60)}m ({stageProgressPct}%)</div>
+                <div style={{ marginTop: '0.35rem', height: '3px', background: '#0F2A3F', borderRadius: '99px' }}>
+                  <div style={{ width: `${stageProgressPct}%`, height: '100%', background: '#60A5FA', borderRadius: '99px', transition: 'width 0.3s ease' }} />
+                </div>
+              </div>
+            </div>
+
+            {/* Active Bytecode Line */}
+            <div style={{ width: '100%', marginTop: '0.75rem', background: '#071524', border: '1px solid #1E3A5F', borderRadius: '8px', padding: '0.45rem 0.75rem', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: '#475569', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ color: '#94A3B8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', flex: 1 }}>
+                {JSON.stringify({ cmd: compactPayload.command, stage: currentStepIdx + 1, set_temp: targetTemp, set_rpm: targetRpm, uv: isUvActive })}
               </span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '9px', fontWeight: 700, color: isAborted ? '#EF4444' : (isRunning ? 'var(--primary-lime)' : '#94A3B8') }}>
-                {isAborted ? '● HALTED' : (isRunning ? (isPaused ? '⏸ HOLD' : '● ONLINE') : '○ STANDBY')}
-              </span>
+              <span style={{ color: 'var(--primary-lime)', fontWeight: 700, marginLeft: '0.5rem', flexShrink: 0 }}>CRC32: {compactPayload.crc32}</span>
             </div>
           </div>
-          </div>
 
-          {/* Dual Real-Time Telemetry Gauges */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.875rem' }}>
-            
-            {/* Thermocouple Gauge */}
-            <div style={{
-              background: 'var(--deep-charcoal)',
-              border: '1px solid #1E3A5F',
-              borderRadius: '12px',
-              padding: '1rem',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--warning-orange)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <Flame size={12} />
-                  RTD Sensor
-                </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: '#94A3B8' }}>
-                  Set: {targetTemp}°C
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 800, color: '#FFFFFF' }}>
-                  {simTemp.toFixed(1)}
-                  <span style={{ fontSize: '0.9rem', color: '#94A3B8', fontWeight: 500 }}> °C</span>
-                </span>
-                <span style={{ fontSize: '0.7rem', color: heaterPwm > 0 && !isAborted ? 'var(--warning-orange)' : '#94A3B8', fontWeight: 700 }}>
-                  {heaterPwm}% PWM
-                </span>
-              </div>
-            </div>
-
-            {/* Tachometer RPM Gauge */}
-            <div style={{
-              background: 'var(--deep-charcoal)',
-              border: '1px solid #1E3A5F',
-              borderRadius: '12px',
-              padding: '1rem',
-            }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--primary-lime)', textTransform: 'uppercase', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <RotateCw size={12} />
-                  Tachometer
-                </span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: '#94A3B8' }}>
-                  Set: {targetRpm} RPM
-                </span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '2rem', fontWeight: 800, color: 'var(--primary-lime)' }}>
-                  {simRpm}
-                  <span style={{ fontSize: '0.9rem', color: '#94A3B8', fontWeight: 500 }}> RPM</span>
-                </span>
-                <span style={{ fontSize: '0.7rem', color: simRpm > 0 && !isAborted ? 'var(--primary-lime)' : '#94A3B8', fontWeight: 700 }}>
-                  {simRpm > 0 && !isAborted ? 'MOTOR LOCKED' : 'IDLE'}
-                </span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ── Sequential Hardware Pipeline (Moved here under gauges to eliminate empty space) ── */}
-          <div className="notebook-card" style={{ padding: '1.25rem', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 4px 16px rgba(11, 28, 48, 0.05)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+          {/* â”€â”€ D2: Sequential Stage Pipeline â”€â”€ */}
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid var(--slate-border)', padding: '1rem 1.1rem', boxShadow: '0 2px 12px rgba(11,28,48,0.04)' }}>
+            {/* Section Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.65rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                <Layers size={14} color="var(--deep-charcoal)" />
-                <span style={{ fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--deep-charcoal)' }}>
-                  Sequential Hardware Pipeline ({steps.length} Stages)
+                <Layers size={13} color="var(--deep-charcoal)" />
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--deep-charcoal)' }}>
+                  Stage Pipeline
                 </span>
+                <span style={{ fontSize: '0.63rem', color: 'var(--slate-gray)' }}>({steps.length} stages)</span>
               </div>
-              <span style={{ fontSize: '0.68rem', color: 'var(--slate-gray)' }}>
-                Click stage to manual jump
-              </span>
+              <span style={{ fontSize: '0.6rem', color: 'var(--slate-gray)', fontStyle: 'italic' }}>Click to jump</span>
             </div>
 
-            {/* Total Process Progress Track */}
-            <div style={{ marginBottom: '0.85rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', color: 'var(--slate-gray)', marginBottom: '0.3rem' }}>
-                <span>Overall Synthesis: Phase {currentStepIdx + 1} of {steps.length}</span>
-                <span style={{ fontFamily: 'var(--font-mono)', fontWeight: 700, color: 'var(--deep-charcoal)' }}>
-                  {Math.floor(elapsedSec / 60)}m / {Math.floor(totalSimSec / 60)}m ({progressPct}%)
-                </span>
-              </div>
-              <div className="warm-progress-track">
-                <div className="warm-progress-fill" style={{ width: `${progressPct}%`, background: 'var(--primary-lime)' }} />
-              </div>
-            </div>
-
-            {/* Active Stage Directive Spotlight */}
+            {/* Active Stage Spotlight */}
             <div style={{
-              background: 'linear-gradient(135deg, rgba(209, 243, 77, 0.22) 0%, rgba(0, 88, 190, 0.08) 100%)',
+              background: 'linear-gradient(135deg, rgba(209,243,77,0.18) 0%, rgba(0,88,190,0.06) 100%)',
               border: '1.5px solid var(--deep-charcoal)',
-              borderRadius: '12px',
-              padding: '0.85rem 1rem',
-              marginBottom: '1rem',
+              borderRadius: '10px',
+              padding: '0.7rem 0.9rem',
+              marginBottom: '0.65rem',
               display: 'flex',
               flexDirection: 'column',
-              gap: '0.5rem',
-              boxShadow: '0 3px 12px rgba(11, 28, 48, 0.06)'
+              gap: '0.4rem',
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-                  <span className="lab-badge lab-badge-lime" style={{ fontSize: '0.65rem', padding: '2px 7px', fontWeight: 800 }}>
-                    ACTIVE STAGE {currentStepIdx + 1}/{steps.length}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.4rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span style={{ fontSize: '0.6rem', fontWeight: 800, background: 'var(--deep-charcoal)', color: 'var(--primary-lime)', padding: '2px 6px', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
+                    ACTIVE {currentStepIdx + 1}/{steps.length}
                   </span>
-                  <span style={{ fontSize: '0.82rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>
-                    {activeStep.name}
-                  </span>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>{activeStep.name}</span>
                 </div>
-                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 700, color: 'var(--deep-charcoal)' }}>
-                  {Math.floor(stageElapsedSec / 60)}m / {Math.floor(stageDurationSec / 60)}m ({stageProgressPct}%)
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  <button type="button" onClick={handleRestartStage} className="btn-ghost" style={{ fontSize: '0.62rem', padding: '0.2rem 0.5rem' }}>â†º Restart</button>
+                  <button type="button" onClick={handleNextStage} disabled={currentStepIdx >= steps.length - 1} className="btn-primary" style={{ fontSize: '0.64rem', padding: '0.22rem 0.6rem' }}>Advance â­</button>
+                </div>
               </div>
-
-              {/* Stage Progress bar */}
-              <div style={{ width: '100%', height: '5px', background: 'rgba(11,28,48,0.1)', borderRadius: '9999px', overflow: 'hidden' }}>
+              <div style={{ height: '4px', background: 'rgba(11,28,48,0.1)', borderRadius: '99px', overflow: 'hidden' }}>
                 <div style={{ width: `${stageProgressPct}%`, height: '100%', background: 'var(--deep-charcoal)', transition: 'width 0.3s ease' }} />
               </div>
-
-              {/* Chemical instruction & tactical stage buttons */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem', paddingTop: '0.15rem' }}>
-                <div style={{ fontSize: '0.68rem', color: 'var(--slate-gray)', maxWidth: '300px', lineHeight: 1.3 }}>
-                  <strong style={{ color: 'var(--deep-charcoal)' }}>Directive:</strong> {activeStep.hardwareAction || `${activeStep.targetTempC}°C soak at ${activeStep.stirRpm} RPM`}
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <button
-                    type="button"
-                    onClick={handleRestartStage}
-                    title="Restart this stage from beginning"
-                    className="btn-ghost"
-                    style={{ fontSize: '0.65rem', padding: '0.25rem 0.55rem', background: '#FFFFFF' }}
-                  >
-                    ↺ Restart Stage
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleNextStage}
-                    disabled={currentStepIdx >= steps.length - 1}
-                    className="btn-primary"
-                    style={{ fontSize: '0.68rem', padding: '0.28rem 0.7rem' }}
-                  >
-                    Advance ⏭
-                  </button>
-                </div>
+              <div style={{ fontSize: '0.63rem', color: 'var(--slate-gray)' }}>
+                <strong style={{ color: 'var(--deep-charcoal)' }}>Directive:</strong> {activeStep.hardwareAction || `${Math.round((activeStep.targetTempC || 25) + (overrides.tempOffset || 0))}Â°C soak at ${Math.round((activeStep.stirRpm || 0) * (overrides.rpmMultiplier || 1))} RPM`}
               </div>
             </div>
 
-            {/* Interactive Stages List (Clear Sequential View) */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {/* Stage List */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
               {steps.map((st, idx) => {
                 const isFinished = idx < currentStepIdx;
                 const isActive = idx === currentStepIdx;
+                const effTemp = Math.round(st.targetTempC + (overrides.tempOffset || 0));
+                const effRpm = Math.round(st.stirRpm * (overrides.rpmMultiplier || 1));
+                const effDur = Math.max(1, Math.round(st.durationMin * (overrides.timeScale || 1)));
+                const isCool = st.operation === 'QUENCH_COOL' || st.operation === 'COOL_DOWN' || (st.name && (st.name.toLowerCase().includes('quench') || st.name.toLowerCase().includes('cool')));
 
                 return (
                   <div
                     key={st.id || idx}
                     onClick={() => handleJumpToStage(idx)}
                     style={{
-                      padding: '0.65rem 0.85rem',
-                      borderRadius: '10px',
-                      border: isActive
-                        ? '2px solid var(--deep-charcoal)'
-                        : (isFinished ? '1px solid var(--success-border)' : '1px solid var(--slate-border)'),
-                      background: isActive
-                        ? 'linear-gradient(145deg, rgba(209, 243, 77, 0.2) 0%, #FFFFFF 100%)'
-                        : (isFinished ? 'var(--success-bg)' : 'var(--off-white)'),
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '0.75rem',
-                      cursor: 'pointer',
-                      transition: 'all 0.18s ease',
-                      boxShadow: isActive ? '0 4px 14px -2px rgba(209, 243, 77, 0.35)' : 'none',
+                      padding: '0.55rem 0.75rem',
+                      borderRadius: '9px',
+                      border: isActive ? '2px solid var(--deep-charcoal)' : (isFinished ? '1px solid var(--success-border)' : '1px solid var(--slate-border)'),
+                      background: isActive ? 'linear-gradient(145deg, rgba(209,243,77,0.16) 0%, #FFFFFF 100%)' : (isFinished ? 'var(--success-bg)' : 'var(--off-white)'),
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.6rem',
+                      cursor: 'pointer', transition: 'all 0.15s ease',
+                      boxShadow: isActive ? '0 3px 12px -2px rgba(209,243,77,0.3)' : 'none',
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.625rem', minWidth: 0 }}>
-                      {/* Step Indicator */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0 }}>
+                      {/* Step circle */}
                       <div style={{
-                        width: '22px', height: '22px', borderRadius: '50%',
+                        width: '20px', height: '20px', borderRadius: '50%',
                         background: isActive ? 'var(--deep-charcoal)' : (isFinished ? 'var(--success-green)' : '#E2E8F0'),
                         color: isActive ? 'var(--primary-lime)' : (isFinished ? '#FFFFFF' : 'var(--slate-gray)'),
-                        fontSize: '0.65rem', fontWeight: 800,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                        fontSize: '0.6rem', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
                       }}>
-                        {isFinished ? <Check size={12} strokeWidth={3} /> : idx + 1}
+                        {isFinished ? <Check size={11} strokeWidth={3} /> : idx + 1}
                       </div>
-
-                      {/* Step Name & Operation */}
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        {(() => {
-                          const effTemp = Math.round(st.targetTempC + (overrides.tempOffset || 0));
-                          const effRpm = Math.round(st.stirRpm * (overrides.rpmMultiplier || 1));
-                          const effDur = Math.max(1, Math.round(st.durationMin * (overrides.timeScale || 1)));
-                          const isCool = st.operation === 'QUENCH_COOL' || st.operation === 'COOL_DOWN' || (st.name && (st.name.toLowerCase().includes('quench') || st.name.toLowerCase().includes('cool')));
-
-                          return (
-                            <>
-                              <div style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--deep-charcoal)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {st.name}
-                              </div>
-                              <div style={{ fontSize: '0.64rem', color: 'var(--slate-gray)', display: 'flex', alignItems: 'center', gap: '0.35rem', fontFamily: 'var(--font-mono)', flexWrap: 'wrap', marginTop: '2px' }}>
-                                <span style={{ color: isCool ? '#0284C7' : (effTemp > 25 ? '#B91C1C' : 'var(--slate-gray)'), fontWeight: 700 }}>
-                                  {effTemp}°C {overrides.tempOffset ? `(${(overrides.tempOffset > 0 ? '+' : '') + overrides.tempOffset})` : ''}
-                                </span>
-                                <span>•</span>
-                                <span style={{ color: effRpm > 0 ? '#15803D' : 'var(--slate-gray)', fontWeight: 600 }}>
-                                  {effRpm} RPM {overrides.rpmMultiplier !== 1 ? `(${overrides.rpmMultiplier}x)` : ''}
-                                </span>
-                                <span>•</span>
-                                <span>{effDur}m {overrides.timeScale !== 1 ? `(${overrides.timeScale}x)` : ''}</span>
-
-                                {/* Hardware actuator badges */}
-                                <span style={{ display: 'inline-flex', gap: '3px', marginLeft: '3px' }}>
-                                  {!isCool && effTemp > 25 && <span style={{ fontSize: '9px', background: '#FEE2E2', color: '#991B1B', padding: '1px 4px', borderRadius: '3px', fontWeight: 700 }}>🔴 HTR</span>}
-                                  {isCool && <span style={{ fontSize: '9px', background: '#E0F2FE', color: '#0369A1', padding: '1px 4px', borderRadius: '3px', fontWeight: 700 }}>🟢 CHILL</span>}
-                                  {st.uvExposure && <span style={{ fontSize: '9px', background: '#F3E8FF', color: '#6B21A8', padding: '1px 4px', borderRadius: '3px', fontWeight: 700 }}>⚪ UV</span>}
-                                  {effRpm > 0 && <span style={{ fontSize: '9px', background: '#DCFCE7', color: '#166534', padding: '1px 4px', borderRadius: '3px', fontWeight: 700 }}>🌀 STIR</span>}
-                                </span>
-                              </div>
-                              {st.hardwareAction && (
-                                <div style={{ fontSize: '0.61rem', color: '#64748B', fontStyle: 'italic', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                  ↳ {st.hardwareAction}
-                                </div>
-                              )}
-                            </>
-                          );
-                        })()}
+                        <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--deep-charcoal)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{st.name}</div>
+                        <div style={{ fontSize: '0.6rem', color: 'var(--slate-gray)', display: 'flex', alignItems: 'center', gap: '0.3rem', fontFamily: 'var(--font-mono)', flexWrap: 'wrap', marginTop: '1px' }}>
+                          <span style={{ color: isCool ? '#0284C7' : (effTemp > 25 ? '#B91C1C' : 'var(--slate-gray)'), fontWeight: 700 }}>{effTemp}Â°C</span>
+                          <span>Â·</span>
+                          <span style={{ color: effRpm > 0 ? '#15803D' : 'var(--slate-gray)', fontWeight: 600 }}>{effRpm} RPM</span>
+                          <span>Â·</span>
+                          <span>{effDur}m</span>
+                          <span style={{ display: 'inline-flex', gap: '2px', marginLeft: '2px' }}>
+                            {!isCool && effTemp > 25 && <span style={{ fontSize: '8px', background: '#FEE2E2', color: '#991B1B', padding: '1px 3px', borderRadius: '3px', fontWeight: 700 }}>HTR</span>}
+                            {isCool && <span style={{ fontSize: '8px', background: '#E0F2FE', color: '#0369A1', padding: '1px 3px', borderRadius: '3px', fontWeight: 700 }}>CHILL</span>}
+                            {st.uvExposure && <span style={{ fontSize: '8px', background: '#F3E8FF', color: '#6B21A8', padding: '1px 3px', borderRadius: '3px', fontWeight: 700 }}>UV</span>}
+                            {effRpm > 0 && <span style={{ fontSize: '8px', background: '#DCFCE7', color: '#166534', padding: '1px 3px', borderRadius: '3px', fontWeight: 700 }}>STIR</span>}
+                          </span>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Right Status Badge */}
-                    <span className={`lab-badge ${isActive ? 'lab-badge-lime' : (isFinished ? 'lab-badge-sage' : 'lab-badge-ink')}`} style={{ fontSize: '0.6rem', padding: '1px 6px', flexShrink: 0 }}>
-                      {isActive ? (isPaused ? 'PAUSED' : '● ACTIVE') : (isFinished ? 'DONE' : 'STANDBY')}
+                    <span style={{
+                      fontSize: '0.58rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
+                      padding: '1px 5px', borderRadius: '4px', flexShrink: 0,
+                      background: isActive ? 'var(--deep-charcoal)' : (isFinished ? 'var(--success-bg)' : '#F1F5F9'),
+                      color: isActive ? 'var(--primary-lime)' : (isFinished ? 'var(--success-green)' : 'var(--slate-gray)'),
+                      border: isActive ? '1px solid rgba(209,243,77,0.3)' : (isFinished ? '1px solid var(--success-border)' : '1px solid transparent'),
+                    }}>
+                      {isActive ? (isPaused ? 'HOLD' : 'â— LIVE') : (isFinished ? 'âœ“ DONE' : 'STBY')}
                     </span>
                   </div>
                 );
               })}
             </div>
           </div>
-
-          {/* Active Bytecode Instruction Box */}
-          <div style={{
-            background: 'var(--deep-charcoal)',
-            border: '1px solid #1E3A5F',
-            borderRadius: '12px',
-            padding: '0.875rem 1rem',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.7rem',
-            color: '#94A3B8',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.35rem',
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#FFFFFF' }}>
-              <span>ACTIVE BYTECODE INSTRUCTION:</span>
-              <span style={{ color: 'var(--primary-lime)', fontWeight: 700 }}>CRC32: {compactPayload.crc32}</span>
-            </div>
-            <div style={{ color: '#E2E8F0', overflowX: 'auto', whiteSpace: 'nowrap' }}>
-              {JSON.stringify({ cmd: compactPayload.command, stage: currentStepIdx + 1, set_temp: targetTemp, set_rpm: targetRpm, uv: isUvActive })}
-            </div>
-          </div>
-
         </div>
 
-        {/* ── RIGHT COLUMN: Dedicated Reactor Actuator Controls ── */}
+        {/* â”€â”€â”€â”€ RIGHT COLUMN: 4-Channel Actuator Deck â”€â”€â”€â”€ */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
 
-          {/* ── Precision Reactor Actuator Console (Mixer, Heater, Cooler, UV) ── */}
-          <div className="notebook-card" style={{ padding: '1.25rem', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 4px 16px rgba(11, 28, 48, 0.05)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <div style={{ width: '28px', height: '28px', borderRadius: '8px', background: 'var(--off-white)', border: '1px solid var(--slate-border)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Sliders size={14} color="var(--deep-charcoal)" />
-                </div>
+          {/* Section Label Header */}
+          <div style={{
+            background: '#FFFFFF',
+            border: '1px solid var(--slate-border)',
+            borderRadius: '14px',
+            padding: '0.8rem 1rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '0.5rem',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Sliders size={14} color="var(--deep-charcoal)" />
+              <div>
+                <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--deep-charcoal)' }}>Actuator Control Deck</div>
+                <div style={{ fontSize: '0.6rem', color: 'var(--slate-gray)' }}>4-Channel Direct Hardware Override</div>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setManualHeaterTarget(null);
+                setManualMixerRpm(null);
+                setHeaterActive(true);
+                setCoolerActive(false);
+                setLiveUvOverride(null);
+                onAddLog?.('SYSTEM', 'Actuators re-synchronized with recipe target envelope.');
+              }}
+              className="btn-ghost"
+              style={{ fontSize: '0.62rem', padding: '0.28rem 0.65rem', borderRadius: '6px', fontFamily: 'var(--font-mono)' }}
+            >
+              <RotateCcw size={10} style={{ marginRight: '3px' }} /> Sync to Recipe
+            </button>
+          </div>
+
+          {/* ACTUATOR 1 â€” MIXER */}
+          <div style={{
+            background: '#FFFFFF',
+            border: mixerActive && targetRpm > 0 ? '1.5px solid var(--deep-charcoal)' : '1px solid var(--slate-border)',
+            borderRadius: '12px', padding: '0.85rem',
+            display: 'flex', flexDirection: 'column', gap: '0.6rem',
+            boxShadow: mixerActive && targetRpm > 0 ? '0 4px 16px -3px rgba(209,243,77,0.3)' : '0 2px 8px rgba(11,28,48,0.03)',
+            transition: 'all 0.25s ease',
+          }}>
+            {/* Actuator Header */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: mixerActive && targetRpm > 0 ? 'var(--primary-lime)' : '#CBD5E1', boxShadow: mixerActive && targetRpm > 0 ? '0 0 8px var(--primary-lime)' : 'none', transition: 'all 0.2s ease' }} />
                 <div>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', color: 'var(--deep-charcoal)' }}>
-                    Reactor Actuator Controls
-                  </div>
-                  <div style={{ fontSize: '0.65rem', color: 'var(--slate-gray)' }}>
-                    4-Channel Direct Hardware Override Deck
-                  </div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>Mixer / Stirrer</div>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO04 Â· PWM SERVO MOTOR</div>
                 </div>
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 900, color: mixerActive && targetRpm > 0 ? 'var(--deep-charcoal)' : '#94A3B8' }}>
+                  {targetRpm} <span style={{ fontSize: '0.6rem', fontWeight: 500 }}>RPM</span>
+                </span>
                 <button
                   type="button"
-                  onClick={() => {
-                    setManualHeaterTarget(null);
-                    setManualMixerRpm(null);
-                    setHeaterActive(true);
-                    setCoolerActive(false);
-                    setLiveUvOverride(null);
-                    onAddLog?.('SYSTEM', 'Actuators re-synchronized with recipe target envelope.');
-                  }}
-                  className="btn-ghost"
-                  style={{
-                    fontSize: '0.65rem',
-                    padding: '3px 9px',
-                    borderRadius: '6px',
-                    fontFamily: 'var(--font-mono)',
-                    color: 'var(--slate-gray)',
-                    background: 'var(--off-white)',
-                    border: '1px solid var(--slate-border)',
-                    cursor: 'pointer'
-                  }}
+                  onClick={() => { const next = !mixerActive; setMixerActive(next); onAddLog?.('ACTUATOR_OVERRIDE', `Mixer Motor ${next ? 'ENGAGED' : 'BRAKED'}`); }}
+                  style={{ border: 'none', borderRadius: '7px', padding: '3px 10px', fontSize: '0.62rem', fontWeight: 800, cursor: 'pointer', background: mixerActive && targetRpm > 0 ? 'var(--deep-charcoal)' : '#E2E8F0', color: mixerActive && targetRpm > 0 ? 'var(--primary-lime)' : 'var(--slate-gray)', transition: 'all 0.15s ease' }}
                 >
-                  <RotateCcw size={10} style={{ marginRight: '3px' }} />
-                  Reset to Recipe
+                  {mixerActive && targetRpm > 0 ? 'â— ON' : 'OFF'}
                 </button>
               </div>
             </div>
 
-            {/* 4 Core Actuators in Strict 2x2 Symmetrical Bento Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
-              
-              {/* 1. MAGNETIC MIXER (STIRRER) */}
-              <div style={{
-                background: mixerActive && targetRpm > 0
-                  ? 'linear-gradient(145deg, rgba(209, 243, 77, 0.09) 0%, #FFFFFF 100%)'
-                  : '#FFFFFF',
-                border: mixerActive && targetRpm > 0 ? '1.5px solid var(--deep-charcoal)' : '1px solid var(--slate-border)',
-                borderRadius: '14px', padding: '1rem',
-                display: 'flex', flexDirection: 'column', gap: '0.75rem',
-                boxShadow: mixerActive && targetRpm > 0 ? '0 8px 20px -4px rgba(209, 243, 77, 0.35)' : '0 2px 8px rgba(11,28,48,0.03)',
-                transition: 'all 0.25s ease',
-              }}>
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '28px', height: '28px', borderRadius: '8px',
-                      background: mixerActive && targetRpm > 0 ? 'var(--deep-charcoal)' : '#F1F5F9',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: mixerActive && targetRpm > 0 ? '0 0 10px rgba(209, 243, 77, 0.4)' : 'none',
-                      transition: 'all 0.2s ease'
-                    }}>
-                      <RotateCw
-                        size={14}
-                        color={mixerActive && targetRpm > 0 ? 'var(--primary-lime)' : 'var(--slate-gray)'}
-                        style={{ animation: mixerActive && targetRpm > 0 ? `magneticRotate ${targetRpm > 0 ? Math.max(0.08, 60 / targetRpm) : 1}s linear infinite` : 'none' }}
-                      />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>Mixer (Stirrer)</div>
-                      <div style={{ fontSize: '0.62rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO04 · PWM SERVO</div>
-                    </div>
-                  </div>
+            {/* Slider */}
+            <input type="range" min="0" max="1400" step="50" value={targetRpm}
+              onChange={(e) => { const v = Number(e.target.value); setManualMixerRpm(v); setMixerActive(v > 0); }}
+              className="slider-amber" style={{ width: '100%', height: '4px', cursor: 'pointer' }} />
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !mixerActive;
-                      setMixerActive(next);
-                      onAddLog?.('ACTUATOR_OVERRIDE', `Mixer Motor ${next ? 'ENGAGED' : 'BRAKED'}`);
-                    }}
-                    style={{
-                      border: 'none', borderRadius: 'var(--radius-full)',
-                      padding: '4px 12px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer',
-                      background: mixerActive && targetRpm > 0 ? 'var(--deep-charcoal)' : '#E2E8F0',
-                      color: mixerActive && targetRpm > 0 ? 'var(--primary-lime)' : 'var(--slate-gray)',
-                      boxShadow: mixerActive && targetRpm > 0 ? '0 2px 8px rgba(11,28,48,0.25)' : 'none',
-                      transition: 'all 0.18s ease'
-                    }}
-                  >
-                    {mixerActive && targetRpm > 0 ? '● STIRRING' : 'OFF'}
+            {/* Presets */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
+              {[{ label: 'Stop', rpm: 0 }, { label: '300', rpm: 300 }, { label: '600', rpm: 600 }, { label: '1200', rpm: 1200 }].map(btn => {
+                const sel = targetRpm === btn.rpm && mixerActive === (btn.rpm > 0);
+                return (
+                  <button key={btn.label} type="button"
+                    onClick={() => { setManualMixerRpm(btn.rpm); setMixerActive(btn.rpm > 0); onAddLog?.('ACTUATOR_OVERRIDE', `Mixer â†’ ${btn.rpm} RPM`); }}
+                    style={{ padding: '3px', fontSize: '0.62rem', fontWeight: sel ? 800 : 600, background: sel ? 'var(--deep-charcoal)' : 'var(--off-white)', color: sel ? 'var(--primary-lime)' : 'var(--deep-charcoal)', border: sel ? '1px solid var(--deep-charcoal)' : '1px solid var(--slate-border)', borderRadius: '5px', cursor: 'pointer', transition: 'all 0.12s ease' }}>
+                    {btn.label}
                   </button>
-                </div>
-
-                {/* Animated Interactive Visual Monitor Box */}
-                <div style={{
-                  background: '#071524',
-                  borderRadius: '10px',
-                  padding: '0.65rem 0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  border: '1px solid #1E3A5F',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  {/* Left: Interactive Beaker Vortex & Spinning Stir Bar */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{
-                      position: 'relative',
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, #0B1C30 35%, #040D17 100%)',
-                      border: mixerActive && targetRpm > 0 ? '1.5px solid var(--primary-lime)' : '1px solid #1E3A5F',
-                      boxShadow: mixerActive && targetRpm > 0 ? '0 0 12px rgba(209, 243, 77, 0.4)' : 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      {/* Rotating liquid particle ring */}
-                      {mixerActive && targetRpm > 0 && (
-                        <div style={{
-                          position: 'absolute', inset: '2px', borderRadius: '50%',
-                          border: '2px dashed rgba(209, 243, 77, 0.65)',
-                          animation: `vortexSpin ${targetRpm > 0 ? Math.max(0.12, 60 / targetRpm) : 1}s linear infinite`,
-                        }} />
-                      )}
-                      {/* Magnetic Stirrer Bar */}
-                      <div style={{
-                        position: 'absolute', top: '50%', left: '50%',
-                        width: '20px', height: '5px', borderRadius: '3px',
-                        background: '#FFFFFF',
-                        boxShadow: mixerActive && targetRpm > 0 ? '0 0 8px #FFFFFF' : 'none',
-                        animation: mixerActive && targetRpm > 0 ? `stirBarSpin ${targetRpm > 0 ? Math.max(0.08, 60 / targetRpm) : 1}s linear infinite` : 'none',
-                        transform: 'translate(-50%, -50%)'
-                      }} />
-                    </div>
-
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
-                          {targetRpm}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: 'var(--primary-lime)', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                          RPM
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.6rem', color: '#94A3B8', fontFamily: 'var(--font-mono)' }}>
-                        {mixerActive && targetRpm > 0 ? 'TORQUE 0.18 N·m · SERVO ACTIVE' : 'SERVO BRAKED · IDLE'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Status Badge */}
-                  <span style={{
-                    fontSize: '0.62rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-                    padding: '3px 8px', borderRadius: '6px',
-                    background: mixerActive && targetRpm > 0 ? 'rgba(209, 243, 77, 0.18)' : 'rgba(148, 163, 184, 0.12)',
-                    color: mixerActive && targetRpm > 0 ? 'var(--primary-lime)' : '#94A3B8',
-                    border: mixerActive && targetRpm > 0 ? '1px solid rgba(209, 243, 77, 0.3)' : '1px solid #1E3A5F'
-                  }}>
-                    {mixerActive && targetRpm > 0 ? 'LOCKED' : 'IDLE'}
-                  </span>
-                </div>
-
-                {/* Range Slider */}
-                <input
-                  type="range"
-                  min="0"
-                  max="1400"
-                  step="50"
-                  value={targetRpm}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setManualMixerRpm(val);
-                    setMixerActive(val > 0);
-                  }}
-                  className="slider-amber"
-                  style={{ width: '100%', height: '5px', cursor: 'pointer' }}
-                />
-
-                {/* 4 Quick Presets */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
-                  {[
-                    { label: 'Stop', rpm: 0 },
-                    { label: '300', rpm: 300 },
-                    { label: '600', rpm: 600 },
-                    { label: '1200', rpm: 1200 },
-                  ].map(btn => {
-                    const isSelected = targetRpm === btn.rpm && mixerActive === (btn.rpm > 0);
-                    return (
-                      <button
-                        key={btn.label}
-                        type="button"
-                        onClick={() => {
-                          setManualMixerRpm(btn.rpm);
-                          setMixerActive(btn.rpm > 0);
-                          onAddLog?.('ACTUATOR_OVERRIDE', `Mixer set to ${btn.rpm} RPM`);
-                        }}
-                        style={{
-                          padding: '4px 2px',
-                          fontSize: '0.64rem',
-                          fontWeight: isSelected ? 800 : 600,
-                          background: isSelected ? 'var(--deep-charcoal)' : 'var(--off-white)',
-                          color: isSelected ? 'var(--primary-lime)' : 'var(--deep-charcoal)',
-                          border: isSelected ? '1px solid var(--deep-charcoal)' : '1px solid var(--slate-border)',
-                          borderRadius: '6px',
-                          textAlign: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        {btn.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 2. THERMAL HEATER (HOTPLATE PID) */}
-              <div style={{
-                background: heaterActive && !coolerActive
-                  ? 'linear-gradient(145deg, rgba(239, 68, 68, 0.08) 0%, #FFFFFF 100%)'
-                  : '#FFFFFF',
-                border: heaterActive && !coolerActive ? '1.5px solid rgba(239, 68, 68, 0.45)' : '1px solid var(--slate-border)',
-                borderRadius: '14px', padding: '1rem',
-                display: 'flex', flexDirection: 'column', gap: '0.75rem',
-                boxShadow: heaterActive && !coolerActive ? '0 8px 20px -4px rgba(239, 68, 68, 0.25)' : '0 2px 8px rgba(11,28,48,0.03)',
-                transition: 'all 0.25s ease',
-              }}>
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '28px', height: '28px', borderRadius: '8px',
-                      background: heaterActive && !coolerActive ? '#FEE2E2' : '#F1F5F9',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: heaterActive && !coolerActive ? '0 0 10px rgba(239, 68, 68, 0.4)' : 'none',
-                      transition: 'all 0.2s ease'
-                    }}>
-                      <Flame size={14} color={heaterActive && !coolerActive ? '#EF4444' : 'var(--slate-gray)'} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>Heater (PID)</div>
-                      <div style={{ fontSize: '0.62rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO05 · SSR / PWM</div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !heaterActive;
-                      setHeaterActive(next);
-                      if (next) setCoolerActive(false);
-                      onAddLog?.('ACTUATOR_OVERRIDE', `Thermal Heater ${next ? 'ARMED' : 'DISARMED'}`);
-                    }}
-                    style={{
-                      border: 'none', borderRadius: 'var(--radius-full)',
-                      padding: '4px 12px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer',
-                      background: heaterActive && !coolerActive ? '#EF4444' : '#E2E8F0',
-                      color: heaterActive && !coolerActive ? '#FFFFFF' : 'var(--slate-gray)',
-                      boxShadow: heaterActive && !coolerActive ? '0 2px 8px rgba(239, 68, 68, 0.35)' : 'none',
-                      transition: 'all 0.18s ease'
-                    }}
-                  >
-                    {heaterActive && !coolerActive ? '● HEATING' : 'OFF'}
-                  </button>
-                </div>
-
-                {/* Animated Interactive Visual Monitor Box */}
-                <div style={{
-                  background: '#180B0B',
-                  borderRadius: '10px',
-                  padding: '0.65rem 0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  border: '1px solid #3F1717',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  {/* Left: Ceramic Radiant Spiral Coils & Rising Thermal Waves */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{
-                      position: 'relative',
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, #2A1010 30%, #150606 100%)',
-                      border: heaterActive && !coolerActive ? '1.5px solid #EF4444' : '1px solid #3F1717',
-                      boxShadow: heaterActive && !coolerActive ? '0 0 14px rgba(239, 68, 68, 0.5)' : 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      {/* Rising thermal heat waves */}
-                      {heaterActive && !coolerActive && targetTemp > 40 && (
-                        <div style={{
-                          position: 'absolute', top: '4px',
-                          display: 'flex', gap: '3px',
-                        }}>
-                          {[1, 2, 3].map(w => (
-                            <div key={w} style={{
-                              width: '3px', height: '12px', borderRadius: '2px',
-                              background: 'linear-gradient(to top, #F97316, transparent)',
-                              animation: `thermalWaveUp ${1.2 + w * 0.2}s ease-in-out infinite`,
-                            }} />
-                          ))}
-                        </div>
-                      )}
-                      {/* Concentric Heating Element Coil */}
-                      <div style={{
-                        width: '26px', height: '26px', borderRadius: '50%',
-                        border: `2.5px solid ${heaterActive && !coolerActive ? (targetTemp > 100 ? '#F59E0B' : '#EF4444') : '#475569'}`,
-                        boxShadow: heaterActive && !coolerActive ? `0 0 ${targetTemp > 100 ? '10px' : '5px'} #EF4444` : 'none',
-                        animation: heaterActive && !coolerActive ? 'heatCoilGlow 1.4s ease-in-out infinite' : 'none',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                      }}>
-                        <div style={{
-                          width: '12px', height: '12px', borderRadius: '50%',
-                          background: heaterActive && !coolerActive ? (targetTemp > 100 ? '#F59E0B' : '#EF4444') : '#334155'
-                        }} />
-                      </div>
-                    </div>
-
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 900, color: '#FFFFFF', letterSpacing: '-0.03em' }}>
-                          {targetTemp}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: '#F87171', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                          °C
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.6rem', color: '#94A3B8', fontFamily: 'var(--font-mono)' }}>
-                        {heaterPwm > 0 && !coolerActive ? `PWM ${heaterPwm}% · SLEW +2.2°C/s` : 'PID STANDBY · IDLE'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Status Badge */}
-                  <span style={{
-                    fontSize: '0.62rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-                    padding: '3px 8px', borderRadius: '6px',
-                    background: heaterPwm > 0 && !coolerActive ? 'rgba(239, 68, 68, 0.22)' : 'rgba(148, 163, 184, 0.12)',
-                    color: heaterPwm > 0 && !coolerActive ? '#FCA5A5' : '#94A3B8',
-                    border: heaterPwm > 0 && !coolerActive ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid #3F1717'
-                  }}>
-                    {heaterPwm > 0 && !coolerActive ? `PWM ${heaterPwm}%` : '0% PWM'}
-                  </span>
-                </div>
-
-                {/* Range Slider */}
-                <input
-                  type="range"
-                  min="25"
-                  max="350"
-                  step="5"
-                  value={targetTemp}
-                  disabled={coolerActive}
-                  onChange={(e) => {
-                    const val = Number(e.target.value);
-                    setManualHeaterTarget(val);
-                    setHeaterActive(true);
-                    setCoolerActive(false);
-                  }}
-                  className="slider-terra"
-                  style={{ width: '100%', height: '5px', cursor: coolerActive ? 'not-allowed' : 'pointer' }}
-                />
-
-                {/* 4 Quick Presets */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
-                  {[
-                    { label: '25° (Off)', deg: 25 },
-                    { label: '60°', deg: 60 },
-                    { label: '100°', deg: 100 },
-                    { label: '250°', deg: 250 },
-                  ].map(btn => {
-                    const isSelected = targetTemp === btn.deg && heaterActive && !coolerActive;
-                    return (
-                      <button
-                        key={btn.label}
-                        type="button"
-                        disabled={coolerActive}
-                        onClick={() => {
-                          setManualHeaterTarget(btn.deg);
-                          setHeaterActive(btn.deg > 25);
-                          setCoolerActive(false);
-                          onAddLog?.('ACTUATOR_OVERRIDE', `Heater set to ${btn.deg}°C`);
-                        }}
-                        style={{
-                          padding: '4px 2px',
-                          fontSize: '0.64rem',
-                          fontWeight: isSelected ? 800 : 600,
-                          background: isSelected ? '#EF4444' : 'var(--off-white)',
-                          color: isSelected ? '#FFFFFF' : 'var(--deep-charcoal)',
-                          border: isSelected ? '1px solid #EF4444' : '1px solid var(--slate-border)',
-                          borderRadius: '6px',
-                          textAlign: 'center',
-                          cursor: coolerActive ? 'not-allowed' : 'pointer',
-                          opacity: coolerActive ? 0.5 : 1,
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        {btn.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 3. CRYO COOLER (CHILLER & FANS) */}
-              <div style={{
-                background: coolerActive
-                  ? 'linear-gradient(145deg, rgba(56, 189, 248, 0.09) 0%, #FFFFFF 100%)'
-                  : '#FFFFFF',
-                border: coolerActive ? '1.5px solid #0284C7' : '1px solid var(--slate-border)',
-                borderRadius: '14px', padding: '1rem',
-                display: 'flex', flexDirection: 'column', gap: '0.75rem',
-                boxShadow: coolerActive ? '0 8px 20px -4px rgba(56, 189, 248, 0.3)' : '0 2px 8px rgba(11,28,48,0.03)',
-                transition: 'all 0.25s ease',
-              }}>
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '28px', height: '28px', borderRadius: '8px',
-                      background: coolerActive ? '#E0F2FE' : '#F1F5F9',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: coolerActive ? '0 0 10px rgba(56, 189, 248, 0.4)' : 'none',
-                      transition: 'all 0.2s ease'
-                    }}>
-                      <Snowflake size={14} color={coolerActive ? '#0284C7' : 'var(--slate-gray)'} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>Cooler / Chiller</div>
-                      <div style={{ fontSize: '0.62rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO12 · PELTIER + FAN</div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = !coolerActive;
-                      setCoolerActive(next);
-                      if (next) {
-                        setHeaterActive(false);
-                        setManualHeaterTarget(null);
-                      }
-                      onAddLog?.('ACTUATOR_OVERRIDE', `Peltier Chiller & Fan Quench ${next ? 'ENGAGED' : 'DISENGAGED'}`);
-                    }}
-                    style={{
-                      border: 'none', borderRadius: 'var(--radius-full)',
-                      padding: '4px 12px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer',
-                      background: coolerActive ? '#0284C7' : '#E2E8F0',
-                      color: coolerActive ? '#FFFFFF' : 'var(--slate-gray)',
-                      boxShadow: coolerActive ? '0 2px 8px rgba(2, 132, 199, 0.35)' : 'none',
-                      transition: 'all 0.18s ease'
-                    }}
-                  >
-                    {coolerActive ? '● CHILLING' : 'OFF'}
-                  </button>
-                </div>
-
-                {/* Animated Interactive Visual Monitor Box */}
-                <div style={{
-                  background: '#071626',
-                  borderRadius: '10px',
-                  padding: '0.65rem 0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  border: '1px solid #143554',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  {/* Left: Dual Brushless Turbine Fans & Frost Crystal Glimmer */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{
-                      position: 'relative',
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, #0B253E 30%, #051322 100%)',
-                      border: coolerActive ? '1.5px solid #38BDF8' : '1px solid #143554',
-                      boxShadow: coolerActive ? '0 0 14px rgba(56, 189, 248, 0.5)' : 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      <Fan
-                        size={22}
-                        color={coolerActive ? '#38BDF8' : '#64748B'}
-                        style={{
-                          animation: coolerActive ? 'fanSpin 0.22s linear infinite' : 'none',
-                          transition: 'all 0.2s ease'
-                        }}
-                      />
-                      {coolerActive && (
-                        <span style={{
-                          position: 'absolute', top: '-4px', right: '-4px',
-                          fontSize: '10px', animation: 'frostGlimmer 1.5s ease-in-out infinite'
-                        }}>❄</span>
-                      )}
-                    </div>
-
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 900, color: coolerActive ? '#38BDF8' : '#FFFFFF', letterSpacing: '-0.03em' }}>
-                          {coolerActive ? coolerIntensity : 0}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: '#38BDF8', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                          % PWR
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.6rem', color: '#94A3B8', fontFamily: 'var(--font-mono)' }}>
-                        {coolerActive ? `FANS 4,800 RPM · -ΔT: -${Math.round((coolerIntensity / 100) * 15)}°C` : 'PELTIER SINK IDLE'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Status Badge */}
-                  <span style={{
-                    fontSize: '0.62rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-                    padding: '3px 8px', borderRadius: '6px',
-                    background: coolerActive ? 'rgba(56, 189, 248, 0.22)' : 'rgba(148, 163, 184, 0.12)',
-                    color: coolerActive ? '#38BDF8' : '#94A3B8',
-                    border: coolerActive ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid #143554'
-                  }}>
-                    {coolerActive ? 'FANS ON' : 'IDLE'}
-                  </span>
-                </div>
-
-                {/* Range Slider */}
-                <input
-                  type="range"
-                  min="20"
-                  max="100"
-                  step="5"
-                  value={coolerIntensity}
-                  disabled={!coolerActive}
-                  onChange={(e) => setCoolerIntensity(Number(e.target.value))}
-                  style={{ width: '100%', height: '5px', accentColor: '#0284C7', cursor: coolerActive ? 'pointer' : 'not-allowed' }}
-                />
-
-                {/* 4 Quick Presets */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
-                  {[
-                    { label: 'Off', act: false, pwr: 0 },
-                    { label: '30%', act: true, pwr: 30 },
-                    { label: '70%', act: true, pwr: 70 },
-                    { label: '100%', act: true, pwr: 100 },
-                  ].map(btn => {
-                    const isSelected = (coolerActive && coolerIntensity === btn.pwr) || (!coolerActive && !btn.act);
-                    return (
-                      <button
-                        key={btn.label}
-                        type="button"
-                        onClick={() => {
-                          setCoolerActive(btn.act);
-                          if (btn.act) {
-                            setCoolerIntensity(btn.pwr);
-                            setHeaterActive(false);
-                            setManualHeaterTarget(null);
-                            onAddLog?.('ACTUATOR_OVERRIDE', `Cooler set to ${btn.pwr}%`);
-                          } else {
-                            onAddLog?.('ACTUATOR_OVERRIDE', `Cooler deactivated.`);
-                          }
-                        }}
-                        style={{
-                          padding: '4px 2px',
-                          fontSize: '0.64rem',
-                          fontWeight: isSelected ? 800 : 600,
-                          background: isSelected ? '#0284C7' : 'var(--off-white)',
-                          color: isSelected ? '#FFFFFF' : 'var(--deep-charcoal)',
-                          border: isSelected ? '1px solid #0284C7' : '1px solid var(--slate-border)',
-                          borderRadius: '6px',
-                          textAlign: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        {btn.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* 4. UV DIAGNOSTIC & PHOTOREACTOR LAMP (365 nm) */}
-              <div style={{
-                background: isUvActive
-                  ? 'linear-gradient(145deg, rgba(124, 58, 237, 0.09) 0%, #FFFFFF 100%)'
-                  : '#FFFFFF',
-                border: isUvActive ? '1.5px solid #7C3AED' : '1px solid var(--slate-border)',
-                borderRadius: '14px', padding: '1rem',
-                display: 'flex', flexDirection: 'column', gap: '0.75rem',
-                boxShadow: isUvActive ? '0 8px 20px -4px rgba(124, 58, 237, 0.3)' : '0 2px 8px rgba(11,28,48,0.03)',
-                transition: 'all 0.25s ease',
-              }}>
-                {/* Header */}
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <div style={{
-                      width: '28px', height: '28px', borderRadius: '8px',
-                      background: isUvActive ? '#EDE9FE' : '#F1F5F9',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      boxShadow: isUvActive ? '0 0 10px rgba(124, 58, 237, 0.4)' : 'none',
-                      transition: 'all 0.2s ease'
-                    }}>
-                      <Sun size={14} color={isUvActive ? '#7C3AED' : 'var(--slate-gray)'} />
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.78rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>UV Lamp (365nm)</div>
-                      <div style={{ fontSize: '0.62rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO16 · PHOTOREACTOR</div>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const next = isUvActive ? false : true;
-                      setLiveUvOverride(next);
-                      onAddLog?.('ACTUATOR_OVERRIDE', `UV 365nm Emitter ${next ? 'ACTIVATED' : 'SHUT OFF'}`);
-                    }}
-                    style={{
-                      border: 'none', borderRadius: 'var(--radius-full)',
-                      padding: '4px 12px', fontSize: '0.65rem', fontWeight: 800, cursor: 'pointer',
-                      background: isUvActive ? '#7C3AED' : '#E2E8F0',
-                      color: isUvActive ? '#FFFFFF' : 'var(--slate-gray)',
-                      boxShadow: isUvActive ? '0 2px 8px rgba(124, 58, 237, 0.35)' : 'none',
-                      transition: 'all 0.18s ease'
-                    }}
-                  >
-                    {isUvActive ? '● BEAM ON' : 'OFF'}
-                  </button>
-                </div>
-
-                {/* Animated Interactive Visual Monitor Box */}
-                <div style={{
-                  background: '#130A24',
-                  borderRadius: '10px',
-                  padding: '0.65rem 0.85rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  border: '1px solid #3B1B68',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}>
-                  {/* Left: 365nm Diode Array with Violet Radiation Cone */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                    <div style={{
-                      position: 'relative',
-                      width: '44px',
-                      height: '44px',
-                      borderRadius: '50%',
-                      background: 'radial-gradient(circle, #25104A 30%, #0E051D 100%)',
-                      border: isUvActive ? '1.5px solid #A855F7' : '1px solid #3B1B68',
-                      boxShadow: isUvActive ? '0 0 16px rgba(168, 85, 247, 0.6)' : 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}>
-                      {/* UV 4-Diode Array emitter */}
-                      <div style={{
-                        display: 'flex', gap: '3px', marginBottom: '2px'
-                      }}>
-                        {[1, 2, 3, 4].map(d => (
-                          <div key={d} style={{
-                            width: '4px', height: '4px', borderRadius: '50%',
-                            background: isUvActive ? '#C084FC' : '#64748B',
-                            boxShadow: isUvActive ? '0 0 6px #A855F7' : 'none'
-                          }} />
-                        ))}
-                      </div>
-                      {/* Downward violet light cone rays */}
-                      {isUvActive && (
-                        <div style={{
-                          width: '26px', height: '14px',
-                          background: 'linear-gradient(to bottom, rgba(168, 85, 247, 0.85) 0%, transparent 100%)',
-                          clipPath: 'polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)',
-                          animation: 'uvBeamPulse 1.3s ease-in-out infinite'
-                        }} />
-                      )}
-                    </div>
-
-                    <div>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '1.35rem', fontWeight: 900, color: isUvActive ? '#C084FC' : '#FFFFFF', letterSpacing: '-0.03em' }}>
-                          {isUvActive ? uvIntensity : 0}
-                        </span>
-                        <span style={{ fontSize: '0.7rem', color: '#A855F7', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
-                          % FLUX
-                        </span>
-                      </div>
-                      <div style={{ fontSize: '0.6rem', color: '#94A3B8', fontFamily: 'var(--font-mono)' }}>
-                        {isUvActive ? `365nm UVA · ${Math.round((uvIntensity / 100) * 45)} mW/cm²` : 'PHOTO-EMITTER DARK'}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Status Badge */}
-                  <span style={{
-                    fontSize: '0.62rem', fontWeight: 800, fontFamily: 'var(--font-mono)',
-                    padding: '3px 8px', borderRadius: '6px',
-                    background: isUvActive ? 'rgba(124, 58, 237, 0.25)' : 'rgba(148, 163, 184, 0.12)',
-                    color: isUvActive ? '#C084FC' : '#94A3B8',
-                    border: isUvActive ? '1px solid rgba(124, 58, 237, 0.45)' : '1px solid #3B1B68'
-                  }}>
-                    {isUvActive ? '365nm' : 'DARK'}
-                  </span>
-                </div>
-
-                {/* Range Slider */}
-                <input
-                  type="range"
-                  min="10"
-                  max="100"
-                  step="5"
-                  value={uvIntensity}
-                  disabled={!isUvActive}
-                  onChange={(e) => setUvIntensity(Number(e.target.value))}
-                  style={{ width: '100%', height: '5px', accentColor: '#7C3AED', cursor: isUvActive ? 'pointer' : 'not-allowed' }}
-                />
-
-                {/* 4 Quick Presets */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
-                  {[
-                    { label: 'Off', act: false, flux: 0 },
-                    { label: '25%', act: true, flux: 25 },
-                    { label: '60%', act: true, flux: 60 },
-                    { label: '100%', act: true, flux: 100 },
-                  ].map(btn => {
-                    const isSelected = (isUvActive && uvIntensity === btn.flux) || (!isUvActive && !btn.act);
-                    return (
-                      <button
-                        key={btn.label}
-                        type="button"
-                        onClick={() => {
-                          setLiveUvOverride(btn.act);
-                          if (btn.act) {
-                            setUvIntensity(btn.flux);
-                            onAddLog?.('ACTUATOR_OVERRIDE', `UV Lamp set to ${btn.flux}% Flux`);
-                          } else {
-                            onAddLog?.('ACTUATOR_OVERRIDE', `UV Lamp powered down.`);
-                          }
-                        }}
-                        style={{
-                          padding: '4px 2px',
-                          fontSize: '0.64rem',
-                          fontWeight: isSelected ? 800 : 600,
-                          background: isSelected ? '#7C3AED' : 'var(--off-white)',
-                          color: isSelected ? '#FFFFFF' : 'var(--deep-charcoal)',
-                          border: isSelected ? '1px solid #7C3AED' : '1px solid var(--slate-border)',
-                          borderRadius: '6px',
-                          textAlign: 'center',
-                          cursor: 'pointer',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        {btn.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
+                );
+              })}
             </div>
           </div>
 
+          {/* ACTUATOR 2 â€” HEATER */}
+          <div style={{
+            background: '#FFFFFF',
+            border: heaterActive && !coolerActive ? '1.5px solid rgba(239,68,68,0.5)' : '1px solid var(--slate-border)',
+            borderRadius: '12px', padding: '0.85rem',
+            display: 'flex', flexDirection: 'column', gap: '0.6rem',
+            boxShadow: heaterActive && !coolerActive ? '0 4px 16px -3px rgba(239,68,68,0.2)' : '0 2px 8px rgba(11,28,48,0.03)',
+            transition: 'all 0.25s ease',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: heaterActive && !coolerActive ? '#EF4444' : '#CBD5E1', boxShadow: heaterActive && !coolerActive ? '0 0 8px #EF4444' : 'none', transition: 'all 0.2s ease' }} />
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>Heater (PID)</div>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO05 Â· SSR / PWM HOTPLATE</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 900, color: heaterActive && !coolerActive ? '#EF4444' : '#94A3B8' }}>
+                  {targetTemp}<span style={{ fontSize: '0.6rem', fontWeight: 500 }}>Â°C</span>
+                </span>
+                <button type="button"
+                  onClick={() => { const next = !heaterActive; setHeaterActive(next); if (next) setCoolerActive(false); onAddLog?.('ACTUATOR_OVERRIDE', `Heater ${next ? 'ARMED' : 'OFF'}`); }}
+                  style={{ border: 'none', borderRadius: '7px', padding: '3px 10px', fontSize: '0.62rem', fontWeight: 800, cursor: 'pointer', background: heaterActive && !coolerActive ? '#EF4444' : '#E2E8F0', color: heaterActive && !coolerActive ? '#FFFFFF' : 'var(--slate-gray)', transition: 'all 0.15s ease' }}>
+                  {heaterActive && !coolerActive ? 'â— ON' : 'OFF'}
+                </button>
+              </div>
+            </div>
+            <input type="range" min="25" max="350" step="5" value={targetTemp} disabled={coolerActive}
+              onChange={(e) => { const v = Number(e.target.value); setManualHeaterTarget(v); setHeaterActive(true); setCoolerActive(false); }}
+              className="slider-terra" style={{ width: '100%', height: '4px', cursor: coolerActive ? 'not-allowed' : 'pointer' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
+              {[{ label: 'Off', deg: 25 }, { label: '60Â°', deg: 60 }, { label: '100Â°', deg: 100 }, { label: '250Â°', deg: 250 }].map(btn => {
+                const sel = targetTemp === btn.deg && heaterActive && !coolerActive;
+                return (
+                  <button key={btn.label} type="button" disabled={coolerActive}
+                    onClick={() => { setManualHeaterTarget(btn.deg); setHeaterActive(btn.deg > 25); setCoolerActive(false); onAddLog?.('ACTUATOR_OVERRIDE', `Heater â†’ ${btn.deg}Â°C`); }}
+                    style={{ padding: '3px', fontSize: '0.62rem', fontWeight: sel ? 800 : 600, background: sel ? '#EF4444' : 'var(--off-white)', color: sel ? '#FFFFFF' : 'var(--deep-charcoal)', border: sel ? '1px solid #EF4444' : '1px solid var(--slate-border)', borderRadius: '5px', cursor: coolerActive ? 'not-allowed' : 'pointer', opacity: coolerActive ? 0.45 : 1, transition: 'all 0.12s ease' }}>
+                    {btn.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ACTUATOR 3 â€” COOLER */}
+          <div style={{
+            background: '#FFFFFF',
+            border: coolerActive ? '1.5px solid #0284C7' : '1px solid var(--slate-border)',
+            borderRadius: '12px', padding: '0.85rem',
+            display: 'flex', flexDirection: 'column', gap: '0.6rem',
+            boxShadow: coolerActive ? '0 4px 16px -3px rgba(56,189,248,0.25)' : '0 2px 8px rgba(11,28,48,0.03)',
+            transition: 'all 0.25s ease',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: coolerActive ? '#38BDF8' : '#CBD5E1', boxShadow: coolerActive ? '0 0 8px #38BDF8' : 'none', transition: 'all 0.2s ease' }} />
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>Cooler / Chiller</div>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO12 Â· PELTIER + FAN ARRAY</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 900, color: coolerActive ? '#38BDF8' : '#94A3B8' }}>
+                  {coolerActive ? coolerIntensity : 0}<span style={{ fontSize: '0.6rem', fontWeight: 500 }}>%</span>
+                </span>
+                <button type="button"
+                  onClick={() => { const next = !coolerActive; setCoolerActive(next); if (next) { setHeaterActive(false); setManualHeaterTarget(null); } onAddLog?.('ACTUATOR_OVERRIDE', `Chiller ${next ? 'ENGAGED' : 'IDLE'}`); }}
+                  style={{ border: 'none', borderRadius: '7px', padding: '3px 10px', fontSize: '0.62rem', fontWeight: 800, cursor: 'pointer', background: coolerActive ? '#0284C7' : '#E2E8F0', color: coolerActive ? '#FFFFFF' : 'var(--slate-gray)', transition: 'all 0.15s ease' }}>
+                  {coolerActive ? 'â— ON' : 'OFF'}
+                </button>
+              </div>
+            </div>
+            <input type="range" min="20" max="100" step="5" value={coolerIntensity} disabled={!coolerActive}
+              onChange={(e) => setCoolerIntensity(Number(e.target.value))}
+              style={{ width: '100%', height: '4px', accentColor: '#0284C7', cursor: coolerActive ? 'pointer' : 'not-allowed' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
+              {[{ label: 'Off', act: false, pwr: 0 }, { label: '30%', act: true, pwr: 30 }, { label: '70%', act: true, pwr: 70 }, { label: '100%', act: true, pwr: 100 }].map(btn => {
+                const sel = (coolerActive && coolerIntensity === btn.pwr) || (!coolerActive && !btn.act);
+                return (
+                  <button key={btn.label} type="button"
+                    onClick={() => { setCoolerActive(btn.act); if (btn.act) { setCoolerIntensity(btn.pwr); setHeaterActive(false); setManualHeaterTarget(null); onAddLog?.('ACTUATOR_OVERRIDE', `Chiller â†’ ${btn.pwr}%`); } else { onAddLog?.('ACTUATOR_OVERRIDE', 'Cooler deactivated.'); } }}
+                    style={{ padding: '3px', fontSize: '0.62rem', fontWeight: sel ? 800 : 600, background: sel ? '#0284C7' : 'var(--off-white)', color: sel ? '#FFFFFF' : 'var(--deep-charcoal)', border: sel ? '1px solid #0284C7' : '1px solid var(--slate-border)', borderRadius: '5px', cursor: 'pointer', transition: 'all 0.12s ease' }}>
+                    {btn.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ACTUATOR 4 â€” UV LAMP */}
+          <div style={{
+            background: '#FFFFFF',
+            border: isUvActive ? '1.5px solid #7C3AED' : '1px solid var(--slate-border)',
+            borderRadius: '12px', padding: '0.85rem',
+            display: 'flex', flexDirection: 'column', gap: '0.6rem',
+            boxShadow: isUvActive ? '0 4px 16px -3px rgba(124,58,237,0.25)' : '0 2px 8px rgba(11,28,48,0.03)',
+            transition: 'all 0.25s ease',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: isUvActive ? '#A855F7' : '#CBD5E1', boxShadow: isUvActive ? '0 0 8px #A855F7' : 'none', transition: 'all 0.2s ease' }} />
+                <div>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--deep-charcoal)' }}>UV Lamp (365nm)</div>
+                  <div style={{ fontSize: '0.58rem', color: 'var(--slate-gray)', fontFamily: 'var(--font-mono)' }}>GPIO16 Â· PHOTOREACTOR EMITTER</div>
+                </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.85rem', fontWeight: 900, color: isUvActive ? '#A855F7' : '#94A3B8' }}>
+                  {isUvActive ? uvIntensity : 0}<span style={{ fontSize: '0.6rem', fontWeight: 500 }}>%</span>
+                </span>
+                <button type="button"
+                  onClick={() => { const next = !isUvActive; setLiveUvOverride(next); onAddLog?.('ACTUATOR_OVERRIDE', `UV 365nm ${next ? 'BEAM ON' : 'DARK'}`); }}
+                  style={{ border: 'none', borderRadius: '7px', padding: '3px 10px', fontSize: '0.62rem', fontWeight: 800, cursor: 'pointer', background: isUvActive ? '#7C3AED' : '#E2E8F0', color: isUvActive ? '#FFFFFF' : 'var(--slate-gray)', transition: 'all 0.15s ease' }}>
+                  {isUvActive ? 'â— BEAM' : 'OFF'}
+                </button>
+              </div>
+            </div>
+            <input type="range" min="10" max="100" step="5" value={uvIntensity} disabled={!isUvActive}
+              onChange={(e) => setUvIntensity(Number(e.target.value))}
+              style={{ width: '100%', height: '4px', accentColor: '#7C3AED', cursor: isUvActive ? 'pointer' : 'not-allowed' }} />
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.3rem' }}>
+              {[{ label: 'Off', act: false, flux: 0 }, { label: '25%', act: true, flux: 25 }, { label: '60%', act: true, flux: 60 }, { label: '100%', act: true, flux: 100 }].map(btn => {
+                const sel = (isUvActive && uvIntensity === btn.flux) || (!isUvActive && !btn.act);
+                return (
+                  <button key={btn.label} type="button"
+                    onClick={() => { setLiveUvOverride(btn.act); if (btn.act) { setUvIntensity(btn.flux); onAddLog?.('ACTUATOR_OVERRIDE', `UV â†’ ${btn.flux}% flux`); } else { onAddLog?.('ACTUATOR_OVERRIDE', 'UV off.'); } }}
+                    style={{ padding: '3px', fontSize: '0.62rem', fontWeight: sel ? 800 : 600, background: sel ? '#7C3AED' : 'var(--off-white)', color: sel ? '#FFFFFF' : 'var(--deep-charcoal)', border: sel ? '1px solid #7C3AED' : '1px solid var(--slate-border)', borderRadius: '5px', cursor: 'pointer', transition: 'all 0.12s ease' }}>
+                    {btn.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
       </div>
 
-      {/* ── 4. Retro-Modern ESP8266 Serial Telemetry Stream Console ── */}
+      {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+          ZONE E â€” SERIAL TELEMETRY TERMINAL
+          ESP8266 live log stream
+      â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <div style={{
-        background: '#081424',
+        background: '#060F1C',
         border: '1px solid #1E3A5F',
-        borderRadius: '16px',
-        padding: '1.25rem',
-        boxShadow: '0 4px 16px rgba(11, 28, 48, 0.15)',
+        borderRadius: '14px',
+        padding: '1rem 1.15rem',
+        boxShadow: '0 4px 16px rgba(11,28,48,0.15)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', color: 'var(--primary-lime)', fontWeight: 700 }}>
-            <Terminal size={14} color="var(--primary-lime)" />
-            ESP8266 SERIAL TELEMETRY STREAM (115200 BAUD)
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.6rem', paddingBottom: '0.5rem', borderBottom: '1px solid #0F2033' }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--primary-lime)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <Terminal size={13} />
+            ESP8266 Serial Telemetry â€” COM3 / 115200 BAUD
           </span>
-          <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: '#9CA3AF' }}>
-            PORT: COM3 / /dev/ttyUSB0 · REST POST
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: isRunning && !isAborted ? '#22C55E' : '#475569', boxShadow: isRunning && !isAborted ? '0 0 6px #22C55E' : 'none' }} />
+            <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: '#475569' }}>
+              {isRunning && !isAborted ? 'STREAMING' : 'IDLE'}
+            </span>
+          </div>
         </div>
-
         <div
           ref={terminalBoxRef}
-          style={{
-            height: '130px',
-            overflowY: 'auto',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.72rem',
-            lineHeight: 1.7,
-            color: '#7ad9a6',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.2rem',
-          }}
+          style={{ height: '120px', overflowY: 'auto', fontFamily: 'var(--font-mono)', fontSize: '0.68rem', lineHeight: 1.65, color: '#7ad9a6', display: 'flex', flexDirection: 'column', gap: '0.15rem' }}
         >
           {logs?.map((l, i) => {
             const isKill = l.tag?.includes('EMERGENCY') || l.tag?.includes('HALT');
             const isHw = l.tag?.includes('HARDWARE') || l.tag?.includes('STATUS');
             const isManual = l.tag?.includes('OPERATOR') || l.tag?.includes('MANUAL');
             return (
-              <div key={i} style={{ display: 'flex', gap: '0.625rem', color: isKill ? '#ff6347' : (isManual ? 'var(--primary-lime)' : (isHw ? '#f5b942' : '#7ad9a6')) }}>
-                <span style={{ color: '#64748B', flexShrink: 0 }}>[{l.timestamp}]</span>
-                <span style={{ color: isKill ? '#EF4444' : (isManual ? 'var(--primary-lime)' : '#F59E0B'), flexShrink: 0, fontWeight: 700 }}>[{l.tag}]</span>
-                <span>{l.message}</span>
+              <div key={i} style={{ display: 'flex', gap: '0.5rem' }}>
+                <span style={{ color: '#334155', flexShrink: 0 }}>[{l.timestamp}]</span>
+                <span style={{ color: isKill ? '#EF4444' : (isManual ? 'var(--primary-lime)' : (isHw ? '#F59E0B' : '#38BDF8')), flexShrink: 0, fontWeight: 700 }}>[{l.tag}]</span>
+                <span style={{ color: isKill ? '#FCA5A5' : (isManual ? '#D9F99D' : (isHw ? '#FDE68A' : '#7ad9a6')) }}>{l.message}</span>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* ── JSON Payload Modal ── */}
+      {/* â”€â”€ JSON Payload Modal â”€â”€ */}
       {showPayloadModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(11, 28, 48, 0.65)', backdropFilter: 'blur(6px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60, padding: '1.25rem',
-        }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(11,28,48,0.65)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60, padding: '1.25rem' }}>
           <div className="notebook-card fade-in" style={{ maxWidth: '640px', width: '100%', padding: '1.5rem', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Code2 size={16} color="var(--accent-blue)" />
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--deep-charcoal)' }}>
-                  CRC32-Verified Machine Bytecode Payload
-                </h3>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--deep-charcoal)' }}>CRC32-Verified Machine Bytecode Payload</h3>
               </div>
-              <button onClick={() => setShowPayloadModal(false)} className="btn-ghost" style={{ padding: '4px 8px' }}>✕</button>
+              <button onClick={() => setShowPayloadModal(false)} className="btn-ghost" style={{ padding: '4px 8px' }}>âœ•</button>
             </div>
-            <pre style={{
-              background: 'var(--deep-charcoal)', color: 'var(--primary-lime)', padding: '1.125rem', borderRadius: '12px',
-              fontFamily: 'var(--font-mono)', fontSize: '0.75rem', overflowX: 'auto', maxHeight: '350px',
-              border: '1px solid rgba(255,255,255,0.08)'
-            }}>
+            <pre style={{ background: 'var(--deep-charcoal)', color: 'var(--primary-lime)', padding: '1.125rem', borderRadius: '12px', fontFamily: 'var(--font-mono)', fontSize: '0.75rem', overflowX: 'auto', maxHeight: '350px', border: '1px solid rgba(255,255,255,0.08)' }}>
               {JSON.stringify(generateHardwarePayload(protocol, overrides), null, 2)}
             </pre>
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
@@ -2166,25 +1257,17 @@ export default function StepExecution({
         </div>
       )}
 
-      {/* ── 5. Navigation Bottom Bar ── */}
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingTop: '1rem',
-        borderTop: '1px solid var(--slate-border)',
-      }}>
+      {/* â”€â”€ Bottom Navigation â”€â”€ */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.75rem', borderTop: '1px solid var(--slate-border)' }}>
         <button className="btn-ghost" onClick={onBack} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <ArrowLeft size={15} />
-          Back to Verification Matrix
+          <ArrowLeft size={14} /> Back to Verification Matrix
         </button>
-
         <button className="btn-ink" onClick={onResetAll} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <RotateCw size={14} />
-          Synthesize Another Material Protocol
+          <RotateCw size={13} /> Synthesize Another Material
         </button>
       </div>
 
     </div>
   );
 }
+
