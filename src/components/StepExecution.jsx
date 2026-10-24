@@ -456,7 +456,150 @@ export default function StepExecution({
       </div>
 
       {/* ═════════════════════════════════════════════════════════════════════════
-          2. MAIN 3-COLUMN COCKPIT (Stages · Live Reactor · Equipment Status)
+          2. FULL-WIDTH EXPERIMENT CONTROLS BAR (Prominent, High-Priority Top Deck)
+      ═════════════════════════════════════════════════════════════════════════ */}
+      <div style={{
+        background: '#FFFFFF',
+        borderRadius: '12px',
+        border: '1px solid #E5E9E4',
+        padding: '0.85rem 1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1.25rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+      }}>
+        {/* Left: Previous Stage Button */}
+        <button
+          onClick={handlePrevStage}
+          disabled={currentStepIdx === 0}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            padding: '0.4rem 0.65rem',
+            cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer',
+            opacity: currentStepIdx === 0 ? 0.35 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            textAlign: 'left'
+          }}
+        >
+          <ChevronLeft size={18} color="#0B1C30" />
+          <div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>
+              Previous stage
+            </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+              {steps[currentStepIdx - 1]?.name || 'Initial step'}
+            </div>
+          </div>
+        </button>
+
+        {/* Center: Playback Action Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* Pause / Resume Execution */}
+          <button
+            onClick={handleTogglePause}
+            disabled={!isRunning || isAborted}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E9E4',
+              borderRadius: '8px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              color: '#0B1C30',
+              cursor: !isRunning || isAborted ? 'not-allowed' : 'pointer',
+              opacity: !isRunning || isAborted ? 0.45 : 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            {isPaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} />}
+            <span>{isPaused ? 'Resume execution' : 'Pause execution'}</span>
+          </button>
+
+          {/* Continue to next stage / Start synthesis */}
+          {!isRunning || isAborted ? (
+            <button
+              onClick={handleDeploy}
+              style={{
+                background: '#D1F34D',
+                color: '#0B1C30',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.65rem 1.6rem',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+              }}
+            >
+              <Play size={14} fill="currentColor" />
+              <span>{isAborted ? 'Restart synthesis' : 'Start synthesis'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleNextStage}
+              style={{
+                background: '#D1F34D',
+                color: '#0B1C30',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.65rem 1.5rem',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+              }}
+            >
+              <span>{currentStepIdx >= steps.length - 1 ? 'Complete synthesis' : 'Continue to next stage'}</span>
+              <ChevronRight size={15} />
+            </button>
+          )}
+
+          {/* Stop Run */}
+          <button
+            onClick={handleEmergencyAbort}
+            disabled={!isRunning && isAborted}
+            style={{
+              background: '#FFFFFF',
+              color: '#DC4545',
+              border: '1.5px solid #FCA5A5',
+              borderRadius: '8px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: isAborted ? 'default' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              opacity: isAborted ? 0.6 : 1
+            }}
+          >
+            <Square size={12} fill="#DC4545" color="#DC4545" />
+            <span>{isAborted ? 'Stopped' : 'Stop run'}</span>
+          </button>
+        </div>
+
+        {/* Right: Safety Notice */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', maxWidth: '240px', fontSize: '0.73rem', color: '#64748B', lineHeight: 1.35 }}>
+          <AlertTriangle size={15} color="#D99A25" style={{ flexShrink: 0 }} />
+          <span>Stopping will place actuators in their configured safe state.</span>
+        </div>
+      </div>
+
+      {/* ═════════════════════════════════════════════════════════════════════════
+          3. MAIN 3-COLUMN COCKPIT (Stages · Live Reactor · Equipment Status)
       ═════════════════════════════════════════════════════════════════════════ */}
       <div style={{
         display: 'grid',
@@ -1265,149 +1408,6 @@ export default function StepExecution({
           </div>
         </div>
 
-      </div>
-
-      {/* ═════════════════════════════════════════════════════════════════════════
-          3. FULL-WIDTH EXPERIMENT CONTROLS BAR (Obvious, Safe, High-Contrast)
-      ═════════════════════════════════════════════════════════════════════════ */}
-      <div style={{
-        background: '#FFFFFF',
-        borderRadius: '12px',
-        border: '1px solid #E5E9E4',
-        padding: '0.85rem 1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '1.25rem',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-      }}>
-        {/* Left: Previous Stage Button */}
-        <button
-          onClick={handlePrevStage}
-          disabled={currentStepIdx === 0}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            padding: '0.4rem 0.65rem',
-            cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer',
-            opacity: currentStepIdx === 0 ? 0.35 : 1,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.65rem',
-            textAlign: 'left'
-          }}
-        >
-          <ChevronLeft size={18} color="#0B1C30" />
-          <div>
-            <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>
-              Previous stage
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-              {steps[currentStepIdx - 1]?.name || 'Initial step'}
-            </div>
-          </div>
-        </button>
-
-        {/* Center: Playback Action Buttons */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-          {/* Pause / Resume Execution */}
-          <button
-            onClick={handleTogglePause}
-            disabled={!isRunning || isAborted}
-            style={{
-              background: '#FFFFFF',
-              border: '1px solid #E5E9E4',
-              borderRadius: '8px',
-              padding: '0.65rem 1.25rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              color: '#0B1C30',
-              cursor: !isRunning || isAborted ? 'not-allowed' : 'pointer',
-              opacity: !isRunning || isAborted ? 0.45 : 1,
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            {isPaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} />}
-            <span>{isPaused ? 'Resume execution' : 'Pause execution'}</span>
-          </button>
-
-          {/* Continue to next stage / Start synthesis */}
-          {!isRunning || isAborted ? (
-            <button
-              onClick={handleDeploy}
-              style={{
-                background: '#D1F34D',
-                color: '#0B1C30',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '0.65rem 1.6rem',
-                fontSize: '0.86rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
-              }}
-            >
-              <Play size={14} fill="currentColor" />
-              <span>{isAborted ? 'Restart synthesis' : 'Start synthesis'}</span>
-            </button>
-          ) : (
-            <button
-              onClick={handleNextStage}
-              style={{
-                background: '#D1F34D',
-                color: '#0B1C30',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '0.65rem 1.5rem',
-                fontSize: '0.86rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
-              }}
-            >
-              <span>{currentStepIdx >= steps.length - 1 ? 'Complete synthesis' : 'Continue to next stage'}</span>
-              <ChevronRight size={15} />
-            </button>
-          )}
-
-          {/* Stop Run */}
-          <button
-            onClick={handleEmergencyAbort}
-            disabled={!isRunning && isAborted}
-            style={{
-              background: '#FFFFFF',
-              color: '#DC4545',
-              border: '1.5px solid #FCA5A5',
-              borderRadius: '8px',
-              padding: '0.65rem 1.25rem',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              cursor: isAborted ? 'default' : 'pointer',
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              opacity: isAborted ? 0.6 : 1
-            }}
-          >
-            <Square size={12} fill="#DC4545" color="#DC4545" />
-            <span>{isAborted ? 'Stopped' : 'Stop run'}</span>
-          </button>
-        </div>
-
-        {/* Right: Safety Notice */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', maxWidth: '240px', fontSize: '0.73rem', color: '#64748B', lineHeight: 1.35 }}>
-          <AlertTriangle size={15} color="#D99A25" style={{ flexShrink: 0 }} />
-          <span>Stopping will place actuators in their configured safe state.</span>
-        </div>
       </div>
 
       {/* ═════════════════════════════════════════════════════════════════════════
