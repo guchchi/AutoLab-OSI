@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  FlaskConical,
   Box,
   Layers,
   Cpu,
   FileText,
-  Settings,
   Check,
   Clock,
   Hourglass,
@@ -26,15 +24,14 @@ import {
   AlertTriangle,
   Download,
   Code2,
-  BookOpen,
   Sliders,
   CheckCircle2,
-  X,
-  Radio,
-  SlidersHorizontal
+  ArrowLeft,
+  Sparkles,
+  SlidersHorizontal,
+  X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
-import AutoLabLogo from './AutoLabLogo';
 import { generateKineticsData, generateHardwarePayload } from '../utils/thermalKinetics';
 
 export default function StepExecution({
@@ -46,9 +43,6 @@ export default function StepExecution({
   onAddLog,
   onBack,
   onResetAll,
-  currentStep = 4,
-  setCurrentStep,
-  onOpenDocs,
 }) {
   const [currentStepIdx, setCurrentStepIdx] = useState(0);
   const [elapsedSec, setElapsedSec] = useState(0);
@@ -74,9 +68,7 @@ export default function StepExecution({
   // Modals & Collapsibles
   const [showPayloadModal, setShowPayloadModal] = useState(false);
   const [showLogs, setShowLogs] = useState(false);
-  const [showActuatorModal, setShowActuatorModal] = useState(null); // 'all' | 'heater' | 'chiller' | 'stirrer' | 'uv'
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [activeNav, setActiveNav] = useState('experiments');
+  const [showActuatorDrawer, setShowActuatorDrawer] = useState(false);
   const [lastUpdateTime, setLastUpdateTime] = useState(new Date().toLocaleTimeString());
 
   const terminalBoxRef = useRef(null);
@@ -306,355 +298,169 @@ export default function StepExecution({
     onAddLog?.('EXPORT', `Exported verified hardware execution bytecode payload.`);
   };
 
-  // Nav items for sidebar
-  const navItems = [
-    { id: 'experiments', label: 'Experiments', icon: FlaskConical },
-    { id: 'materials', label: 'Materials', icon: Box, action: () => setCurrentStep?.(2) },
-    { id: 'protocols', label: 'Protocols', icon: Layers, action: () => setCurrentStep?.(3) },
-    { id: 'hardware', label: 'Hardware', icon: Cpu, action: () => setShowActuatorModal('all') },
-    { id: 'logs', label: 'Logs', icon: FileText, action: () => setShowLogs(true) },
-    { id: 'settings', label: 'Settings', icon: Settings, action: () => setShowSettingsModal(true) },
-  ];
-
-  // Stepper items (matches reference image: 1. Overview, 2. Literature, 3. Verification, 4. Simulation, 5. Execution)
-  const wizardSteps = [
-    { num: 1, label: '1. Overview', stepId: 1 },
-    { num: 2, label: '2. Literature', stepId: 2 },
-    { num: 3, label: '3. Verification', stepId: 3 },
-    { num: 4, label: '4. Simulation', stepId: 3 },
-    { num: 5, label: 'Execution', isExecution: true }
-  ];
-
-  const latestLog = logs && logs.length > 0 ? logs[logs.length - 1] : null;
-
   return (
-    <div style={{ display: 'flex', width: '100%', minHeight: '100vh', background: '#FAFAF8', color: '#0B1C30', fontFamily: 'Inter, -apple-system, sans-serif' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }} className="fade-in">
 
       {/* ═════════════════════════════════════════════════════════════════════════
-          A. LEFT SIDEBAR (210px wide, Clean, Persistent)
+          1. EXPERIMENT SUMMARY & TELEMETRY STRIP (Clean, Light, Single Card)
       ═════════════════════════════════════════════════════════════════════════ */}
-      <aside style={{
-        width: '210px',
-        flexShrink: 0,
+      <div style={{
         background: '#FFFFFF',
-        borderRight: '1px solid #E5E9E4',
+        borderRadius: '14px',
+        border: isAborted ? '1.5px solid #EF4444' : '1px solid #E5E9E4',
+        padding: '1.15rem 1.75rem',
         display: 'flex',
-        flexDirection: 'column',
+        alignItems: 'center',
         justifyContent: 'space-between',
-        padding: '1.5rem 1rem',
-        boxSizing: 'border-box'
+        flexWrap: 'wrap',
+        gap: '1.5rem',
+        boxShadow: isAborted ? '0 0 20px rgba(239,68,68,0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
       }}>
-        {/* Top: Brand Logo & Navigation */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {/* Brand Logo */}
-          <div style={{ paddingLeft: '0.5rem' }}>
-            <AutoLabLogo size={28} showTagline={false} />
+        {/* Left Segment: Material Identity & Live Operation */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '260px' }}>
+          <div style={{
+            width: '44px', height: '44px', borderRadius: '50%',
+            background: isAborted ? '#FEE2E2' : '#F8FAFC',
+            border: `1px solid ${isAborted ? '#FCA5A5' : '#E5E9E4'}`,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            flexShrink: 0
+          }}>
+            <Box size={22} color={isAborted ? '#DC2626' : '#0B1C30'} strokeWidth={1.8} />
           </div>
-
-          {/* Navigation Items */}
-          <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = activeNav === item.id;
-              return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveNav(item.id);
-                    if (item.action) item.action();
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem',
-                    padding: '0.65rem 0.85rem',
-                    borderRadius: '8px',
-                    border: 'none',
-                    background: isActive ? '#F2F8DF' : 'transparent',
-                    color: isActive ? '#0B1C30' : '#64748B',
-                    fontWeight: isActive ? 600 : 500,
-                    fontSize: '0.86rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    textAlign: 'left',
-                    width: '100%'
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = '#F8FAFC';
-                      e.currentTarget.style.color = '#0B1C30';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActive) {
-                      e.currentTarget.style.background = 'transparent';
-                      e.currentTarget.style.color = '#64748B';
-                    }
-                  }}
-                >
-                  <Icon size={17} color={isActive ? '#0B1C30' : '#64748B'} strokeWidth={isActive ? 2.2 : 1.8} />
-                  <span>{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
+          <div>
+            <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.2, display: 'flex', alignItems: 'baseline', gap: '0.5rem' }}>
+              {protocol.name}
+              {protocol.formula && (
+                <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--accent-blue)', fontFamily: 'var(--font-mono)' }}>
+                  {protocol.formula}
+                </span>
+              )}
+            </div>
+            <div style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '0.2rem' }}>
+              {isAborted ? <strong style={{ color: '#DC2626' }}>Emergency Halted</strong> : (isRunning ? (isPaused ? 'Paused' : activeStep.name) : 'Ready to Run')}
+            </div>
+          </div>
         </div>
 
-        {/* Bottom: AutoLab OS Brand Label */}
+        {/* Middle Segment: Stage Progress Bar */}
         <div style={{
-          padding: '0.85rem 0.65rem',
-          borderTop: '1px solid #E5E9E4',
+          flex: 1,
+          minWidth: '220px',
+          maxWidth: '380px',
+          borderLeft: '1px solid #E5E9E4',
+          paddingLeft: '1.5rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.2rem'
+          gap: '0.45rem'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', color: '#0B1C30', fontWeight: 700, fontSize: '0.82rem' }}>
-            <Layers size={14} color="#0B1C30" />
-            <span>AutoLab OS</span>
-          </div>
-          <span style={{ fontSize: '0.65rem', color: '#94A3B8', lineHeight: 1.3 }}>
-            Literature → Protocol → Lab → Results
-          </span>
-        </div>
-      </aside>
-
-      {/* ═════════════════════════════════════════════════════════════════════════
-          MAIN CONTENT AREA (Right of Sidebar)
-      ═════════════════════════════════════════════════════════════════════════ */}
-      <main style={{
-        flex: 1,
-        minWidth: 0,
-        padding: '1.5rem 2rem 3rem',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1.25rem',
-        boxSizing: 'border-box'
-      }}>
-
-        {/* ── B. Top Header ── */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-          {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
-            <span style={{ color: '#64748B', cursor: 'pointer' }} onClick={() => setCurrentStep?.(1)}>
-              Experiment
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem' }}>
+            <span style={{ fontWeight: 700, color: '#0B1C30' }}>
+              Stage {currentStepIdx + 1} of {steps.length}
             </span>
-            <span style={{ color: '#CBD5E1' }}>/</span>
-            <span style={{ color: '#0B1C30', fontWeight: 600 }}>Lab execution</span>
+            <span style={{ color: '#64748B', fontWeight: 600 }}>
+              {progressPct}%
+            </span>
           </div>
-
-          {/* Right Header Badges & Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            {/* Hardware Connected Status */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.82rem', color: '#0B1C30', fontWeight: 500 }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22A65A' }} />
-              <span>Hardware connected</span>
-            </div>
-
-            {/* Architecture Button */}
-            <button
-              onClick={onOpenDocs}
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid #E5E9E4',
-                borderRadius: '8px',
-                padding: '0.4rem 0.85rem',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                color: '#0B1C30',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.45rem',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.02)'
-              }}
-            >
-              <BookOpen size={14} color="#0B1C30" />
-              <span>Architecture</span>
-            </button>
+          <div style={{ height: '6px', background: '#E5E9E4', borderRadius: '999px', overflow: 'hidden' }}>
+            <div style={{
+              width: `${progressPct}%`,
+              height: '100%',
+              background: isAborted ? '#EF4444' : '#D1F34D',
+              borderRadius: '999px',
+              transition: 'width 0.4s ease'
+            }} />
           </div>
         </div>
 
-        {/* ── C. Experiment Workflow Stepper ── */}
+        {/* Right Segment: Elapsed, Remaining & Speed Multiplier */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '1rem',
-          padding: '0.35rem 0',
-          overflowX: 'auto',
-          fontSize: '0.84rem'
+          gap: '1.5rem',
+          borderLeft: '1px solid #E5E9E4',
+          paddingLeft: '1.5rem',
+          flexWrap: 'wrap'
         }}>
-          {wizardSteps.map((ws, i) => {
-            const isCompleted = ws.num <= 4;
-            const isCurrent = ws.isExecution;
-            return (
-              <React.Fragment key={ws.num}>
-                <div
-                  onClick={() => {
-                    if (ws.stepId && setCurrentStep) setCurrentStep(ws.stepId);
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    cursor: ws.stepId ? 'pointer' : 'default',
-                    color: isCurrent ? '#0B1C30' : (isCompleted ? '#0B1C30' : '#94A3B8'),
-                    fontWeight: isCurrent ? 700 : 500
-                  }}
-                >
-                  {isCompleted && !isCurrent ? (
-                    <div style={{
-                      width: '18px', height: '18px', borderRadius: '50%',
-                      background: 'rgba(34,166,90,0.12)', color: '#22A65A',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                      <Check size={12} strokeWidth={3} />
-                    </div>
-                  ) : null}
+          {/* Elapsed */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+            <Clock size={18} color="#64748B" strokeWidth={1.8} />
+            <div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.1 }}>
+                {elapsedStr}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748B' }}>elapsed</div>
+            </div>
+          </div>
 
-                  {isCurrent ? (
-                    <div style={{
-                      width: '20px', height: '20px', borderRadius: '50%',
-                      background: '#D1F34D', color: '#0B1C30',
-                      fontSize: '0.74rem', fontWeight: 700,
-                      display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                      5
-                    </div>
-                  ) : null}
+          {/* Remaining */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+            <Hourglass size={18} color="#64748B" strokeWidth={1.8} />
+            <div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.1 }}>
+                {remStr}
+              </div>
+              <div style={{ fontSize: '0.7rem', color: '#64748B' }}>remaining</div>
+            </div>
+          </div>
 
-                  <span>{ws.label}</span>
-                </div>
-
-                {i < wizardSteps.length - 1 && (
-                  <div style={{ flex: 1, height: '1px', background: '#E5E9E4', minWidth: '30px' }} />
-                )}
-              </React.Fragment>
-            );
-          })}
+          {/* Speed Pill */}
+          <div style={{ display: 'flex', alignItems: 'center', background: '#F8FAFC', borderRadius: '8px', padding: '2px', border: '1px solid #E5E9E4' }}>
+            <span style={{ fontSize: '0.68rem', color: '#64748B', padding: '0 0.45rem', fontWeight: 600 }}>Speed</span>
+            {[1, 5, 10, 25].map(spd => (
+              <button
+                key={spd}
+                onClick={() => setSimSpeed(spd)}
+                style={{
+                  border: 'none', padding: '0.2rem 0.5rem', borderRadius: '5px',
+                  fontSize: '0.7rem', fontWeight: 700, cursor: 'pointer',
+                  background: simSpeed === spd ? '#0B1C30' : 'transparent',
+                  color: simSpeed === spd ? '#D1F34D' : '#64748B',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                {spd}x
+              </button>
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* ── D. Experiment Summary Bar ── */}
+      {/* ═════════════════════════════════════════════════════════════════════════
+          2. MAIN 3-COLUMN COCKPIT (Stages · Live Reactor · Equipment Status)
+      ═════════════════════════════════════════════════════════════════════════ */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'minmax(280px, 28%) minmax(360px, 44%) minmax(280px, 28%)',
+        gap: '16px',
+        alignItems: 'stretch'
+      }}>
+
+        {/* ─────────────────────────────────────────────────────────────────
+            COLUMN 1: PROCESS STAGES (Clean Vertical Connected Timeline)
+        ───────────────────────────────────────────────────────────────── */}
         <div style={{
           background: '#FFFFFF',
           borderRadius: '12px',
           border: '1px solid #E5E9E4',
-          padding: '1.15rem 1.75rem',
+          padding: '1.25rem',
           display: 'flex',
-          alignItems: 'center',
+          flexDirection: 'column',
           justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '1.5rem',
+          gap: '1rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
-          {/* Left Segment: Material Name & Current Operation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '240px' }}>
-            <div style={{
-              width: '44px', height: '44px', borderRadius: '50%',
-              background: '#F8FAFC', border: '1px solid #E5E9E4',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0
-            }}>
-              <Box size={22} color="#0B1C30" strokeWidth={1.8} />
-            </div>
-            <div>
-              <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.2 }}>
-                {protocol.name}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
+                Process stages
               </div>
-              <div style={{ fontSize: '0.84rem', color: '#64748B', marginTop: '0.15rem' }}>
-                {activeStep.name}
-              </div>
-            </div>
-          </div>
-
-          {/* Middle Segment: Stage Progress Bar */}
-          <div style={{
-            flex: 1,
-            minWidth: '220px',
-            maxWidth: '360px',
-            borderLeft: '1px solid #E5E9E4',
-            paddingLeft: '1.5rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '0.45rem'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.82rem' }}>
-              <span style={{ fontWeight: 700, color: '#0B1C30' }}>
-                Stage {currentStepIdx + 1} of {steps.length}
+              <span style={{ fontSize: '0.72rem', color: '#64748B', fontWeight: 500 }}>
+                {steps.length} Stages
               </span>
-              <span style={{ color: '#64748B', fontWeight: 500 }}>
-                {progressPct}%
-              </span>
-            </div>
-            <div style={{ height: '6px', background: '#E5E9E4', borderRadius: '999px', overflow: 'hidden' }}>
-              <div style={{
-                width: `${progressPct}%`,
-                height: '100%',
-                background: '#D1F34D',
-                borderRadius: '999px',
-                transition: 'width 0.4s ease'
-              }} />
-            </div>
-          </div>
-
-          {/* Right Segment: Elapsed & Remaining Times */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '2rem',
-            borderLeft: '1px solid #E5E9E4',
-            paddingLeft: '1.5rem'
-          }}>
-            {/* Elapsed */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <Clock size={20} color="#64748B" strokeWidth={1.7} />
-              <div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.1 }}>
-                  {elapsedStr}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>elapsed</div>
-              </div>
-            </div>
-
-            {/* Remaining */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-              <Hourglass size={20} color="#64748B" strokeWidth={1.7} />
-              <div>
-                <div style={{ fontSize: '1.15rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.1 }}>
-                  {remStr}
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>remaining</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* ── 4. Main Dashboard: Three Clear Columns ── */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'minmax(260px, 28%) minmax(360px, 44%) minmax(260px, 28%)',
-          gap: '16px',
-          alignItems: 'stretch'
-        }}>
-
-          {/* ─────────────────────────────────────────────────────────────────
-              COLUMN 1: PROCESS STAGES (28%)
-          ───────────────────────────────────────────────────────────────── */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '12px',
-            border: '1px solid #E5E9E4',
-            padding: '1.25rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-          }}>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
-              Process stages
             </div>
 
             {/* Timeline */}
-            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
               
               {/* Connecting vertical line */}
               <div style={{
@@ -735,7 +541,7 @@ export default function StepExecution({
                       </div>
 
                       <div style={{ fontSize: '0.72rem', color: '#64748B', marginTop: '0.15rem' }}>
-                        {isComplete ? 'Step completed successfully' : (isActive ? 'In progress' : `${st.targetTempC || 25}°C · ${st.stirRpm || 0} RPM`)}
+                        {isComplete ? 'Step completed successfully' : (isActive ? `In progress · ${Math.floor(stageElapsedSec / 60)}m / ${st.durationMin}m` : `${st.targetTempC || 25}°C · ${st.stirRpm || 0} RPM`)}
                       </div>
                     </div>
                   </div>
@@ -744,637 +550,205 @@ export default function StepExecution({
             </div>
           </div>
 
-          {/* ─────────────────────────────────────────────────────────────────
-              COLUMN 2: LIVE REACTOR (44%) — VISUAL FOCAL POINT
-          ───────────────────────────────────────────────────────────────── */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '12px',
-            border: '1px solid #E5E9E4',
-            padding: '1.25rem',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-          }}>
-            {/* Header: Title & Restrained State Pill */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
-                Live reactor
-              </div>
-
-              {/* Status pill: Cooling, Heating, Stirring, or Idle */}
-              {coolerActive ? (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                  padding: '3px 8px', borderRadius: '6px',
-                  background: '#E0F2FE', color: '#0284C7',
-                  fontSize: '0.74rem', fontWeight: 600
-                }}>
-                  <Snowflake size={12} />
-                  <span>Cooling</span>
-                </div>
-              ) : (heaterPwm > 0 && !coolerActive) ? (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                  padding: '3px 8px', borderRadius: '6px',
-                  background: '#FEF2F2', color: '#DC2626',
-                  fontSize: '0.74rem', fontWeight: 600
-                }}>
-                  <Flame size={12} />
-                  <span>Heating</span>
-                </div>
-              ) : simRpm > 0 ? (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                  padding: '3px 8px', borderRadius: '6px',
-                  background: '#F2F8DF', color: '#65A30D',
-                  fontSize: '0.74rem', fontWeight: 600
-                }}>
-                  <Fan size={12} />
-                  <span>Stirring</span>
-                </div>
-              ) : (
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                  padding: '3px 8px', borderRadius: '6px',
-                  background: '#F1F5F9', color: '#64748B',
-                  fontSize: '0.74rem', fontWeight: 600
-                }}>
-                  <span>Idle</span>
-                </div>
-              )}
+          {/* Literature Provenance */}
+          <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.74rem', fontWeight: 600, color: '#0B1C30' }}>
+              <Sparkles size={12} color="var(--accent-blue)" /> Literature Sourced
             </div>
-
-            {/* Central Realistic Laboratory Reactor Visualization */}
-            <div style={{
-              position: 'relative',
-              borderRadius: '10px',
-              overflow: 'hidden',
-              background: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              minHeight: '260px'
-            }}>
-              {/* Photorealistic automated reactor station */}
-              <img
-                src="/lab_reactor_station.jpg"
-                alt="Automated Reactor Station"
-                style={{
-                  width: '100%',
-                  maxHeight: '270px',
-                  objectFit: 'contain',
-                  display: 'block'
-                }}
-              />
-
-              {/* Callouts (Matches reference design) */}
-              <div style={{
-                position: 'absolute',
-                right: '12px',
-                top: '25%',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.25rem',
-                pointerEvents: 'none'
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
-                  <span>Furnace (PID)</span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
-                  <span>Reaction vessel</span>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
-                  <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
-                  <span>Magnetic stirrer</span>
-                </div>
-              </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748B', lineHeight: 1.3 }}>
+              {protocol.citation?.title || protocol.name}
             </div>
-
-            {/* Bottom 3 Live Telemetry Metrics */}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              borderTop: '1px solid #E5E9E4',
-              paddingTop: '0.85rem'
-            }}>
-              {/* Temperature */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748B', fontSize: '0.74rem' }}>
-                  <Thermometer size={14} />
-                  <span>Temperature</span>
-                </div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.15, marginTop: '2px' }}>
-                  {simTemp.toFixed(0)}°C
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-                  Target: {targetTemp}°C
-                </div>
+            {protocol.citation?.doi && (
+              <div style={{ fontSize: '0.68rem', color: 'var(--accent-blue)', fontWeight: 600 }}>
+                DOI: {protocol.citation.doi}
               </div>
-
-              {/* Stirring */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', borderLeft: '1px solid #E5E9E4', paddingLeft: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748B', fontSize: '0.74rem' }}>
-                  <RotateCw size={14} />
-                  <span>Stirring</span>
-                </div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.15, marginTop: '2px' }}>
-                  {simRpm} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748B' }}>RPM</span>
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-                  Target: {targetRpm} RPM
-                </div>
-              </div>
-
-              {/* Stage time */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', borderLeft: '1px solid #E5E9E4', paddingLeft: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748B', fontSize: '0.74rem' }}>
-                  <Clock size={14} />
-                  <span>Stage time</span>
-                </div>
-                <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.15, marginTop: '2px' }}>
-                  {Math.floor(stageElapsedSec / 60)}m {String(Math.floor(stageElapsedSec % 60)).padStart(2, '0')}s
-                </div>
-                <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-                  Total: {Math.floor(stageDurationSec / 60)}m ({stageProgressPct}%)
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ─────────────────────────────────────────────────────────────────
-              COLUMN 3: EQUIPMENT STATUS (28%)
-          ───────────────────────────────────────────────────────────────── */}
-          <div style={{
-            background: '#FFFFFF',
-            borderRadius: '12px',
-            border: '1px solid #E5E9E4',
-            padding: '1.25rem',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            gap: '1rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-          }}>
-            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
-              Equipment status
-            </div>
-
-            {/* List of 4 Actuator rows */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
-              
-              {/* Heater */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid #F1F5F9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Flame size={16} color="#64748B" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0B1C30' }}>Heater</div>
-                    <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>PID · Pin 5</div>
-                    <button
-                      onClick={() => setShowActuatorModal('heater')}
-                      style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', marginTop: '2px', fontWeight: 500 }}
-                    >
-                      View controls →
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: heaterPwm > 0 && !coolerActive ? '#22A65A' : '#64748B', fontWeight: 600 }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: heaterPwm > 0 && !coolerActive ? '#22A65A' : '#94A3B8' }} />
-                  <span>{heaterPwm > 0 && !coolerActive ? `Running · ${heaterPwm}%` : 'Off'}</span>
-                </div>
-              </div>
-
-              {/* Chiller */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid #F1F5F9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Snowflake size={16} color="#64748B" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0B1C30' }}>Chiller</div>
-                    <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>Peltier · Pin 12</div>
-                    <button
-                      onClick={() => setShowActuatorModal('chiller')}
-                      style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', marginTop: '2px', fontWeight: 500 }}
-                    >
-                      View controls →
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: coolerActive ? '#22A65A' : '#64748B', fontWeight: 600 }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: coolerActive ? '#22A65A' : '#94A3B8' }} />
-                  <span>{coolerActive ? `Running · ${coolerIntensity}%` : 'Off'}</span>
-                </div>
-              </div>
-
-              {/* Stirrer */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingBottom: '0.75rem', borderBottom: '1px solid #F1F5F9' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Fan size={16} color="#64748B" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0B1C30' }}>Stirrer</div>
-                    <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>DC Motor · Pin 4</div>
-                    <button
-                      onClick={() => setShowActuatorModal('stirrer')}
-                      style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', marginTop: '2px', fontWeight: 500 }}
-                    >
-                      View controls →
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: simRpm > 0 ? '#22A65A' : '#64748B', fontWeight: 600 }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: simRpm > 0 ? '#22A65A' : '#94A3B8' }} />
-                  <span>{simRpm > 0 ? `Running · ${simRpm} RPM` : 'Off'}</span>
-                </div>
-              </div>
-
-              {/* UV Photoreactor */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Sun size={16} color="#64748B" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: '0.86rem', fontWeight: 600, color: '#0B1C30' }}>UV lamp</div>
-                    <div style={{ fontSize: '0.72rem', color: '#94A3B8' }}>365nm · Pin 16</div>
-                    <button
-                      onClick={() => setShowActuatorModal('uv')}
-                      style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', marginTop: '2px', fontWeight: 500 }}
-                    >
-                      View controls →
-                    </button>
-                  </div>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: isUvActive ? '#22A65A' : '#64748B', fontWeight: 600 }}>
-                  <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: isUvActive ? '#22A65A' : '#94A3B8' }} />
-                  <span>{isUvActive ? `Running · ${uvIntensity}%` : 'Off'}</span>
-                </div>
-              </div>
-
-            </div>
-
-            {/* Bottom summary link */}
-            <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>ESP8266 GPIO Map</span>
-              <button
-                onClick={() => setShowPayloadModal(true)}
-                style={{ background: 'none', border: 'none', fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', fontWeight: 600 }}
-              >
-                Inspect Bytecode →
-              </button>
-            </div>
-          </div>
-
-        </div>
-
-        {/* ── 5. Full-Width Experiment Controls Bar ── */}
-        <div style={{
-          background: '#FFFFFF',
-          borderRadius: '12px',
-          border: '1px solid #E5E9E4',
-          padding: '0.85rem 1.5rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
-          gap: '1.25rem',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
-        }}>
-          {/* Left: Previous Stage Button */}
-          <button
-            onClick={handlePrevStage}
-            disabled={currentStepIdx === 0}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              padding: '0.4rem 0.65rem',
-              cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer',
-              opacity: currentStepIdx === 0 ? 0.35 : 1,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.65rem',
-              textAlign: 'left'
-            }}
-          >
-            <ChevronLeft size={18} color="#0B1C30" />
-            <div>
-              <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>
-                Previous stage
-              </div>
-              <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
-                {steps[currentStepIdx - 1]?.name || 'Initial step'}
-              </div>
-            </div>
-          </button>
-
-          {/* Center: Action Buttons */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            {/* Pause / Resume Execution */}
-            <button
-              onClick={handleTogglePause}
-              disabled={!isRunning || isAborted}
-              style={{
-                background: '#FFFFFF',
-                border: '1px solid #E5E9E4',
-                borderRadius: '8px',
-                padding: '0.65rem 1.25rem',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                color: '#0B1C30',
-                cursor: !isRunning || isAborted ? 'not-allowed' : 'pointer',
-                opacity: !isRunning || isAborted ? 0.45 : 1,
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              {isPaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} />}
-              <span>{isPaused ? 'Resume execution' : 'Pause execution'}</span>
-            </button>
-
-            {/* Continue to next stage / Start synthesis */}
-            {!isRunning || isAborted ? (
-              <button
-                onClick={handleDeploy}
-                style={{
-                  background: '#D1F34D',
-                  color: '#0B1C30',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.65rem 1.6rem',
-                  fontSize: '0.86rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
-                }}
-              >
-                <Play size={14} fill="currentColor" />
-                <span>{isAborted ? 'Restart synthesis' : 'Start synthesis'}</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleNextStage}
-                style={{
-                  background: '#D1F34D',
-                  color: '#0B1C30',
-                  border: 'none',
-                  borderRadius: '8px',
-                  padding: '0.65rem 1.5rem',
-                  fontSize: '0.86rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
-                }}
-              >
-                <span>{currentStepIdx >= steps.length - 1 ? 'Complete synthesis' : 'Continue to next stage'}</span>
-                <ChevronRight size={15} />
-              </button>
             )}
-
-            {/* Stop Run */}
-            <button
-              onClick={handleEmergencyAbort}
-              disabled={!isRunning && isAborted}
-              style={{
-                background: '#FFFFFF',
-                color: '#DC4545',
-                border: '1.5px solid #FCA5A5',
-                borderRadius: '8px',
-                padding: '0.65rem 1.25rem',
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                cursor: isAborted ? 'default' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.5rem',
-                opacity: isAborted ? 0.6 : 1
-              }}
-            >
-              <Square size={12} fill="#DC4545" color="#DC4545" />
-              <span>{isAborted ? 'Stopped' : 'Stop run'}</span>
-            </button>
-          </div>
-
-          {/* Right: Safety Notice */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', maxWidth: '240px', fontSize: '0.73rem', color: '#64748B', lineHeight: 1.35 }}>
-            <AlertTriangle size={15} color="#D99A25" style={{ flexShrink: 0 }} />
-            <span>Stopping will place actuators in their configured safe state.</span>
           </div>
         </div>
 
-        {/* ── 6. Live Hardware Log Bar ── */}
+        {/* ─────────────────────────────────────────────────────────────────
+            COLUMN 2: LIVE REACTOR (Visual Focal Point with Real Telemetry)
+        ───────────────────────────────────────────────────────────────── */}
         <div style={{
           background: '#FFFFFF',
           borderRadius: '12px',
           border: '1px solid #E5E9E4',
-          padding: '0.75rem 1.25rem',
+          padding: '1.25rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.65rem',
+          justifyContent: 'space-between',
+          gap: '1rem',
           boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}>
-          {/* Header Row */}
+          {/* Header: Title & Restrained State Pill */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div
-              onClick={() => setShowLogs(!showLogs)}
-              style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }}
-            >
-              {showLogs ? <ChevronDown size={15} color="#64748B" /> : <ChevronRight size={15} color="#64748B" />}
-              <FileText size={15} color="#0B1C30" />
-              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#0B1C30' }}>
-                Live hardware log
-              </span>
-              <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>·</span>
-              <span style={{ fontSize: '0.75rem', color: '#64748B' }}>ESP32 / COM3</span>
-              <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>·</span>
-              <span style={{
-                fontSize: '0.7rem', fontWeight: 600, padding: '1px 6px', borderRadius: '4px',
-                background: 'rgba(34,166,90,0.12)', color: '#22A65A', display: 'inline-flex', alignItems: 'center', gap: '0.25rem'
-              }}>
-                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#22A65A' }} /> Live
-              </span>
+            <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
+              Live reactor
             </div>
 
-            <button
-              onClick={() => setShowLogs(!showLogs)}
-              style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: '#64748B', fontWeight: 500, cursor: 'pointer' }}
-            >
-              {showLogs ? 'Hide events' : 'View recent events →'}
-            </button>
+            {/* Status pill: Cooling, Heating, Stirring, or Idle */}
+            {coolerActive ? (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                padding: '3px 8px', borderRadius: '6px',
+                background: '#E0F2FE', color: '#0284C7',
+                fontSize: '0.74rem', fontWeight: 600
+              }}>
+                <Snowflake size={12} />
+                <span>Cooling</span>
+              </div>
+            ) : (heaterPwm > 0 && !coolerActive) ? (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                padding: '3px 8px', borderRadius: '6px',
+                background: '#FEF2F2', color: '#DC2626',
+                fontSize: '0.74rem', fontWeight: 600
+              }}>
+                <Flame size={12} />
+                <span>Heating</span>
+              </div>
+            ) : simRpm > 0 ? (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                padding: '3px 8px', borderRadius: '6px',
+                background: '#F2F8DF', color: '#65A30D',
+                fontSize: '0.74rem', fontWeight: 600
+              }}>
+                <Fan size={12} />
+                <span>Stirring</span>
+              </div>
+            ) : (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                padding: '3px 8px', borderRadius: '6px',
+                background: '#F1F5F9', color: '#64748B',
+                fontSize: '0.74rem', fontWeight: 600
+              }}>
+                <span>Idle</span>
+              </div>
+            )}
           </div>
 
-          {/* Expanded Hardware Log Terminal */}
-          {showLogs && (
-            <div style={{ borderTop: '1px solid #E5E9E4', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <div
-                ref={terminalBoxRef}
-                style={{
-                  height: '140px',
-                  overflowY: 'auto',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.72rem',
-                  lineHeight: 1.6,
-                  color: '#A7F3D0',
-                  background: '#0F172A',
-                  padding: '0.85rem 1rem',
-                  borderRadius: '8px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '0.2rem'
-                }}
-              >
-                {logs?.map((l, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '0.55rem' }}>
-                    <span style={{ color: '#475569', flexShrink: 0 }}>[{l.timestamp}]</span>
-                    <span style={{ color: '#38BDF8', flexShrink: 0, fontWeight: 700 }}>[{l.tag}]</span>
-                    <span style={{ color: '#E2E8F0' }}>{l.message}</span>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.25rem' }}>
-                <button
-                  onClick={() => setShowPayloadModal(true)}
-                  style={{
-                    background: '#F8FAFC', border: '1px solid #E5E9E4', borderRadius: '6px',
-                    padding: '0.35rem 0.65rem', fontSize: '0.74rem', color: '#0B1C30', cursor: 'pointer',
-                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600
-                  }}
-                >
-                  <Code2 size={13} /> Bytecode JSON
-                </button>
-                <button
-                  onClick={handleDownloadJson}
-                  style={{
-                    background: '#F8FAFC', border: '1px solid #E5E9E4', borderRadius: '6px',
-                    padding: '0.35rem 0.65rem', fontSize: '0.74rem', color: '#0B1C30', cursor: 'pointer',
-                    display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600
-                  }}
-                >
-                  <Download size={13} /> Download JSON
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* ── 7. Micro Footer ── */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.72rem', color: '#94A3B8', padding: '0 0.25rem' }}>
-          <span>Last update {lastUpdateTime} · Telemetry refreshes automatically</span>
-          <span style={{ color: '#CBD5E1' }}>AutoLab OS v2.4 (Scientific Edition)</span>
-        </div>
-
-      </main>
-
-      {/* ═════════════════════════════════════════════════════════════════════════
-          ACTUATOR CONTROLS MODAL / DRAWER
-      ═════════════════════════════════════════════════════════════════════════ */}
-      {showActuatorModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(11,28,48,0.5)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60, padding: '1.25rem'
-        }}>
+          {/* Central Realistic Laboratory Reactor Visualization */}
           <div style={{
-            background: '#FFFFFF', borderRadius: '16px', maxWidth: '520px', width: '100%',
-            padding: '1.5rem', border: '1px solid #E5E9E4', boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            display: 'flex', flexDirection: 'column', gap: '1.25rem'
+            position: 'relative',
+            borderRadius: '10px',
+            overflow: 'hidden',
+            background: '#FFFFFF',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '260px'
           }}>
-            {/* Modal Header */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Sliders size={18} color="#0B1C30" />
-                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#0B1C30' }}>
-                  Equipment Calibration & Overrides
-                </h3>
+            {/* Photorealistic automated reactor station */}
+            <img
+              src="/lab_reactor_station.jpg"
+              alt="Automated Reactor Station"
+              style={{
+                width: '100%',
+                maxHeight: '270px',
+                objectFit: 'contain',
+                display: 'block'
+              }}
+            />
+
+            {/* Callouts (Matches reference design) */}
+            <div style={{
+              position: 'absolute',
+              right: '12px',
+              top: '25%',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '1.25rem',
+              pointerEvents: 'none'
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
+                <span>Furnace (PID)</span>
               </div>
-              <button onClick={() => setShowActuatorModal(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
-                <X size={18} color="#64748B" />
-              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
+                <span>Reaction vessel</span>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.72rem', color: '#475569', fontWeight: 500, background: 'rgba(255,255,255,0.85)', padding: '2px 6px', borderRadius: '4px' }}>
+                <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#64748B' }} />
+                <span>Magnetic stirrer</span>
+              </div>
             </div>
+          </div>
 
-            {/* Actuators grid */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {/* Heater */}
-              <div style={{ background: '#F8FAFC', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid #E5E9E4' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>Heating (PID · Pin 5)</span>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#DC2626' }}>{targetTemp}°C</span>
-                </div>
-                <input
-                  type="range" min="20" max="350" step="5" value={targetTemp} disabled={coolerActive}
-                  onChange={(e) => { const v = Number(e.target.value); setManualHeaterTarget(v); setHeaterActive(true); setCoolerActive(false); }}
-                  style={{ width: '100%', accentColor: '#DC2626' }}
-                />
+          {/* Bottom 3 Live Telemetry Metrics */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            borderTop: '1px solid #E5E9E4',
+            paddingTop: '0.85rem'
+          }}>
+            {/* Temperature */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748B', fontSize: '0.74rem' }}>
+                <Thermometer size={14} />
+                <span>Temperature</span>
               </div>
-
-              {/* Chiller */}
-              <div style={{ background: '#F8FAFC', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid #E5E9E4' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>Cryo Chiller (Peltier · Pin 12)</span>
-                  <button
-                    onClick={() => { const next = !coolerActive; setCoolerActive(next); if (next) { setHeaterActive(false); setManualHeaterTarget(null); } }}
-                    style={{ border: 'none', borderRadius: '5px', padding: '2px 8px', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer', background: coolerActive ? '#0284C7' : '#E2E8F0', color: coolerActive ? '#FFFFFF' : '#64748B' }}
-                  >
-                    {coolerActive ? 'Active Quench' : 'Idle'}
-                  </button>
-                </div>
-                <input
-                  type="range" min="20" max="100" step="5" value={coolerIntensity} disabled={!coolerActive}
-                  onChange={(e) => setCoolerIntensity(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#0284C7' }}
-                />
+              <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.15, marginTop: '2px' }}>
+                {simTemp.toFixed(0)}°C
               </div>
-
-              {/* Stirrer */}
-              <div style={{ background: '#F8FAFC', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid #E5E9E4' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>Stirrer (DC Motor · Pin 4)</span>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 700, color: '#0B1C30' }}>{targetRpm} RPM</span>
-                </div>
-                <input
-                  type="range" min="0" max="1400" step="50" value={targetRpm}
-                  onChange={(e) => { const v = Number(e.target.value); setManualMixerRpm(v); setMixerActive(v > 0); }}
-                  style={{ width: '100%', accentColor: '#D1F34D' }}
-                />
-              </div>
-
-              {/* UV Photoreactor */}
-              <div style={{ background: '#F8FAFC', padding: '0.85rem 1rem', borderRadius: '10px', border: '1px solid #E5E9E4' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.4rem' }}>
-                  <span style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>UV Lamp (365nm · Pin 16)</span>
-                  <button
-                    onClick={() => setLiveUvOverride(!isUvActive)}
-                    style={{ border: 'none', borderRadius: '5px', padding: '2px 8px', fontSize: '0.74rem', fontWeight: 600, cursor: 'pointer', background: isUvActive ? '#7C3AED' : '#E2E8F0', color: isUvActive ? '#FFFFFF' : '#64748B' }}
-                  >
-                    {isUvActive ? 'Beam Active' : 'Off'}
-                  </button>
-                </div>
-                <input
-                  type="range" min="10" max="100" step="5" value={uvIntensity} disabled={!isUvActive}
-                  onChange={(e) => setUvIntensity(Number(e.target.value))}
-                  style={{ width: '100%', accentColor: '#7C3AED' }}
-                />
+              <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Target: {targetTemp}°C
               </div>
             </div>
 
-            {/* Modal Actions */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+            {/* Stirring */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', borderLeft: '1px solid #E5E9E4', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748B', fontSize: '0.74rem' }}>
+                <RotateCw size={14} />
+                <span>Stirring</span>
+              </div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.15, marginTop: '2px' }}>
+                {simRpm} <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#64748B' }}>RPM</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Target: {targetRpm} RPM
+              </div>
+            </div>
+
+            {/* Stage time */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.15rem', borderLeft: '1px solid #E5E9E4', paddingLeft: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#64748B', fontSize: '0.74rem' }}>
+                <Clock size={14} />
+                <span>Stage time</span>
+              </div>
+              <div style={{ fontSize: '1.45rem', fontWeight: 700, color: '#0B1C30', lineHeight: 1.15, marginTop: '2px' }}>
+                {Math.floor(stageElapsedSec / 60)}m {String(Math.floor(stageElapsedSec % 60)).padStart(2, '0')}s
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+                Total: {Math.floor(stageDurationSec / 60)}m ({stageProgressPct}%)
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ─────────────────────────────────────────────────────────────────
+            COLUMN 3: EQUIPMENT STATUS & INTEGRATED CONTROLS
+        ───────────────────────────────────────────────────────────────── */}
+        <div style={{
+          background: '#FFFFFF',
+          borderRadius: '12px',
+          border: '1px solid #E5E9E4',
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          gap: '1rem',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+        }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+              <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0B1C30' }}>
+                Equipment status
+              </div>
               <button
                 onClick={() => {
                   setManualHeaterTarget(null);
@@ -1384,86 +758,400 @@ export default function StepExecution({
                   setLiveUvOverride(null);
                   onAddLog?.('SYSTEM', 'Actuator channels re-synchronized with recipe targets.');
                 }}
-                style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: '#64748B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600 }}
+                className="btn-ghost"
+                style={{ fontSize: '0.72rem', padding: '0.25rem 0.55rem' }}
+                title="Sync actuators to recipe"
               >
-                <RotateCcw size={13} /> Sync Recipe Targets
-              </button>
-              <button
-                onClick={() => setShowActuatorModal(null)}
-                style={{ background: '#0B1C30', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' }}
-              >
-                Apply & Close
+                <RotateCcw size={11} style={{ marginRight: '4px' }} /> Sync Recipe
               </button>
             </div>
+
+            {/* List of 4 Actuator rows */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.9rem' }}>
+              
+              {/* Heater */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingBottom: '0.75rem', borderBottom: '1px solid #F1F5F9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Flame size={15} color="#64748B" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>Heater</div>
+                      <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>PID · Pin 5</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.78rem', color: heaterPwm > 0 && !coolerActive ? '#22A65A' : '#64748B', fontWeight: 600 }}>
+                    <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: heaterPwm > 0 && !coolerActive ? '#22A65A' : '#94A3B8' }} />
+                    <span>{heaterPwm > 0 && !coolerActive ? `Running · ${heaterPwm}%` : 'Off'}</span>
+                  </div>
+                </div>
+                {/* Micro slider */}
+                <input
+                  type="range" min="20" max="350" step="5" value={targetTemp} disabled={coolerActive}
+                  onChange={(e) => { const v = Number(e.target.value); setManualHeaterTarget(v); setHeaterActive(true); setCoolerActive(false); }}
+                  style={{ width: '100%', accentColor: '#DC2626', height: '4px' }}
+                />
+              </div>
+
+              {/* Chiller */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingBottom: '0.75rem', borderBottom: '1px solid #F1F5F9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Snowflake size={15} color="#64748B" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>Chiller</div>
+                      <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>Peltier · Pin 12</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { const next = !coolerActive; setCoolerActive(next); if (next) { setHeaterActive(false); setManualHeaterTarget(null); } }}
+                    style={{ border: 'none', borderRadius: '5px', padding: '2px 8px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', background: coolerActive ? '#0284C7' : '#E2E8F0', color: coolerActive ? '#FFFFFF' : '#64748B' }}
+                  >
+                    {coolerActive ? 'Quench On' : 'Idle'}
+                  </button>
+                </div>
+                {/* Micro slider */}
+                <input
+                  type="range" min="20" max="100" step="5" value={coolerIntensity} disabled={!coolerActive}
+                  onChange={(e) => setCoolerIntensity(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: '#0284C7', height: '4px' }}
+                />
+              </div>
+
+              {/* Stirrer */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', paddingBottom: '0.75rem', borderBottom: '1px solid #F1F5F9' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Fan size={15} color="#64748B" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>Stirrer</div>
+                      <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>DC Motor · Pin 4</div>
+                    </div>
+                  </div>
+                  <span style={{ fontSize: '0.78rem', color: simRpm > 0 ? '#22A65A' : '#64748B', fontWeight: 600 }}>
+                    {simRpm > 0 ? `${simRpm} RPM` : 'Off'}
+                  </span>
+                </div>
+                {/* Micro slider */}
+                <input
+                  type="range" min="0" max="1400" step="50" value={targetRpm}
+                  onChange={(e) => { const v = Number(e.target.value); setManualMixerRpm(v); setMixerActive(v > 0); }}
+                  style={{ width: '100%', accentColor: '#D1F34D', height: '4px' }}
+                />
+              </div>
+
+              {/* UV Photoreactor */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F8FAFC', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Sun size={15} color="#64748B" />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>UV lamp</div>
+                      <div style={{ fontSize: '0.7rem', color: '#94A3B8' }}>365nm · Pin 16</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setLiveUvOverride(!isUvActive)}
+                    style={{ border: 'none', borderRadius: '5px', padding: '2px 8px', fontSize: '0.72rem', fontWeight: 600, cursor: 'pointer', background: isUvActive ? '#7C3AED' : '#E2E8F0', color: isUvActive ? '#FFFFFF' : '#64748B' }}
+                  >
+                    {isUvActive ? 'Beam On' : 'Off'}
+                  </button>
+                </div>
+                {/* Micro slider */}
+                <input
+                  type="range" min="10" max="100" step="5" value={uvIntensity} disabled={!isUvActive}
+                  onChange={(e) => setUvIntensity(Number(e.target.value))}
+                  style={{ width: '100%', accentColor: '#7C3AED', height: '4px' }}
+                />
+              </div>
+
+            </div>
+          </div>
+
+          {/* Bottom quick inspect links */}
+          <div style={{ borderTop: '1px solid #F1F5F9', paddingTop: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>ESP8266 GPIO Map</span>
+            <button
+              onClick={() => setShowPayloadModal(true)}
+              style={{ background: 'none', border: 'none', fontSize: '0.72rem', color: '#3B82A0', cursor: 'pointer', fontWeight: 600 }}
+            >
+              Inspect Bytecode →
+            </button>
           </div>
         </div>
-      )}
+
+      </div>
 
       {/* ═════════════════════════════════════════════════════════════════════════
-          SETTINGS MODAL (Hardware connection configuration)
+          3. FULL-WIDTH EXPERIMENT CONTROLS BAR (Obvious, Safe, High-Contrast)
       ═════════════════════════════════════════════════════════════════════════ */}
-      {showSettingsModal && (
-        <div style={{
-          position: 'fixed', inset: 0, background: 'rgba(11,28,48,0.5)', backdropFilter: 'blur(4px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 60, padding: '1.25rem'
-        }}>
-          <div style={{
-            background: '#FFFFFF', borderRadius: '16px', maxWidth: '480px', width: '100%',
-            padding: '1.5rem', border: '1px solid #E5E9E4', boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
-            display: 'flex', flexDirection: 'column', gap: '1.25rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Settings size={18} color="#0B1C30" />
-                <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700, color: '#0B1C30' }}>
-                  Hardware Node Settings
-                </h3>
-              </div>
-              <button onClick={() => setShowSettingsModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px' }}>
-                <X size={18} color="#64748B" />
-              </button>
+      <div style={{
+        background: '#FFFFFF',
+        borderRadius: '12px',
+        border: '1px solid #E5E9E4',
+        padding: '0.85rem 1.5rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '1.25rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+      }}>
+        {/* Left: Previous Stage Button */}
+        <button
+          onClick={handlePrevStage}
+          disabled={currentStepIdx === 0}
+          style={{
+            background: 'transparent',
+            border: 'none',
+            padding: '0.4rem 0.65rem',
+            cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer',
+            opacity: currentStepIdx === 0 ? 0.35 : 1,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.65rem',
+            textAlign: 'left'
+          }}
+        >
+          <ChevronLeft size={18} color="#0B1C30" />
+          <div>
+            <div style={{ fontSize: '0.84rem', fontWeight: 600, color: '#0B1C30' }}>
+              Previous stage
             </div>
+            <div style={{ fontSize: '0.72rem', color: '#64748B' }}>
+              {steps[currentStepIdx - 1]?.name || 'Initial step'}
+            </div>
+          </div>
+        </button>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', fontSize: '0.84rem' }}>
-              <div>
-                <label style={{ display: 'block', color: '#64748B', fontSize: '0.74rem', marginBottom: '0.3rem', fontWeight: 600 }}>ESP32 Node Dispatch IP</label>
-                <input type="text" defaultValue="http://192.168.1.15/dispatch" style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #E5E9E4', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', color: '#64748B', fontSize: '0.74rem', marginBottom: '0.3rem', fontWeight: 600 }}>Serial Port & Baud Rate</label>
-                <input type="text" defaultValue="COM3 · 115200 Baud" style={{ width: '100%', padding: '0.5rem 0.75rem', borderRadius: '8px', border: '1px solid #E5E9E4', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }} />
-              </div>
-              <div>
-                <label style={{ display: 'block', color: '#64748B', fontSize: '0.74rem', marginBottom: '0.3rem', fontWeight: 600 }}>Simulation Multiplier</label>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {[1, 5, 10, 25].map(spd => (
-                    <button
-                      key={spd}
-                      onClick={() => setSimSpeed(spd)}
-                      style={{
-                        flex: 1, padding: '0.4rem', borderRadius: '6px', border: '1px solid #E5E9E4',
-                        background: simSpeed === spd ? '#D1F34D' : '#F8FAFC',
-                        fontWeight: 700, color: '#0B1C30', cursor: 'pointer'
-                      }}
-                    >
-                      {spd}x
-                    </button>
-                  ))}
+        {/* Center: Playback Action Buttons */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+          {/* Pause / Resume Execution */}
+          <button
+            onClick={handleTogglePause}
+            disabled={!isRunning || isAborted}
+            style={{
+              background: '#FFFFFF',
+              border: '1px solid #E5E9E4',
+              borderRadius: '8px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              color: '#0B1C30',
+              cursor: !isRunning || isAborted ? 'not-allowed' : 'pointer',
+              opacity: !isRunning || isAborted ? 0.45 : 1,
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            {isPaused ? <Play size={14} fill="currentColor" /> : <Pause size={14} />}
+            <span>{isPaused ? 'Resume execution' : 'Pause execution'}</span>
+          </button>
+
+          {/* Continue to next stage / Start synthesis */}
+          {!isRunning || isAborted ? (
+            <button
+              onClick={handleDeploy}
+              style={{
+                background: '#D1F34D',
+                color: '#0B1C30',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.65rem 1.6rem',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+              }}
+            >
+              <Play size={14} fill="currentColor" />
+              <span>{isAborted ? 'Restart synthesis' : 'Start synthesis'}</span>
+            </button>
+          ) : (
+            <button
+              onClick={handleNextStage}
+              style={{
+                background: '#D1F34D',
+                color: '#0B1C30',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '0.65rem 1.5rem',
+                fontSize: '0.86rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)'
+              }}
+            >
+              <span>{currentStepIdx >= steps.length - 1 ? 'Complete synthesis' : 'Continue to next stage'}</span>
+              <ChevronRight size={15} />
+            </button>
+          )}
+
+          {/* Stop Run */}
+          <button
+            onClick={handleEmergencyAbort}
+            disabled={!isRunning && isAborted}
+            style={{
+              background: '#FFFFFF',
+              color: '#DC4545',
+              border: '1.5px solid #FCA5A5',
+              borderRadius: '8px',
+              padding: '0.65rem 1.25rem',
+              fontSize: '0.85rem',
+              fontWeight: 600,
+              cursor: isAborted ? 'default' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              opacity: isAborted ? 0.6 : 1
+            }}
+          >
+            <Square size={12} fill="#DC4545" color="#DC4545" />
+            <span>{isAborted ? 'Stopped' : 'Stop run'}</span>
+          </button>
+        </div>
+
+        {/* Right: Safety Notice */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', maxWidth: '240px', fontSize: '0.73rem', color: '#64748B', lineHeight: 1.35 }}>
+          <AlertTriangle size={15} color="#D99A25" style={{ flexShrink: 0 }} />
+          <span>Stopping will place actuators in their configured safe state.</span>
+        </div>
+      </div>
+
+      {/* ═════════════════════════════════════════════════════════════════════════
+          4. LIVE HARDWARE LOG (Compact Collapsible Bar)
+      ═════════════════════════════════════════════════════════════════════════ */}
+      <div style={{
+        background: '#FFFFFF',
+        borderRadius: '12px',
+        border: '1px solid #E5E9E4',
+        padding: '0.75rem 1.25rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '0.65rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+      }}>
+        {/* Header Row */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div
+            onClick={() => setShowLogs(!showLogs)}
+            style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', cursor: 'pointer' }}
+          >
+            {showLogs ? <ChevronDown size={15} color="#64748B" /> : <ChevronRight size={15} color="#64748B" />}
+            <FileText size={15} color="#0B1C30" />
+            <span style={{ fontSize: '0.82rem', fontWeight: 600, color: '#0B1C30' }}>
+              Live hardware log
+            </span>
+            <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>·</span>
+            <span style={{ fontSize: '0.75rem', color: '#64748B' }}>ESP8266 / COM3</span>
+            <span style={{ fontSize: '0.75rem', color: '#94A3B8' }}>·</span>
+            <span style={{
+              fontSize: '0.7rem', fontWeight: 600, padding: '1px 6px', borderRadius: '4px',
+              background: 'rgba(34,166,90,0.12)', color: '#22A65A', display: 'inline-flex', alignItems: 'center', gap: '0.25rem'
+            }}>
+              <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: '#22A65A' }} /> Connected
+            </span>
+          </div>
+
+          <button
+            onClick={() => setShowLogs(!showLogs)}
+            style={{ background: 'none', border: 'none', fontSize: '0.78rem', color: '#64748B', fontWeight: 500, cursor: 'pointer' }}
+          >
+            {showLogs ? 'Hide events' : 'View recent events →'}
+          </button>
+        </div>
+
+        {/* Expanded Hardware Log Terminal */}
+        {showLogs && (
+          <div style={{ borderTop: '1px solid #E5E9E4', paddingTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div
+              ref={terminalBoxRef}
+              style={{
+                height: '140px',
+                overflowY: 'auto',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.72rem',
+                lineHeight: 1.6,
+                color: '#A7F3D0',
+                background: '#0F172A',
+                padding: '0.85rem 1rem',
+                borderRadius: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.2rem'
+              }}
+            >
+              {logs?.map((l, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.55rem' }}>
+                  <span style={{ color: '#475569', flexShrink: 0 }}>[{l.timestamp}]</span>
+                  <span style={{ color: '#38BDF8', flexShrink: 0, fontWeight: 700 }}>[{l.tag}]</span>
+                  <span style={{ color: '#E2E8F0' }}>{l.message}</span>
                 </div>
-              </div>
+              ))}
             </div>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', marginTop: '0.25rem' }}>
               <button
-                onClick={() => setShowSettingsModal(false)}
-                style={{ background: '#0B1C30', color: '#FFFFFF', border: 'none', borderRadius: '8px', padding: '0.5rem 1.25rem', fontSize: '0.82rem', fontWeight: 600, cursor: 'pointer' }}
+                onClick={() => setShowPayloadModal(true)}
+                style={{
+                  background: '#F8FAFC', border: '1px solid #E5E9E4', borderRadius: '6px',
+                  padding: '0.35rem 0.65rem', fontSize: '0.74rem', color: '#0B1C30', cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600
+                }}
               >
-                Save Configuration
+                <Code2 size={13} /> Bytecode JSON
+              </button>
+              <button
+                onClick={handleDownloadJson}
+                style={{
+                  background: '#F8FAFC', border: '1px solid #E5E9E4', borderRadius: '6px',
+                  padding: '0.35rem 0.65rem', fontSize: '0.74rem', color: '#0B1C30', cursor: 'pointer',
+                  display: 'inline-flex', alignItems: 'center', gap: '0.3rem', fontWeight: 600
+                }}
+              >
+                <Download size={13} /> Download JSON
               </button>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* ── 5. Bottom Navigation & Footer ── */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '0.5rem', borderTop: '1px solid #E5E9E4' }}>
+        <button
+          className="btn-ghost"
+          onClick={onBack}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', fontWeight: 600 }}
+        >
+          <ArrowLeft size={15} /> Back to Verify Kinetics
+        </button>
+
+        <span style={{ fontSize: '0.72rem', color: '#94A3B8' }}>
+          Last update {lastUpdateTime} · AutoLab OS v2.4 (Scientific Edition)
+        </span>
+
+        <button
+          className="btn-ink"
+          onClick={onResetAll}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', fontSize: '0.85rem', fontWeight: 600 }}
+        >
+          <RotateCw size={14} /> Synthesize Another Material
+        </button>
+      </div>
 
       {/* ═════════════════════════════════════════════════════════════════════════
           JSON PAYLOAD MODAL
