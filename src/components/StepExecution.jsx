@@ -401,7 +401,7 @@ export default function StepExecution({
         flexDirection: 'column',
         gap: '0.75rem',
       }}>
-        {/* Top Tier: Identity, Status, Global Controls & STOP Button */}
+        {/* Top Tier: Identity, Status, Baud & Secondary Tools */}
         <div style={{
           display: 'flex',
           alignItems: 'center',
@@ -409,7 +409,7 @@ export default function StepExecution({
           flexWrap: 'wrap',
           gap: '0.75rem'
         }}>
-          {/* Section 1: Process & Material Identity */}
+          {/* Left: Material Identity & Live Badge */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{
               width: '42px', height: '42px', borderRadius: '12px',
@@ -446,17 +446,16 @@ export default function StepExecution({
             </div>
           </div>
 
-          {/* Section 2: Unified Lab Control Station & Stopping Action */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', flexWrap: 'wrap' }}>
-            {/* Speed Multiplier */}
+          {/* Right: Simulation Speed & Export Tools */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,0.06)', borderRadius: '8px', padding: '2px', border: '1px solid rgba(255,255,255,0.1)' }}>
-              <span style={{ fontSize: '0.58rem', color: '#64748B', padding: '0 0.4rem', fontFamily: 'var(--font-mono)' }}>SPEED</span>
+              <span style={{ fontSize: '0.58rem', color: '#64748B', padding: '0 0.4rem', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>SIM SPEED</span>
               {[1, 5, 10, 25].map(spd => (
                 <button
                   key={spd}
                   onClick={() => setSimSpeed(spd)}
                   style={{
-                    border: 'none', padding: '0.2rem 0.45rem', borderRadius: '5px',
+                    border: 'none', padding: '0.2rem 0.5rem', borderRadius: '5px',
                     fontSize: '0.65rem', fontWeight: 700, cursor: 'pointer',
                     background: simSpeed === spd ? 'var(--primary-lime)' : 'transparent',
                     color: simSpeed === spd ? 'var(--deep-charcoal)' : '#94A3B8',
@@ -468,113 +467,34 @@ export default function StepExecution({
               ))}
             </div>
 
-            {/* Arm / Fire / Pause / Advance Controls */}
-            {!isRunning || isAborted ? (
-              <button
-                className="btn-primary"
-                onClick={handleDeploy}
-                style={{
-                  padding: '0.5rem 1.15rem',
-                  fontSize: '0.8rem',
-                  fontWeight: 800,
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.45rem',
-                  boxShadow: '0 0 18px rgba(209,243,77,0.35)'
-                }}
-              >
-                <Play size={14} fill="currentColor" />
-                {isAborted ? 'Restart Protocol' : 'Arm & Fire → Lab'}
-              </button>
-            ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <button
-                  onClick={handleTogglePause}
-                  style={{
-                    background: isPaused ? 'var(--primary-lime)' : 'rgba(255,255,255,0.12)',
-                    color: isPaused ? 'var(--deep-charcoal)' : '#FFFFFF',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px', padding: '0.45rem 0.9rem',
-                    fontSize: '0.78rem', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.35rem', cursor: 'pointer'
-                  }}
-                >
-                  {isPaused ? <Play size={12} fill="currentColor" /> : <Pause size={12} />}
-                  {isPaused ? 'Resume' : 'Pause'}
-                </button>
-                <button
-                  onClick={handleNextStage}
-                  disabled={currentStepIdx >= steps.length - 1}
-                  title="Advance stage"
-                  style={{
-                    background: 'rgba(255,255,255,0.08)', color: '#FFFFFF',
-                    border: '1px solid rgba(255,255,255,0.14)', borderRadius: '8px',
-                    padding: '0.45rem 0.75rem', fontSize: '0.75rem', fontWeight: 600,
-                    cursor: currentStepIdx >= steps.length - 1 ? 'not-allowed' : 'pointer',
-                    opacity: currentStepIdx >= steps.length - 1 ? 0.35 : 1, display: 'inline-flex', alignItems: 'center', gap: '0.25rem'
-                  }}
-                >
-                  <SkipForward size={12} /> Next
-                </button>
-              </div>
-            )}
-
-            {/* 🛑 BIG PROMINENT EMERGENCY STOP BUTTON (Impossible to miss!) */}
-            <button
-              onClick={handleEmergencyAbort}
-              disabled={!isRunning && isAborted}
-              style={{
-                background: isAborted ? '#3F0000' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
-                color: '#FFFFFF',
-                border: `2px solid ${isAborted ? '#7F1D1D' : '#FCA5A5'}`,
-                borderRadius: '9px',
-                padding: '0.5rem 1.1rem',
-                fontWeight: 900,
-                fontSize: '0.75rem',
-                letterSpacing: '0.04em',
-                textTransform: 'uppercase',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '0.4rem',
-                cursor: isAborted ? 'default' : 'pointer',
-                boxShadow: isAborted ? 'none' : '0 0 22px rgba(239,68,68,0.5)',
-                transition: 'all 0.2s ease',
-              }}
-            >
-              <AlertOctagon size={15} />
-              {isAborted ? 'HALTED' : 'EMERGENCY STOP'}
+            <button className="btn-ghost" onClick={() => setShowPayloadModal(true)} title="View machine bytecode payload"
+              style={{ fontSize: '0.68rem', padding: '0.35rem 0.65rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#CBD5E1', borderRadius: '7px', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Code2 size={12} /> Bytecode
             </button>
-
-            {/* Quick Bytecode and JSON Export */}
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
-              <button className="btn-ghost" onClick={() => setShowPayloadModal(true)} title="View machine bytecode payload"
-                style={{ fontSize: '0.68rem', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#CBD5E1', borderRadius: '7px' }}>
-                <Code2 size={12} />
-              </button>
-              <button className="btn-ghost" onClick={handleDownloadJson} title="Export JSON machine instructions"
-                style={{ fontSize: '0.68rem', padding: '0.4rem 0.6rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#CBD5E1', borderRadius: '7px' }}>
-                <Download size={12} />
-              </button>
-            </div>
+            <button className="btn-ghost" onClick={handleDownloadJson} title="Export JSON machine instructions"
+              style={{ fontSize: '0.68rem', padding: '0.35rem 0.65rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', color: '#CBD5E1', borderRadius: '7px', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+              <Download size={12} /> JSON
+            </button>
           </div>
         </div>
 
-        {/* Bottom Tier: Integrated Progress Bar & Timeline Stats */}
+        {/* ── Mid Tier: Dual Progress Bar & Elapsed/Remaining Time ── */}
         <div style={{
           background: 'rgba(0,0,0,0.3)',
           borderRadius: '10px',
-          padding: '0.6rem 0.9rem',
+          padding: '0.55rem 0.9rem',
           border: '1px solid rgba(255,255,255,0.05)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.35rem'
+          gap: '0.3rem'
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.66rem', fontFamily: 'var(--font-mono)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <span style={{ color: 'var(--primary-lime)', fontWeight: 800 }}>
-                PROGRESS: STAGE {currentStepIdx + 1} OF {steps.length}
+                STAGE {currentStepIdx + 1} OF {steps.length}:
               </span>
               <span style={{ color: '#E2E8F0', fontWeight: 600 }}>
-                — {activeStep.name} ({activeStep.targetTempC}°C, {activeStep.stirRpm} RPM)
+                {activeStep.name} ({activeStep.targetTempC}°C, {activeStep.stirRpm} RPM)
               </span>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#94A3B8' }}>
@@ -582,7 +502,6 @@ export default function StepExecution({
               <span style={{ color: 'var(--primary-lime)', fontWeight: 800 }}>{progressPct}% COMPLETE</span>
             </div>
           </div>
-          {/* Progress Bar with Dual-color Pulse */}
           <div style={{ height: '7px', background: 'rgba(255,255,255,0.08)', borderRadius: '999px', overflow: 'hidden' }}>
             <div style={{
               width: `${progressPct}%`,
@@ -592,6 +511,158 @@ export default function StepExecution({
               transition: 'width 0.4s ease',
               boxShadow: isRunning && !isAborted ? '0 0 10px rgba(209,243,77,0.6)' : 'none'
             }} />
+          </div>
+        </div>
+
+        {/* ── Bottom Tier: THE DEDICATED MISSION CONTROL COMMAND POD (Start, Next, Pause, Stop) ── */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)',
+          border: '1.5px solid rgba(255,255,255,0.12)',
+          borderRadius: '12px',
+          padding: '0.65rem 1rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: '0.75rem',
+          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.1)'
+        }}>
+          {/* Status Instruction Guide (Left) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: '220px' }}>
+            <div style={{
+              width: '10px', height: '10px', borderRadius: '50%',
+              background: isAborted ? '#EF4444' : (isRunning ? (isPaused ? '#F59E0B' : '#22C55E') : 'var(--primary-lime)'),
+              boxShadow: isRunning && !isPaused && !isAborted ? '0 0 10px #22C55E' : 'none',
+              animation: isRunning && !isPaused && !isAborted ? 'pulseSlow 1.5s infinite' : 'none'
+            }} />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#F8FAFC', letterSpacing: '-0.01em' }}>
+                {!isRunning && !isAborted && 'System Ready — Click START to Run'}
+                {isRunning && !isPaused && `Executing Stage ${currentStepIdx + 1} of ${steps.length}`}
+                {isRunning && isPaused && `Synthesis Paused on Stage ${currentStepIdx + 1}`}
+                {isAborted && 'System Halted — Relays Isolated'}
+              </span>
+              <span style={{ fontSize: '0.58rem', color: '#94A3B8', fontFamily: 'var(--font-mono)' }}>
+                {!isRunning && !isAborted && 'Microcontroller handshakes verified. Ready to arm.'}
+                {isRunning && !isPaused && 'Autonomous loop active. Use "Next" to skip stages.'}
+                {isRunning && isPaused && 'PID heaters holding target temperature.'}
+                {isAborted && 'Emergency interlock engaged. Click Restart to re-arm.'}
+              </span>
+            </div>
+          </div>
+
+          {/* Center: THE HERO PLAYBACK CONTROLS (START / PAUSE / NEXT / PREV) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            {!isRunning || isAborted ? (
+              <button
+                className="btn-primary"
+                onClick={handleDeploy}
+                style={{
+                  padding: '0.65rem 1.6rem',
+                  fontSize: '0.9rem',
+                  fontWeight: 900,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.55rem',
+                  borderRadius: '10px',
+                  boxShadow: '0 0 24px rgba(209,243,77,0.45)',
+                  letterSpacing: '0.02em',
+                  transform: 'scale(1.02)',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer'
+                }}
+              >
+                <Play size={16} fill="currentColor" />
+                {isAborted ? '↺ RESTART PROTOCOL' : '▶ START SYNTHESIS'}
+              </button>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', background: 'rgba(0,0,0,0.3)', padding: '3px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                {/* Previous Stage */}
+                <button
+                  onClick={handlePrevStage}
+                  disabled={currentStepIdx === 0}
+                  title="Go back to previous stage"
+                  style={{
+                    background: 'rgba(255,255,255,0.06)', color: '#CBD5E1',
+                    border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px',
+                    padding: '0.5rem 0.8rem', fontSize: '0.74rem', fontWeight: 700,
+                    cursor: currentStepIdx === 0 ? 'not-allowed' : 'pointer',
+                    opacity: currentStepIdx === 0 ? 0.35 : 1, display: 'inline-flex', alignItems: 'center', gap: '0.3rem',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  ◀ Prev
+                </button>
+
+                {/* Pause / Resume */}
+                <button
+                  onClick={handleTogglePause}
+                  title={isPaused ? 'Resume synthesis' : 'Pause synthesis'}
+                  style={{
+                    background: isPaused ? 'var(--primary-lime)' : 'rgba(255,255,255,0.14)',
+                    color: isPaused ? 'var(--deep-charcoal)' : '#FFFFFF',
+                    border: `1px solid ${isPaused ? 'var(--primary-lime)' : 'rgba(255,255,255,0.25)'}`,
+                    borderRadius: '7px', padding: '0.5rem 1.15rem',
+                    fontSize: '0.82rem', fontWeight: 800, display: 'inline-flex', alignItems: 'center', gap: '0.4rem',
+                    cursor: 'pointer', transition: 'all 0.15s ease',
+                    boxShadow: isPaused ? '0 0 16px rgba(209,243,77,0.35)' : 'none'
+                  }}
+                >
+                  {isPaused ? <Play size={13} fill="currentColor" /> : <Pause size={13} />}
+                  {isPaused ? 'RESUME' : 'PAUSE'}
+                </button>
+
+                {/* Next Stage (Highlighted Action) */}
+                <button
+                  onClick={handleNextStage}
+                  disabled={currentStepIdx >= steps.length - 1}
+                  title="Fast-forward to next stage"
+                  style={{
+                    background: currentStepIdx >= steps.length - 1 ? 'rgba(255,255,255,0.05)' : 'linear-gradient(135deg, rgba(0,88,190,0.8) 0%, rgba(0,88,190,0.6) 100%)',
+                    color: '#FFFFFF',
+                    border: `1px solid ${currentStepIdx >= steps.length - 1 ? 'rgba(255,255,255,0.1)' : 'rgba(56,189,248,0.5)'}`,
+                    borderRadius: '7px',
+                    padding: '0.5rem 1rem', fontSize: '0.78rem', fontWeight: 800,
+                    cursor: currentStepIdx >= steps.length - 1 ? 'not-allowed' : 'pointer',
+                    opacity: currentStepIdx >= steps.length - 1 ? 0.35 : 1, display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                    boxShadow: currentStepIdx < steps.length - 1 ? '0 0 14px rgba(0,88,190,0.3)' : 'none',
+                    transition: 'all 0.15s ease'
+                  }}
+                >
+                  <span>NEXT STAGE</span>
+                  <SkipForward size={13} />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Right: THE DEDICATED EMERGENCY STOP BUTTON */}
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <button
+              onClick={handleEmergencyAbort}
+              disabled={!isRunning && isAborted}
+              title="Immediately isolate all heaters and brake motors"
+              style={{
+                background: isAborted ? '#3F0000' : 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                color: '#FFFFFF',
+                border: `2px solid ${isAborted ? '#7F1D1D' : '#FCA5A5'}`,
+                borderRadius: '9px',
+                padding: '0.55rem 1.25rem',
+                fontWeight: 900,
+                fontSize: '0.78rem',
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
+                cursor: isAborted ? 'default' : 'pointer',
+                boxShadow: isAborted ? 'none' : '0 0 20px rgba(239,68,68,0.55)',
+                transition: 'all 0.2s ease',
+              }}
+            >
+              <AlertOctagon size={16} />
+              {isAborted ? 'HALTED — RELAYS SAFE' : '🛑 STOP / HALT'}
+            </button>
           </div>
         </div>
       </div>
